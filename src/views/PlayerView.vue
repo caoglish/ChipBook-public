@@ -26,15 +26,25 @@
           <!-- 玩家名称输入框（只读模式用于编辑） -->
           <v-text-field 
             v-model="player.player_name" 
-            label="玩家名称" 
+            label="玩家固定名称" 
             :readonly="editingPlayer"
             :color="editingPlayer ? 'grey' : 'primary'"
             :dense="editingPlayer"
             class="readonly-text-field"
             required
           ></v-text-field>
-          <!-- 玩家显示名称输入框 -->
+          
+          <!-- 复选框：使玩家显示名称与玩家名称相同 -->
+          <v-checkbox
+            v-if="!editingPlayer"
+            v-model="sameName"
+            label="玩家显示名称与玩家固定名称相同"
+            @change="syncDisplayName"
+          ></v-checkbox>
+
+          <!-- 玩家显示名称输入框（当sameName为false时显示） -->
           <v-text-field 
+            v-if="!sameName||editingPlayer"
             v-model="player.player_display_name" 
             label="玩家显示名称" 
             required
@@ -75,7 +85,7 @@ export default defineComponent({
     return {
       headers: [
         { title: 'ID', key: 'id' },
-        { title: '玩家名称', key: 'player_name' },
+        { title: '玩家固定名称', key: 'player_name' },
         { title: '玩家显示名称', key: 'player_display_name' },
         { title: '操作', value: 'actions', sortable: false },
       ],
@@ -84,6 +94,7 @@ export default defineComponent({
       deleteDialog: false, // 控制删除确认对话框的显示
       editingPlayer: false, // 标识是否正在编辑玩家
       player: { player_name: '', player_display_name: '' }, // 当前编辑或添加的玩家对象
+      sameName: true, // 默认情况下为true，玩家显示名称与玩家固定名称相同
       confirmedDeleteId: null, // 存储即将删除的玩家ID
     };
   },
@@ -92,6 +103,7 @@ export default defineComponent({
       this.dialog = true;
       this.editingPlayer = false;
       this.player = { player_name: '', player_display_name: '' };
+      this.sameName = true; // 重置复选框状态，默认选中
     },
     closeDialog() {
       this.dialog = false;
@@ -103,6 +115,12 @@ export default defineComponent({
     closeDeleteDialog() {
       this.deleteDialog = false;
       this.confirmedDeleteId = null;
+    },
+    syncDisplayName() {
+      // 如果复选框被勾选，则同步玩家显示名称
+      if (this.sameName) {
+        this.player.player_display_name = this.player.player_name;
+      }
     },
     async fetchPlayers() {
       const playersCol = collection(db, 'players');
@@ -126,8 +144,11 @@ export default defineComponent({
         const playerRef = doc(db, 'players', this.player.id);
         await updateDoc(playerRef, { player_display_name: this.player.player_display_name });
       } else {
+        // 在保存新玩家时，如果复选框被勾选，则使显示名称与玩家固定名称相同
+        if (this.sameName) {
+          this.player.player_display_name = this.player.player_name;
+        }
         const newPlayer = {
-          player_id: '', // 自动生成或设置为唯一ID
           player_name: this.player.player_name,
           player_display_name: this.player.player_display_name,
         };
@@ -143,12 +164,11 @@ export default defineComponent({
 });
 </script>
 
-<style >
+<style>
 .v-btn {
   margin: 10px;
 }
-.readonly-text-field input.v-field__input {
+.readonly-text-field .v-input__control {
   color: grey !important; /* 设置文字颜色为灰色 */
-  
 }
 </style>
