@@ -28,7 +28,7 @@
       <template #item.actions="{ item }">
         <v-btn @click="buyIn(item)">买入</v-btn>
         <v-btn @click="setRemaining(item)">剩余</v-btn>
-        <v-btn @click="refundChips(item)">退码</v-btn>
+        <v-btn @click="refund(item)">退码</v-btn>
       </template>
     </v-data-table>
 
@@ -75,7 +75,7 @@
     <!-- 退码手数对话框 -->
     <v-dialog v-model="refundDialog" max-width="400px">
       <v-card>
-        <v-card-title>退码</v-card-title>
+        <v-card-title>玩家退码</v-card-title>
         <v-card-text>
           <v-text-field v-model="refundAmount" label="退码手数" type="number"></v-text-field>
         </v-card-text>
@@ -85,7 +85,6 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
-
   </div>
 </template>
 
@@ -100,12 +99,12 @@ export default defineComponent({
   name: "GameManagement",
   data() {
     return {
-      games: [],
+      games: [], // 当天的游戏列表
       currentGame: null,
       addPlayersDialog: false,
       buyInDialog: false,
       refundDialog: false,
-      allPlayers: [],
+      allPlayers: [], // 所有玩家列表
       selectedPlayers: [],
       players: [],
       logs: [],
@@ -126,7 +125,7 @@ export default defineComponent({
         { title: '剩余筹码', key: 'remaining_chips' },
         { title: '胜负筹码', key: 'win_loss_chips' },
         { title: '胜负金额', key: 'win_loss_amount' },
-        { ttitleext: '操作', value: 'actions', sortable: false }
+        { title: '操作', value: 'actions', sortable: false }
       ],
       logHeaders: [
         { title: '时间', key: 'date' },
@@ -137,75 +136,94 @@ export default defineComponent({
   },
   methods: {
     async fetchTodayGames() {
-      const today = new Date().toLocaleDateString();
-      const gamesRef = collection(db, 'games');
-      const q = query(gamesRef, where('created_at', '>=', today));
-      
-      const querySnapshot = await getDocs(q);
-      this.games = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      try {
+        const today = new Date().toLocaleDateString();
+        const gamesRef = collection(db, 'games');
+        const q = query(gamesRef, where('created_at', '>=', today));
+        const querySnapshot = await getDocs(q);
+        this.games = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      } catch (error) {
+        console.error("Error fetching today's games:", error);
+        alert("无法加载当天的游戏，请重试。");
+      }
     },
     async selectGame(game) {
       this.currentGame = game;
       await this.fetchInGamePlayers();
     },
     async createNewGame() {
-      const gameData = {
-        created_at: new Date().toLocaleString(),
-        chips_per_hand: 500,
-        amount_per_hand: 50,
-      };
-      const gameRef = await addDoc(collection(db, 'games'), gameData);
-      this.currentGame = { id: gameRef.id, ...gameData };
+      try {
+        const gameData = {
+          created_at: new Date().toLocaleString(),
+          chips_per_hand: 500,
+          amount_per_hand: 50,
+        };
+        const gameRef = await addDoc(collection(db, 'games'), gameData);
+        this.currentGame = { id: gameRef.id, ...gameData };
+      } catch (error) {
+        console.error("Error creating new game:", error);
+        alert("无法创建新游戏，请重试。");
+      }
     },
     openAddPlayersDialog() {
       this.addPlayersDialog = true;
     },
     async addPlayersToGame() {
-      this.addPlayersDialog = false;
-      const gameRef = doc(db, 'games', this.currentGame.id);
-      const currentPlayerCount = this.players.length;
+      try {
+        this.addPlayersDialog = false;
+        const gameRef = doc(db, 'games', this.currentGame.id);
+        const currentPlayerCount = this.players.length;
 
-      for (const playerId of this.selectedPlayers) {
-        if (this.players.some(p => p.player_id === playerId)) {
-          continue;
+        for (const playerId of this.selectedPlayers) {
+          if (this.players.some(p => p.player_id === playerId)) {
+            continue; 
+          }
+          const player = this.allPlayers.find(p => p.id === playerId);
+          const playerIndex = this.players.length + 1;
+          const newPlayerData = {
+            player_id: playerId,
+            player_name: player.player_name,
+            player_display_name: player.player_display_name,
+            hands_bought: 0,
+            chips_bought: 0,
+            amount_bought: 0,
+            remaining_chips: 0,
+            win_loss_chips: 0,
+            win_loss_amount: 0,
+            logs: []
+          };
+          await setDoc(doc(gameRef, 'players', `Player_${playerIndex}`), newPlayerData);
+          this.players.push(newPlayerData);
         }
-        const player = this.allPlayers.find(p => p.id === playerId);
-        const playerIndex = this.players.length + 1;
-        const newPlayerData = {
-          player_id: playerId,
-          player_name: player.player_name,
-          player_display_name: player.player_display_name,
-          hands_bought: 0,
-          chips_bought: 0,
-          amount_bought: 0,
-          remaining_chips: 0,
-          win_loss_chips: 0,
-          win_loss_amount: 0,
-          logs: []
-        };
-        await setDoc(doc(gameRef, 'players', `Player_${playerIndex}`), newPlayerData);
-        this.players.push(newPlayerData);
+      } catch (error) {
+        console.error("Error adding players to game:", error);
+        alert("无法添加玩家，请重试。");
       }
     },
     buyIn(player) {
       this.currentPlayerId = player.player_id;
       this.buyInDialog = true;
     },
-    refundChips(player) {
+    refund(player) {
       this.currentPlayerId = player.player_id;
       this.refundDialog = true;
     },
     async fetchPlayerById(playerId) {
-      const gameRef = doc(db, 'games', this.currentGame.id);
-      const playersRef = collection(gameRef, 'players');
-      const q = query(playersRef, where('player_id', '==', playerId));
-      
-      const querySnapshot = await getDocs(q);
-      if (!querySnapshot.empty) {
-        const playerDoc = querySnapshot.docs[0];
-        return { id: playerDoc.id, data: playerDoc.data() };
-      } else {
-        console.log('No player found with the given ID');
+      try {
+        const gameRef = doc(db, 'games', this.currentGame.id);
+        const playersRef = collection(gameRef, 'players');
+        const q = query(playersRef, where('player_id', '==', playerId));
+        const querySnapshot = await getDocs(q);
+        if (!querySnapshot.empty) {
+          const playerDoc = querySnapshot.docs[0];
+          return { id: playerDoc.id, data: playerDoc.data() };
+        } else {
+          console.log('No player found with the given ID');
+          return null;
+        }
+      } catch (error) {
+        console.error("Error fetching player by ID:", error);
+        alert("无法获取玩家信息，请重试。");
         return null;
       }
     },
@@ -214,39 +232,39 @@ export default defineComponent({
 
       if (this.currentPlayerId && buyin > 0) {
         const playerResult = await this.fetchPlayerById(this.currentPlayerId);
-        console.log("playerResult:", playerResult);
-
         if (playerResult) {
           const playerData = playerResult.data;
           const playerDocId = playerResult.id;
-          console.log(playerData);
-
           const newHandsBought = playerData.hands_bought + buyin;
           const newChipsBought = newHandsBought * this.currentGame.chips_per_hand;
           const newAmountBought = newHandsBought * this.currentGame.amount_per_hand;
 
-          const gameRef = doc(db, 'games', this.currentGame.id);
-          const playerRef = doc(collection(gameRef, 'players'), playerDocId);
+          try {
+            const gameRef = doc(db, 'games', this.currentGame.id);
+            const playerRef = doc(collection(gameRef, 'players'), playerDocId);
+            await updateDoc(playerRef, {
+              hands_bought: newHandsBought,
+              chips_bought: newChipsBought,
+              amount_bought: newAmountBought,
+              logs: arrayUnion({
+                date: new Date().toLocaleString(),
+                action: 'buyin',
+                hands_bought: this.buyInAmount,
+                timestamp: new Date().toISOString()
+              })
+            });
 
-          await updateDoc(playerRef, {
-            hands_bought: newHandsBought,
-            chips_bought: newChipsBought,
-            amount_bought: newAmountBought,
-            logs: arrayUnion({
-              date: new Date().toLocaleString(),
-              action: 'buyin',
-              hands_bought: this.buyInAmount,
-              timestamp: new Date().toISOString()
-            })
-          });
-
-          const player = this.players.find(p => p.player_id === this.currentPlayerId);
-          player.hands_bought = newHandsBought;
-          player.chips_bought = newChipsBought;
-          player.amount_bought = newAmountBought;
-          
-          this.buyInDialog = false;
-          this.buyInAmount = 0;
+            const player = this.players.find(p => p.player_id === this.currentPlayerId);
+            player.hands_bought = newHandsBought;
+            player.chips_bought = newChipsBought;
+            player.amount_bought = newAmountBought;
+            
+            this.buyInDialog = false;
+            this.buyInAmount = 0;
+          } catch (error) {
+            console.error("Error updating buy-in data:", error);
+            alert("买入操作失败，请重试。");
+          }
         }
       }
     },
@@ -255,44 +273,44 @@ export default defineComponent({
 
       if (this.currentPlayerId && refund > 0) {
         const playerResult = await this.fetchPlayerById(this.currentPlayerId);
-        console.log("playerResult:", playerResult);
-
         if (playerResult) {
           const playerData = playerResult.data;
           const playerDocId = playerResult.id;
-          console.log(playerData);
+          const newHandsBought = Math.max(playerData.hands_bought - refund, 0);
 
-          const newHandsBought = playerData.hands_bought - refund;
           if (newHandsBought < 0) {
             alert("退码手数不能超过当前买入手数！");
             return;
           }
-
           const newChipsBought = newHandsBought * this.currentGame.chips_per_hand;
           const newAmountBought = newHandsBought * this.currentGame.amount_per_hand;
 
-          const gameRef = doc(db, 'games', this.currentGame.id);
-          const playerRef = doc(collection(gameRef, 'players'), playerDocId);
+          try {
+            const gameRef = doc(db, 'games', this.currentGame.id);
+            const playerRef = doc(collection(gameRef, 'players'), playerDocId);
+            await updateDoc(playerRef, {
+              hands_bought: newHandsBought,
+              chips_bought: newChipsBought,
+              amount_bought: newAmountBought,
+              logs: arrayUnion({
+                date: new Date().toLocaleString(),
+                action: 'refund',
+                hands_refunded: refund,
+                timestamp: new Date().toISOString()
+              })
+            });
 
-          await updateDoc(playerRef, {
-            hands_bought: newHandsBought,
-            chips_bought: newChipsBought,
-            amount_bought: newAmountBought,
-            logs: arrayUnion({
-              date: new Date().toLocaleString(),
-              action: 'refund',
-              hands_refunded: refund,
-              timestamp: new Date().toISOString()
-            })
-          });
-
-          const player = this.players.find(p => p.player_id === this.currentPlayerId);
-          player.hands_bought = newHandsBought;
-          player.chips_bought = newChipsBought;
-          player.amount_bought = newAmountBought;
-          
-          this.refundDialog = false;
-          this.refundAmount = 0;
+            const player = this.players.find(p => p.player_id === this.currentPlayerId);
+            player.hands_bought = newHandsBought;
+            player.chips_bought = newChipsBought;
+            player.amount_bought = newAmountBought;
+            
+            this.refundDialog = false;
+            this.refundAmount = 0;
+          } catch (error) {
+            console.error("Error updating refund data:", error);
+            alert("退码操作失败，请重试。");
+          }
         }
       }
     },
@@ -300,18 +318,28 @@ export default defineComponent({
       // 处理剩余逻辑
     },
     async fetchPlayers() {
-      const playersSnapshot = await getDocs(collection(db, 'players'));
-      this.allPlayers = playersSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      try {
+        const playersSnapshot = await getDocs(collection(db, 'players'));
+        this.allPlayers = playersSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      } catch (error) {
+        console.error("Error fetching players:", error);
+        alert("无法加载玩家列表，请重试。");
+      }
     },
     async fetchInGamePlayers() {
-      const gameRef = doc(db, 'games', this.currentGame.id);
-      const inGamePlayersSnapshot = await getDocs(collection(gameRef, 'players'));
-      this.players = inGamePlayersSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      try {
+        const gameRef = doc(db, 'games', this.currentGame.id);
+        const inGamePlayersSnapshot = await getDocs(collection(gameRef, 'players'));
+        this.players = inGamePlayersSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      } catch (error) {
+        console.error("Error fetching in-game players:", error);
+        alert("无法加载当前游戏中的玩家，请重试。");
+      }
     },
   },
   created() {
-    this.fetchTodayGames(); 
-    this.fetchPlayers(); 
+    this.fetchTodayGames();
+    this.fetchPlayers();
   },
 });
 </script>
