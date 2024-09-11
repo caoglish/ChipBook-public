@@ -144,7 +144,7 @@ export default defineComponent({
       allPlayers: [], // 所有玩家列表
       selectedPlayers: [],
       players: [],
-      logs: [],
+      
       combinedLogs: [], // 组合的日志列表
       buyInAmount: 0,
       refundAmount: 0, // 退码手数
@@ -204,12 +204,19 @@ export default defineComponent({
           amount_per_hand: 50,
         };
         const gameRef = await addDoc(collection(db, "games"), gameData);
+		this.resetGame();
         this.currentGame = { id: gameRef.id, ...gameData };
+		
       } catch (error) {
         console.error("Error creating new game:", error);
         alert("无法创建新游戏，请重试。");
       }
     },
+	resetGame(){
+		this.players= [];
+		this.selectedPlayers= [];
+		this.combinedLogs= [];
+	},
     openAddPlayersDialog() {
       this.addPlayersDialog = true;
     },
@@ -223,15 +230,16 @@ export default defineComponent({
           if (this.players.some((p) => p.player_id === playerId)) {
             continue;
           }
+		 
           const player = this.allPlayers.find((p) => p.id === playerId);
           const playerIndex = this.players.length + 1;
           const newPlayerData = {
             player_id: playerId,
             player_name: player.player_name,
             player_display_name: player.player_display_name,
-            hands_bought: 0,
-            chips_bought: 0,
-            amount_bought: 0,
+            hands_bought: 1,
+            chips_bought: this.currentGame.chips_per_hand,
+            amount_bought: this.currentGame.amount_per_hand,
             remaining_chips: null,
             win_loss_chips: "未计算",
             win_loss_amount: "未计算",
