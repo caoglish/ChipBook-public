@@ -320,6 +320,8 @@ export default defineComponent({
               }),
             });
 
+			this.fetchAllPlayerLogs();
+
             const player = this.players.find(
               (p) => p.player_id === this.currentPlayerId
             );
@@ -387,6 +389,8 @@ export default defineComponent({
               }),
             });
 
+			this.fetchAllPlayerLogs();
+
             const player = this.players.find(
               (p) => p.player_id === this.currentPlayerId
             );
@@ -436,6 +440,8 @@ export default defineComponent({
               }),
             });
 
+			this.fetchAllPlayerLogs();
+
             const player = this.players.find(
               (p) => p.player_id === this.currentPlayerId
             );
@@ -465,6 +471,8 @@ export default defineComponent({
 
     async fetchAllPlayerLogs() {
       try {
+
+		// 获取当前游戏中的所有玩家日志
         const gameRef = doc(db, "games", this.currentGame.id);
         const combinedLogs = [];
 
@@ -480,7 +488,11 @@ export default defineComponent({
 			const logs=currentpalyer.logs.map((item)=>({
 				...item,
 				player_display_name: currentpalyer.player_display_name,
-                player_id: currentpalyer.player_id
+                player_id: currentpalyer.player_id,
+				details: {'remaining_chips':item.remaining_chips,
+							'hands_bought':item.hands_bought,
+							'hands_refunded':item.hands_refunded
+				}
 			}
 			));
 			
@@ -491,31 +503,8 @@ export default defineComponent({
 		this.sortLogs();
 
 
-        // 获取当前游戏中的所有玩家日志
-        // for (const player of this.players) {
-		// 	 const playersSnapshot = await getDocs(collection(db, "players"));
-        // this.allPlayers = playersSnapshot.docs.map((doc) => ({
-        //   id: doc.id,
-        //   ...doc.data(),
-        // }));
-        //   const playerRef = getDocs(collection(gameRef,"players"))
-          
-        //   const playerDoc = await getDoc(playerRef);
-        //   const playerData = playerDoc.data();
+        
 
-        //   if (playerData && playerData.logs) {
-        //     for (const log of playerData.logs) {
-        //       combinedLogs.push({
-        //         ...log,
-        //         player_display_name: player.player_display_name,
-        //         player_id: player.player_id,
-        //       });
-        //     }
-        //   }
-        // }
-
-        // this.combinedLogs = combinedLogs;
-        // this.sortLogs();
       } catch (error) {
         console.error("Error fetching all player logs:", error);
         alert("无法加载所有玩家日志，请重试。");
@@ -574,6 +563,7 @@ export default defineComponent({
   created() {
     this.fetchTodayGames();
     this.fetchPlayers();
+	
   },
 });
 </script>
