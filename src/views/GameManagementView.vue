@@ -85,6 +85,20 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+
+    <!-- 剩余筹码对话框 -->
+    <v-dialog v-model="remainingDialog" max-width="400px">
+      <v-card>
+        <v-card-title>设置剩余筹码</v-card-title>
+        <v-card-text>
+          <v-text-field v-model="remainingAmount" label="剩余筹码数" type="number"></v-text-field>
+        </v-card-text>
+        <v-card-actions>
+          <v-btn color="blue darken-1" @click="confirmRemaining">确认</v-btn>
+          <v-btn color="grey darken-1" @click="remainingDialog = false">取消</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </div>
 </template>
 
@@ -104,12 +118,14 @@ export default defineComponent({
       addPlayersDialog: false,
       buyInDialog: false,
       refundDialog: false,
+      remainingDialog: false,
       allPlayers: [], // 所有玩家列表
       selectedPlayers: [],
       players: [],
       logs: [],
       buyInAmount: 0,
       refundAmount: 0, // 退码手数
+      remainingAmount: 0, // 剩余筹码数
       currentPlayerId: null,
       gameHeaders: [
         { title: '游戏ID', key: 'id' },
@@ -208,6 +224,10 @@ export default defineComponent({
       this.currentPlayerId = player.player_id;
       this.refundDialog = true;
     },
+    setRemaining(player) {
+      this.currentPlayerId = player.player_id;
+      this.remainingDialog = true;
+    },
     async fetchPlayerById(playerId) {
       try {
         const gameRef = doc(db, 'games', this.currentGame.id);
@@ -238,6 +258,7 @@ export default defineComponent({
           const newHandsBought = playerData.hands_bought + buyin;
           const newChipsBought = newHandsBought * this.currentGame.chips_per_hand;
           const newAmountBought = newHandsBought * this.currentGame.amount_per_hand;
+          const winLossChips = this.calculateWinLossChips(newChipsBought, playerData.remaining_chips);
 
           try {
             const gameRef = doc(db, 'games', this.currentGame.id);
@@ -246,6 +267,8 @@ export default defineComponent({
               hands_bought: newHandsBought,
               chips_bought: newChipsBought,
               amount_bought: newAmountBought,
+              win_loss_chips: winLossChips,
+              win_loss_amount: this.calculateWinLossAmount(winLossChips),
               logs: arrayUnion({
                 date: new Date().toLocaleString(),
                 action: 'buyin',
@@ -258,6 +281,8 @@ export default defineComponent({
             player.hands_bought = newHandsBought;
             player.chips_bought = newChipsBought;
             player.amount_bought = newAmountBought;
+            player.win_loss_chips = winLossChips;
+            player.win_loss_amount = this.calculateWinLossAmount(winLossChips);
             
             this.buyInDialog = false;
             this.buyInAmount = 0;
@@ -284,6 +309,7 @@ export default defineComponent({
           }
           const newChipsBought = newHandsBought * this.currentGame.chips_per_hand;
           const newAmountBought = newHandsBought * this.currentGame.amount_per_hand;
+          const winLossChips = this.calculateWinLossChips(newChipsBought, playerData.remaining_chips);
 
           try {
             const gameRef = doc(db, 'games', this.currentGame.id);
@@ -292,6 +318,8 @@ export default defineComponent({
               hands_bought: newHandsBought,
               chips_bought: newChipsBought,
               amount_bought: newAmountBought,
+              win_loss_chips: winLossChips,
+              win_loss_amount: this.calculateWinLossAmount(winLossChips),
               logs: arrayUnion({
                 date: new Date().toLocaleString(),
                 action: 'refund',
@@ -304,6 +332,8 @@ export default defineComponent({
             player.hands_bought = newHandsBought;
             player.chips_bought = newChipsBought;
             player.amount_bought = newAmountBought;
+            player.win_loss_chips = winLossChips;
+            player.win_loss_amount = this.calculateWinLossAmount(winLossChips);
             
             this.refundDialog = false;
             this.refundAmount = 0;
@@ -314,8 +344,52 @@ export default defineComponent({
         }
       }
     },
-    setRemaining(player) {
-      // 处理剩余逻辑
+    async confirmRemaining() {
+      let remaining = parseInt(this.remainingAmount, 10);
+
+      if (this.currentPlayerId && remaining >= 0) {
+        const playerResult = await this.fetchPlayerById(this.currentPlayerId);
+        if (playerResult) {
+          const playerData = playerResult.data;
+          const playerDocId = playerResult.id;
+          const winLossChips = this.calculateWinLossChips(playerData.chips_bought, remaining);
+
+          try {
+            const gameRef = doc(db, 'games', this.currentGame.id);
+            const playerRef = doc(collection(gameRef, 'players'), playerDocId);
+            await updateDoc(playerRef, {
+              remaining_chips: remaining,
+              win_loss_chips: winLossChips,
+              win_loss_amount: this.calculateWinLossAmount(winLossChips),
+              logs: arrayUnion({
+                date: new Date().toLocaleString(),
+                action: 'setRemaining',
+                remaining_chips: remaining,
+                timestamp: new Date().toISOString()
+              })
+            });
+
+            const player = this.players.find(p => p.player_id === this.currentPlayerId);
+            player.remaining_chips = remaining;
+            player.win_loss_chips = winLossChips;
+            player.win_loss_amount = this.calculateWinLossAmount(winLossChips);
+            
+            this.remainingDialog = false;
+            this.remainingAmount = 0;
+          } catch (error) {
+            console.error("Error updating remaining chips:", error);
+            alert("更新剩余筹码失败，请重试。");
+          }
+        }
+      }
+    },
+    calculateWinLossChips(chipsBought, remainingChips) {
+      // 计算胜负筹码
+      return chipsBought - remainingChips;
+    },
+    calculateWinLossAmount(winLossChips) {
+      // 计算胜负金额
+      return winLossChips * (this.currentGame.amount_per_hand / this.currentGame.chips_per_hand);
     },
     async fetchPlayers() {
       try {
