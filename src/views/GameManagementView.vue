@@ -128,6 +128,8 @@ import {
   arrayUnion,
 } from "firebase/firestore";
 import firebaseDb from "@/Lib/FirebaseDb";
+import playerHelper from "@/Lib/PlayerHelper";
+
 
 const db = firebaseDb;
 
@@ -232,7 +234,7 @@ export default defineComponent({
           }
 		 
           const player = this.allPlayers.find((p) => p.id === playerId);
-          const playerIndex = this.players.length + 1;
+          //const playerIndex = this.players.length + 1;
           const newPlayerData = {
             player_id: playerId,
             player_name: player.player_name,
@@ -245,11 +247,15 @@ export default defineComponent({
             win_loss_amount: "未计算",
             logs: [],
           };
+		  console.log("players",this.players);
+		  const playerIndex=playerHelper.getNextPlayerId(this.players);
+		  console.log("playerIndex",playerIndex);
           await setDoc(
-            doc(gameRef, "players", `Player_${playerIndex}`),
+            doc(gameRef, "players", playerIndex),
             newPlayerData
           );
-          this.players.push(newPlayerData);
+		  await  this.fetchInGamePlayers();
+          
         }
       } catch (error) {
         console.error("Error adding players to game:", error);
@@ -323,7 +329,7 @@ export default defineComponent({
               logs: arrayUnion({
                 date: new Date().toLocaleString(),
                 action: "buyin",
-                hands_bought: this.buyInAmount,
+                hands: this.buyInAmount,
                 timestamp: new Date().toISOString(),
               }),
             });
@@ -359,7 +365,7 @@ export default defineComponent({
         if (playerResult) {
           const playerData = playerResult.data;
           const playerDocId = playerResult.id;
-          const newHandsBought = Math.max(playerData.hands_bought - refund, 0);
+          const newHandsBought = playerData.hands_bought - refund;
 
           if (newHandsBought < 0) {
             alert("退码手数不能超过当前买入手数！");
@@ -392,7 +398,7 @@ export default defineComponent({
               logs: arrayUnion({
                 date: new Date().toLocaleString(),
                 action: "refund",
-                hands_refunded: refund,
+                hands: refund,
                 timestamp: new Date().toISOString(),
               }),
             });
@@ -443,7 +449,7 @@ export default defineComponent({
               logs: arrayUnion({
                 date: new Date().toLocaleString(),
                 action: "setRemaining",
-                remaining_chips: remaining,
+                chips: remaining,
                 timestamp: new Date().toISOString(),
               }),
             });
@@ -468,7 +474,7 @@ export default defineComponent({
     },
 
     calculateWinLossChips(chipsBought, remainingChips) {
-      return chipsBought - remainingChips;
+      return  remainingChips- chipsBought;
     },
     calculateWinLossAmount(winLossChips) {
       return (
@@ -497,9 +503,9 @@ export default defineComponent({
 				...item,
 				player_display_name: currentpalyer.player_display_name,
                 player_id: currentpalyer.player_id,
-				details: {'remaining_chips':item.remaining_chips,
-							'hands_bought':item.hands_bought,
-							'hands_refunded':item.hands_refunded
+				details: {'remaining chips':item.action=='setRemaining'?item.chips:undefined,
+							'buy in':item.action=='buyin'?item.hands:undefined,
+							'refund hands':item.action=='refund'?item.hands:undefined
 				}
 			}
 			));
