@@ -11,52 +11,61 @@
     <!-- 创建新德州局按钮 -->
     <v-btn v-if="!gameId" color="primary" @click="createNewGame">创建新德州局</v-btn>
 
-    <!-- 显示当前局信息 -->
-    <div v-if="currentGame">
-      <h2>当前局信息</h2>
-      <p>session id: {{ currentGame.id }}</p>
-      <p>创建时间: {{ currentGame.created_at }}</p>
-      <p>一手筹码数: {{ currentGame.chips_per_hand }}</p>
-      <p>每手金额: {{ currentGame.amount_per_hand }}</p>
+    <div ref="gameInfo" class="print-container" v-if="currentGame">
+      <!-- 显示当前局信息 -->
+      <div v-if="currentGame">
+        <h2>当前局信息</h2>
+        <p>session id: {{ currentGame.id }}</p>
+        <p>创建时间: {{ currentGame.created_at }}</p>
+        <p>一手筹码数: {{ currentGame.chips_per_hand }}</p>
+        <p>每手金额: {{ currentGame.amount_per_hand }}</p>
 
-      <!-- 加入玩家按钮 -->
-      <v-btn color="secondary" @click="openAddPlayersDialog">加入玩家</v-btn>
+        <!-- 加入玩家按钮 -->
+        <v-btn color="secondary" @click="openAddPlayersDialog">加入玩家</v-btn>
+      </div>
+
+      <!-- 玩家信息表格 -->
+      <v-data-table v-if="currentGame" :headers="playerHeaders" :items="players" :items-per-page="-1" class="mt-4 player-table" >
+        <template #item.actions="{ item }">
+          <v-btn @click="buyIn(item)">买入</v-btn>
+          <v-btn @click="setRemaining(item)">剩余</v-btn>
+          <v-btn @click="refund(item)">退码</v-btn>
+        </template>
+        <template #item.remaining_chips="{ item }">
+          <span>{{ item.remaining_chips !== null ? item.remaining_chips : '未输入' }}</span>
+        </template>
+        <template #item.win_loss_chips="{ item }">
+          <span>{{ item.remaining_chips !== null ? item.win_loss_chips : '未计算' }}</span>
+        </template>
+        <template #item.win_loss_amount="{ item }">
+          <span>{{ item.remaining_chips !== null ? item.win_loss_amount : '未计算' }}</span>
+        </template>
+      </v-data-table>
+
+      <!-- 总结表格 -->
+      <h3>总结</h3>
+      <v-data-table :headers="summaryHeaders" :items="[summaryData]" :hide-default-footer="1"  class="mt-4">
+        <template #item.is_zero="{ item }">
+          <span :style="{ color: item.is_zero ? 'green' : 'red' }">{{ item.is_zero ? '是' : '否' }}</span>
+        </template>
+		 <template #item.game_status="{ item }">
+          <span :style="{ color: item.isWinLossCalculated ? 'green' : 'red' }">
+            {{ item.game_status }}
+          </span>
+        </template>
+      </v-data-table>
+
+
+      <!-- 日志记录表格 -->
+      <h3>日志记录</h3>
+      <!-- 切换显示模式的按钮 -->
+      <v-btn color="primary" @click="sortLogsByPlayer">按玩家排序</v-btn>
+      <v-btn color="secondary" @click="sortLogsByTime">按时间排序</v-btn>
+      <v-data-table :headers="logHeaders" :items="combinedLogs" :items-per-page="-1"  :hide-default-footer="1" class="mt-4"></v-data-table>
     </div>
 
-    <!-- 玩家信息表格 -->
-    <v-data-table v-if="currentGame" :headers="playerHeaders" :items="players" class="mt-4">
-      <template #item.actions="{ item }">
-        <v-btn @click="buyIn(item)">买入</v-btn>
-        <v-btn @click="setRemaining(item)">剩余</v-btn>
-        <v-btn @click="refund(item)">退码</v-btn>
-      </template>
-      <template #item.remaining_chips="{ item }">
-        <span>{{ item.remaining_chips !== null ? item.remaining_chips : '未输入' }}</span>
-      </template>
-      <template #item.win_loss_chips="{ item }">
-        <span>{{ item.remaining_chips !== null ? item.win_loss_chips : '未计算' }}</span>
-      </template>
-      <template #item.win_loss_amount="{ item }">
-        <span>{{ item.remaining_chips !== null ? item.win_loss_amount : '未计算' }}</span>
-      </template>
-    </v-data-table>
-
-	<!-- 总结表格 -->
-    <h3>总结</h3>
-    <v-data-table :headers="summaryHeaders" :items="[summaryData]" class="mt-4">
-      <template #item.is_zero="{ item }">
-        <span :style="{ color: item.is_zero ? 'green' : 'red' }">
-          {{ item.is_zero ? '是' : '否' }}
-        </span>
-      </template>
-    </v-data-table>
-
-    <!-- 日志记录表格 -->
-    <h3>日志记录</h3>
-    <!-- 切换显示模式的按钮 -->
-    <v-btn color="primary" @click="sortLogsByPlayer">按玩家排序</v-btn>
-    <v-btn color="secondary" @click="sortLogsByTime">按时间排序</v-btn>
-    <v-data-table :headers="logHeaders" :items="combinedLogs" class="mt-4"></v-data-table>
+	      <!-- 打印按钮 -->
+      <v-btn color="primary" @click="printGameInfo">打印游戏信息</v-btn>
 
     <!-- 添加玩家对话框 -->
     <v-dialog v-model="addPlayersDialog" max-width="500px">
@@ -126,6 +135,7 @@
 
 <script>
 import { defineComponent } from "vue";
+import html2canvas from "html2canvas"; // 引入html2canvas库
 import {
   collection,
   addDoc,
@@ -169,7 +179,7 @@ export default defineComponent({
       refundAmount: 0, // 退码手数
       remainingAmount: 0, // 剩余筹码数
       currentPlayerId: null,
-	   
+
       gameHeaders: [
         { title: "游戏ID", key: "id" },
         { title: "创建时间", key: "created_at" },
@@ -192,7 +202,7 @@ export default defineComponent({
         { title: "玩家名称", key: "player_display_name" },
         { title: "详细信息", key: "details" },
       ],
-	   summaryHeaders: [
+      summaryHeaders: [
         { title: "总人数", key: "total_players" },
         { title: "总买入手数", key: "total_hands_bought" },
         { title: "总买入筹码", key: "total_chips_bought" },
@@ -201,6 +211,7 @@ export default defineComponent({
         { title: "总胜负筹码", key: "total_win_loss_chips" },
         { title: "总胜负金额", key: "total_win_loss_amount" },
         { title: "胜负筹码为0?", key: "is_zero" },
+		{ title: "游戏状态", key: "game_status" },
       ],
       sortByPlayer: true, // 是否按玩家排序的标志
     };
@@ -208,13 +219,39 @@ export default defineComponent({
   computed: {
     summaryData() {
       const totalPlayers = this.players.length;
-      const totalHandsBought = this.players.reduce((sum, player) => sum + player.hands_bought, 0);
-      const totalChipsBought = this.players.reduce((sum, player) => sum + player.chips_bought, 0);
-      const totalAmountBought = this.players.reduce((sum, player) => sum + player.amount_bought, 0);
-      const totalRemainingChips = this.players.reduce((sum, player) => sum + (player.remaining_chips || 0), 0);
-      const totalWinLossChips = this.players.reduce((sum, player) => sum + (player.win_loss_chips !== "未计算" ? player.win_loss_chips : 0), 0);
-      const totalWinLossAmount = this.players.reduce((sum, player) => sum + (player.win_loss_amount !== "未计算" ? player.win_loss_amount : 0), 0);
-      const isZero = totalWinLossChips === 0;
+      const totalHandsBought = this.players.reduce(
+        (sum, player) => sum + player.hands_bought,
+        0
+      );
+      const totalChipsBought = this.players.reduce(
+        (sum, player) => sum + player.chips_bought,
+        0
+      );
+      const totalAmountBought = this.players.reduce(
+        (sum, player) => sum + player.amount_bought,
+        0
+      );
+      const totalRemainingChips = this.players.reduce(
+        (sum, player) => sum + (player.remaining_chips || 0),
+        0
+      );
+      const totalWinLossChips = this.players.reduce(
+        (sum, player) =>
+          sum +
+          (player.win_loss_chips !== "未计算" ? player.win_loss_chips : 0),
+        0
+      );
+      const totalWinLossAmount = this.players.reduce(
+        (sum, player) =>
+          sum +
+          (player.win_loss_amount !== "未计算" ? player.win_loss_amount : 0),
+        0
+      );
+
+      // 检查是否所有的 win_loss_chips 都已计算
+      const isWinLossCalculated = this.players.every(player => player.win_loss_chips !== "未计算");
+	  console.log(isWinLossCalculated);
+      const isZero = isWinLossCalculated && totalWinLossChips === 0;
 
       return {
         total_players: totalPlayers,
@@ -225,10 +262,35 @@ export default defineComponent({
         total_win_loss_chips: totalWinLossChips,
         total_win_loss_amount: totalWinLossAmount,
         is_zero: isZero,
+		isWinLossCalculated,
+		game_status: isWinLossCalculated ? '游戏结束' : '游戏未结束'
       };
     },
   },
   methods: {
+    async printGameInfo() {
+      const gameInfoElement = this.$refs.gameInfo; // 获取需要截图的元素
+      if (gameInfoElement) {
+        try {
+           const canvas = await html2canvas(gameInfoElement, {
+            scrollX: 0,
+            scrollY: 0,
+            windowWidth: document.documentElement.clientWidth,
+            windowHeight: document.documentElement.scrollHeight,
+          });
+          const imgData = canvas.toDataURL("image/png");
+
+          // 创建一个新的窗口并打印图像
+          const printWindow = window.open("", "_blank");
+          printWindow.document.write(`<img src="${imgData}" />`);
+          printWindow.document.close();
+          
+        } catch (error) {
+          console.error("Error generating image:", error);
+          alert("无法生成游戏信息的图片，请重试。");
+        }
+      }
+    },
     async fetchTodayGames() {
       try {
         const today = new Date().toLocaleDateString();
@@ -248,7 +310,6 @@ export default defineComponent({
       this.currentGame = await this.fetchGameById(gameId);
       await this.fetchInGamePlayers();
       await this.fetchAllPlayerLogs();
-	
     },
     async fetchGameById(gameId) {
       try {
@@ -630,7 +691,7 @@ export default defineComponent({
     },
   },
   async created() {
-	console.log(this.gameId);
+    console.log(this.gameId);
     if (this.gameId) {
       // 如果提供了gameId，直接加载该游戏的信息
       await this.selectGame(this.gameId);
@@ -643,8 +704,18 @@ export default defineComponent({
 });
 </script>
 
-<style scoped>
+<style >
 .v-btn {
   margin: 10px;
+}
+.print-container {
+  width: 100%;
+  overflow: visible; /* 确保内容不被裁剪 */
+}
+
+/* 为玩家信息表格的每个单元格添加边框样式 */
+.player-table .v-table__wrapper td {
+  border: 1px solid #ddd!important; /* 添加边框 */
+  padding: 8px; /* 增加内边距 */
 }
 </style>
