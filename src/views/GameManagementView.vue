@@ -169,7 +169,7 @@ export default defineComponent({
       refundAmount: 0, // 退码手数
       remainingAmount: 0, // 剩余筹码数
       currentPlayerId: null,
-	   summaryData: {},
+	   
       gameHeaders: [
         { title: "游戏ID", key: "id" },
         { title: "创建时间", key: "created_at" },
@@ -205,6 +205,29 @@ export default defineComponent({
       sortByPlayer: true, // 是否按玩家排序的标志
     };
   },
+  computed: {
+    summaryData() {
+      const totalPlayers = this.players.length;
+      const totalHandsBought = this.players.reduce((sum, player) => sum + player.hands_bought, 0);
+      const totalChipsBought = this.players.reduce((sum, player) => sum + player.chips_bought, 0);
+      const totalAmountBought = this.players.reduce((sum, player) => sum + player.amount_bought, 0);
+      const totalRemainingChips = this.players.reduce((sum, player) => sum + (player.remaining_chips || 0), 0);
+      const totalWinLossChips = this.players.reduce((sum, player) => sum + (player.win_loss_chips !== "未计算" ? player.win_loss_chips : 0), 0);
+      const totalWinLossAmount = this.players.reduce((sum, player) => sum + (player.win_loss_amount !== "未计算" ? player.win_loss_amount : 0), 0);
+      const isZero = totalWinLossChips === 0;
+
+      return {
+        total_players: totalPlayers,
+        total_hands_bought: totalHandsBought,
+        total_chips_bought: totalChipsBought,
+        total_amount_bought: totalAmountBought,
+        total_remaining_chips: totalRemainingChips,
+        total_win_loss_chips: totalWinLossChips,
+        total_win_loss_amount: totalWinLossAmount,
+        is_zero: isZero,
+      };
+    },
+  },
   methods: {
     async fetchTodayGames() {
       try {
@@ -225,7 +248,7 @@ export default defineComponent({
       this.currentGame = await this.fetchGameById(gameId);
       await this.fetchInGamePlayers();
       await this.fetchAllPlayerLogs();
-	  this.calculateSummary();
+	
     },
     async fetchGameById(gameId) {
       try {
@@ -303,27 +326,7 @@ export default defineComponent({
         console.error("Error adding players to game:", error);
         alert("无法添加玩家，请重试。");
       }
-    },calculateSummary() {
-      const totalPlayers = this.players.length;
-      const totalHandsBought = this.players.reduce((sum, player) => sum + player.hands_bought, 0);
-      const totalChipsBought = this.players.reduce((sum, player) => sum + player.chips_bought, 0);
-      const totalAmountBought = this.players.reduce((sum, player) => sum + player.amount_bought, 0);
-      const totalRemainingChips = this.players.reduce((sum, player) => sum + (player.remaining_chips || 0), 0);
-      const totalWinLossChips = this.players.reduce((sum, player) => sum + (player.win_loss_chips !== "未计算" ? player.win_loss_chips : 0), 0);
-      const totalWinLossAmount = this.players.reduce((sum, player) => sum + (player.win_loss_amount !== "未计算" ? player.win_loss_amount : 0), 0);
-      const isZero = totalWinLossChips === 0;
-
-      this.summaryData = {
-        total_players: totalPlayers,
-        total_hands_bought: totalHandsBought,
-        total_chips_bought: totalChipsBought,
-        total_amount_bought: totalAmountBought,
-        total_remaining_chips: totalRemainingChips,
-        total_win_loss_chips: totalWinLossChips,
-        total_win_loss_amount: totalWinLossAmount,
-        is_zero: isZero,
-      };
-	  },
+    },
     buyIn(player) {
       this.currentPlayerId = player.player_id;
       this.buyInDialog = true;
