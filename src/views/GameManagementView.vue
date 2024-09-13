@@ -1,15 +1,15 @@
 <template>
   <div>
     <!-- 列出当天的所有游戏 -->
-     <h2 v-if="!gameId">当天的游戏进程</h2>
+    <h2 v-if="!gameId">当天的游戏进程</h2>
     <v-data-table v-if="!gameId" :headers="gameHeaders" :items="games" class="mt-4">
       <template #item.actions="{ item }">
-       <v-btn @click="selectGame(item.id)">继续记录</v-btn>
+        <v-btn @click="selectGame(item.id)">继续记录</v-btn>
       </template>
     </v-data-table>
 
     <!-- 创建新德州局按钮 -->
-   <v-btn v-if="!gameId" color="primary" @click="createNewGame">创建新德州局</v-btn>
+    <v-btn v-if="!gameId" color="primary" @click="createNewGame">创建新德州局</v-btn>
 
     <!-- 显示当前局信息 -->
     <div v-if="currentGame">
@@ -132,12 +132,11 @@ import firebaseDb from "@/Lib/FirebaseDb";
 import playerHelper from "@/Lib/PlayerHelper";
 import logHelper from "@/Lib/LogHelper";
 
-
 const db = firebaseDb;
 
 export default defineComponent({
   name: "GameManagement",
-  props:{
+  props: {
     gameId: {
       type: String,
       default: null,
@@ -154,7 +153,7 @@ export default defineComponent({
       allPlayers: [], // 所有玩家列表
       selectedPlayers: [],
       players: [],
-      
+
       combinedLogs: [], // 组合的日志列表
       buyInAmount: 0,
       refundAmount: 0, // 退码手数
@@ -202,16 +201,15 @@ export default defineComponent({
       }
     },
     async selectGame(gameId) {
-		
-      this.currentGame = await this.fetchGameById(gameId);;
+      this.currentGame = await this.fetchGameById(gameId);
       await this.fetchInGamePlayers();
       await this.fetchAllPlayerLogs();
     },
-	 async fetchGameById(gameId) {
+    async fetchGameById(gameId) {
       try {
-        const gameRef = doc(db, 'games', gameId);
+        const gameRef = doc(db, "games", gameId);
         const gameSnapshot = await getDoc(gameRef);
-		console.log(gameSnapshot);
+        console.log(gameSnapshot);
         if (gameSnapshot.exists()) {
           return { id: gameId, ...gameSnapshot.data() };
         } else {
@@ -233,19 +231,18 @@ export default defineComponent({
           amount_per_hand: 50,
         };
         const gameRef = await addDoc(collection(db, "games"), gameData);
-		this.resetGame();
+        this.resetGame();
         this.currentGame = { id: gameRef.id, ...gameData };
-		
       } catch (error) {
         console.error("Error creating new game:", error);
         alert("无法创建新游戏，请重试。");
       }
     },
-	resetGame(){
-		this.players= [];
-		this.selectedPlayers= [];
-		this.combinedLogs= [];
-	},
+    resetGame() {
+      this.players = [];
+      this.selectedPlayers = [];
+      this.combinedLogs = [];
+    },
     openAddPlayersDialog() {
       this.addPlayersDialog = true;
     },
@@ -259,7 +256,7 @@ export default defineComponent({
           if (this.players.some((p) => p.player_id === playerId)) {
             continue;
           }
-		 
+
           const player = this.allPlayers.find((p) => p.id === playerId);
           //const playerIndex = this.players.length + 1;
           const newPlayerData = {
@@ -274,15 +271,11 @@ export default defineComponent({
             win_loss_amount: "未计算",
             logs: [],
           };
-		  console.log("players",this.players);
-		  const playerIndex=playerHelper.getNextPlayerId(this.players);
-		  console.log("playerIndex",playerIndex);
-          await setDoc(
-            doc(gameRef, "players", playerIndex),
-            newPlayerData
-          );
-		  await  this.fetchInGamePlayers();
-          
+          console.log("players", this.players);
+          const playerIndex = playerHelper.getNextPlayerId(this.players);
+          console.log("playerIndex", playerIndex);
+          await setDoc(doc(gameRef, "players", playerIndex), newPlayerData);
+          await this.fetchInGamePlayers();
         }
       } catch (error) {
         console.error("Error adding players to game:", error);
@@ -361,7 +354,7 @@ export default defineComponent({
               }),
             });
 
-			this.fetchAllPlayerLogs();
+            this.fetchAllPlayerLogs();
 
             const player = this.players.find(
               (p) => p.player_id === this.currentPlayerId
@@ -430,7 +423,7 @@ export default defineComponent({
               }),
             });
 
-			this.fetchAllPlayerLogs();
+            this.fetchAllPlayerLogs();
 
             const player = this.players.find(
               (p) => p.player_id === this.currentPlayerId
@@ -481,7 +474,7 @@ export default defineComponent({
               }),
             });
 
-			this.fetchAllPlayerLogs();
+            this.fetchAllPlayerLogs();
 
             const player = this.players.find(
               (p) => p.player_id === this.currentPlayerId
@@ -501,7 +494,7 @@ export default defineComponent({
     },
 
     calculateWinLossChips(chipsBought, remainingChips) {
-      return  remainingChips- chipsBought;
+      return remainingChips - chipsBought;
     },
     calculateWinLossAmount(winLossChips) {
       return (
@@ -512,37 +505,30 @@ export default defineComponent({
 
     async fetchAllPlayerLogs() {
       try {
-
-		// 获取当前游戏中的所有玩家日志
+        // 获取当前游戏中的所有玩家日志
         const gameRef = doc(db, "games", this.currentGame.id);
         const combinedLogs = [];
 
-		const playersSnapshot = await getDocs(collection(gameRef, "players"));
-		const allplayers=playersSnapshot.docs.map((doc) => ({
-			id: doc.id,
-			...doc.data(),
-			}));
-		const allLogs=allplayers.reduce((accumulator, currentpalyer)=>{
+        const playersSnapshot = await getDocs(collection(gameRef, "players"));
+        const allplayers = playersSnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        const allLogs = allplayers.reduce((accumulator, currentpalyer) => {
+          console.log(accumulator);
+          console.log(currentpalyer.logs);
+          const logs = currentpalyer.logs.map((item) => ({
+            ...item,
+            player_display_name: currentpalyer.player_display_name,
+            player_id: currentpalyer.player_id,
+            details: logHelper.makeLogDetail(item),
+          }));
 
-			console.log(accumulator);
-			console.log(currentpalyer.logs);
-			const logs=currentpalyer.logs.map((item)=>({
-				...item,
-				player_display_name: currentpalyer.player_display_name,
-                player_id: currentpalyer.player_id,
-				details: logHelper.makeLogDetail(item)
-			}
-			));
-			
-			return  accumulator.concat(logs);
-		},[])
-		console.log(allLogs);
-		this.combinedLogs = allLogs;
-		this.sortLogs();
-
-
-        
-
+          return accumulator.concat(logs);
+        }, []);
+        console.log(allLogs);
+        this.combinedLogs = allLogs;
+        this.sortLogs();
       } catch (error) {
         console.error("Error fetching all player logs:", error);
         alert("无法加载所有玩家日志，请重试。");
@@ -607,7 +593,6 @@ export default defineComponent({
       this.fetchTodayGames();
     }
     this.fetchPlayers();
-	
   },
 });
 </script>
