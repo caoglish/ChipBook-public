@@ -1,15 +1,15 @@
 <template>
   <div>
     <!-- 列出当天的所有游戏 -->
-    <h2>当天的游戏进程</h2>
-    <v-data-table :headers="gameHeaders" :items="games" class="mt-4">
+     <h2 v-if="!gameId">当天的游戏进程</h2>
+    <v-data-table v-if="!gameId" :headers="gameHeaders" :items="games" class="mt-4">
       <template #item.actions="{ item }">
-        <v-btn @click="selectGame(item)">继续记录</v-btn>
+       <v-btn @click="selectGame(item.id)">继续记录</v-btn>
       </template>
     </v-data-table>
 
     <!-- 创建新德州局按钮 -->
-    <v-btn color="primary" @click="createNewGame">创建新德州局</v-btn>
+   <v-btn v-if="!gameId" color="primary" @click="createNewGame">创建新德州局</v-btn>
 
     <!-- 显示当前局信息 -->
     <div v-if="currentGame">
@@ -24,7 +24,7 @@
     </div>
 
     <!-- 玩家信息表格 -->
-    <v-data-table :headers="playerHeaders" :items="players" class="mt-4">
+    <v-data-table v-if="currentGame" :headers="playerHeaders" :items="players" class="mt-4">
       <template #item.actions="{ item }">
         <v-btn @click="buyIn(item)">买入</v-btn>
         <v-btn @click="setRemaining(item)">剩余</v-btn>
@@ -119,6 +119,7 @@ import { defineComponent } from "vue";
 import {
   collection,
   addDoc,
+  getDoc,
   getDocs,
   doc,
   updateDoc,
@@ -129,12 +130,19 @@ import {
 } from "firebase/firestore";
 import firebaseDb from "@/Lib/FirebaseDb";
 import playerHelper from "@/Lib/PlayerHelper";
+import logHelper from "@/Lib/LogHelper";
 
 
 const db = firebaseDb;
 
 export default defineComponent({
   name: "GameManagement",
+  props:{
+    gameId: {
+      type: String,
+      default: null,
+    },
+  },
   data() {
     return {
       games: [], // 当天的游戏列表
@@ -158,7 +166,7 @@ export default defineComponent({
         { title: "操作", value: "actions", sortable: false },
       ],
       playerHeaders: [
-        { title: "固定名称", key: "player_name" },
+        //{ title: "固定名称", key: "player_name" },
         { title: "显示名称", key: "player_display_name" },
         { title: "买入手数", key: "hands_bought" },
         { title: "买入筹码", key: "chips_bought" },
@@ -193,10 +201,29 @@ export default defineComponent({
         alert("无法加载当天的游戏，请重试。");
       }
     },
-    async selectGame(game) {
-      this.currentGame = game;
+    async selectGame(gameId) {
+		
+      this.currentGame = await this.fetchGameById(gameId);;
       await this.fetchInGamePlayers();
       await this.fetchAllPlayerLogs();
+    },
+	 async fetchGameById(gameId) {
+      try {
+        const gameRef = doc(db, 'games', gameId);
+        const gameSnapshot = await getDoc(gameRef);
+		console.log(gameSnapshot);
+        if (gameSnapshot.exists()) {
+          return { id: gameId, ...gameSnapshot.data() };
+        } else {
+          console.error("No game found with the given ID.");
+          alert("无法找到指定的游戏。");
+          return null;
+        }
+      } catch (error) {
+        console.error("Error fetching game by ID:", error);
+        alert("无法获取游戏信息，请重试。");
+        return null;
+      }
     },
     async createNewGame() {
       try {
@@ -503,10 +530,7 @@ export default defineComponent({
 				...item,
 				player_display_name: currentpalyer.player_display_name,
                 player_id: currentpalyer.player_id,
-				details: {'remaining chips':item.action=='setRemaining'?item.chips:undefined,
-							'buy in':item.action=='buyin'?item.hands:undefined,
-							'refund hands':item.action=='refund'?item.hands:undefined
-				}
+				details: logHelper.makeLogDetail(item)
 			}
 			));
 			
@@ -574,8 +598,14 @@ export default defineComponent({
       }
     },
   },
-  created() {
-    this.fetchTodayGames();
+  async created() {
+    if (this.gameId) {
+      // 如果提供了gameId，直接加载该游戏的信息
+      await this.selectGame(this.gameId);
+    } else {
+      // 否则，加载当天的游戏
+      this.fetchTodayGames();
+    }
     this.fetchPlayers();
 	
   },

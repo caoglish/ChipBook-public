@@ -1,32 +1,22 @@
 <template>
   <v-container>
-	<h1>Chip Book</h1>
+    <h1>Chip Book</h1>
   </v-container>
 </template>
 
 <script lang='ts'>
-import { defineComponent } from 'vue'
+import { defineComponent } from "vue";
 
-import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc } from 'firebase/firestore';
-import  firebaseDb  from "@/Lib/FirebaseDb";
+//import  firebaseDb  from "@/Lib/FirebaseDb";
 
-const db = firebaseDb;
+//const db = firebaseDb;
 
 export default defineComponent({
-  name: 'HelloWorld',
+  name: "HelloWorld",
 
-  data () {
-    return {
-     
-      
-    }
+  data() {
+    return {};
   },
-   methods: {
-
-   },
-   created() {
-    // 组件创建时获取玩家信息
-    
-  },
-})
+  methods: {},
+});
 </script>

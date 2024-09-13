@@ -1,4 +1,4 @@
-function getNextPlayerId(playerList:[any]) {
+function getNextPlayerId(playerList:any) {
 	// 提取playerList中的所有玩家ID的数字部分
 	const playerNumbers = playerList.map((player:any) => {
 	  const match = player.id.match(/Player_(\d+)/); // 使用正则表达式匹配Player_后面的数字
