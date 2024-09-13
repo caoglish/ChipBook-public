@@ -585,6 +585,7 @@ export default defineComponent({
     },
   },
   async created() {
+	console.log(this.gameId);
     if (this.gameId) {
       // 如果提供了gameId，直接加载该游戏的信息
       await this.selectGame(this.gameId);

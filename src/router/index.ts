@@ -28,10 +28,17 @@ const routes: Array<RouteRecordRaw> = [
     component: () => import( '../views/PlayerView.vue')
   },
   {
-    path: '/game',
+    path: '/game/:gameId?',
     name: 'GameManagement',
+	props: route => ({ gameId: route.params.gameId || null }) ,
     
     component: () => import( '../views/GameManagementView.vue')
+  },
+  {
+    path: '/history',
+    name: 'History',
+    
+    component: () => import( '../views/HistoryView.vue')
   }
 
 ]

@@ -5,6 +5,7 @@
 		<nav>
 			<router-link to="/">Home</router-link> |
 			<router-link to="/game">Game</router-link>|
+			<router-link to="/history">History</router-link>|
 			<router-link to="/player">Player</router-link>|
 			<router-link to="/about">About</router-link> | 
 			<router-link to="/test">Test</router-link> | 
