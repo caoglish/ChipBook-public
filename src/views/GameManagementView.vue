@@ -4,12 +4,43 @@
     <h2 v-if="!gameId">当天的游戏进程</h2>
     <v-data-table v-if="!gameId" :headers="gameHeaders" :items="games" class="mt-4">
       <template #item.actions="{ item }">
-        <v-btn @click="selectGame(item.id)">继续记录</v-btn>
+        <v-btn  color="primary" @click="selectGame(item.id)">继续记录</v-btn>
       </template>
     </v-data-table>
 
     <!-- 创建新德州局按钮 -->
-    <v-btn v-if="!gameId" color="primary" @click="createNewGame">创建新德州局</v-btn>
+    <!-- 创建新德州局按钮 -->
+    <v-btn v-if="!gameId" color="primary" @click="openNewGameDialog">创建新德州局</v-btn>
+
+    <!-- 创建新德州局对话框 -->
+    <v-dialog v-model="newGameDialog" max-width="500px">
+      <v-card>
+        <v-card-title>创建新德州局</v-card-title>
+        <v-card-text>
+          <!-- 输入每手筹码数 -->
+          <v-select v-model="chipsPerHand" :items="chipsPerHandOptions" label="每手筹码数" clearable></v-select>
+          <v-text-field
+            v-model="chipsPerHandCustom"
+            label="自定义每手筹码数"
+            type="number"
+            v-if="chipsPerHand === 'custom'"
+          ></v-text-field>
+
+          <!-- 输入每手金额 -->
+          <v-select v-model="amountPerHand" :items="amountPerHandOptions" label="每手金额" clearable></v-select>
+          <v-text-field
+            v-model="amountPerHandCustom"
+            label="自定义每手金额"
+            type="number"
+            v-if="amountPerHand === 'custom'"
+          ></v-text-field>
+        </v-card-text>
+        <v-card-actions>
+          <v-btn color="blue darken-1" @click="createNewGame">创建</v-btn>
+          <v-btn color="grey darken-1" @click="newGameDialog = false">取消</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
 
     <div ref="gameInfo" class="print-container" v-if="currentGame">
       <!-- 显示当前局信息 -->
@@ -24,12 +55,20 @@
         <v-btn color="secondary" @click="openAddPlayersDialog">加入玩家</v-btn>
       </div>
 
+      
+
       <!-- 玩家信息表格 -->
-      <v-data-table v-if="currentGame" :headers="playerHeaders" :items="players" :items-per-page="-1" class="mt-4 player-table" >
+      <v-data-table
+        v-if="currentGame"
+        :headers="playerHeadersToShow"
+        :items="players"
+        :items-per-page="-1"
+        class="mt-4 player-table"
+      >
         <template #item.actions="{ item }">
-          <v-btn @click="buyIn(item)">买入</v-btn>
-          <v-btn @click="setRemaining(item)">剩余</v-btn>
-          <v-btn @click="refund(item)">退码</v-btn>
+          <v-btn color="primary" @click="buyIn(item)">买入</v-btn>
+          <v-btn color="primary" @click="setRemaining(item)">剩余</v-btn>
+          <v-btn color="primary" @click="refund(item)">退码</v-btn>
         </template>
         <template #item.remaining_chips="{ item }">
           <span>{{ item.remaining_chips !== null ? item.remaining_chips : '未输入' }}</span>
@@ -44,28 +83,38 @@
 
       <!-- 总结表格 -->
       <h3>总结</h3>
-      <v-data-table :headers="summaryHeaders" :items="[summaryData]" :hide-default-footer="1"  class="mt-4">
+      <v-data-table
+        :headers="summaryHeaders"
+        :items="[summaryData]"
+        :hide-default-footer="1"
+        class="mt-4"
+      >
         <template #item.is_zero="{ item }">
           <span :style="{ color: item.is_zero ? 'green' : 'red' }">{{ item.is_zero ? '是' : '否' }}</span>
         </template>
-		 <template #item.game_status="{ item }">
-          <span :style="{ color: item.isWinLossCalculated ? 'green' : 'red' }">
-            {{ item.game_status }}
-          </span>
+        <template #item.game_status="{ item }">
+          <span
+            :style="{ color: item.is_game_completed ? 'green' : 'red' }"
+          >{{ item.is_game_completed ? "游戏结束" : "游戏未结束" }}</span>
         </template>
       </v-data-table>
-
 
       <!-- 日志记录表格 -->
       <h3>日志记录</h3>
       <!-- 切换显示模式的按钮 -->
       <v-btn color="primary" @click="sortLogsByPlayer">按玩家排序</v-btn>
       <v-btn color="secondary" @click="sortLogsByTime">按时间排序</v-btn>
-      <v-data-table :headers="logHeaders" :items="combinedLogs" :items-per-page="-1"  :hide-default-footer="1" class="mt-4"></v-data-table>
+      <v-data-table
+        :headers="logHeaders"
+        :items="combinedLogs"
+        :items-per-page="-1"
+        :hide-default-footer="1"
+        class="mt-4"
+      ></v-data-table>
     </div>
 
-	      <!-- 打印按钮 -->
-      <v-btn color="primary" @click="printGameInfo">打印游戏信息</v-btn>
+    <!-- 打印按钮 -->
+    <v-btn v-if="currentGame"  color="primary" @click="printGameInfo">打印游戏信息</v-btn>
 
     <!-- 添加玩家对话框 -->
     <v-dialog v-model="addPlayersDialog" max-width="500px">
@@ -147,10 +196,12 @@ import {
   where,
   setDoc,
   arrayUnion,
+  Timestamp,
 } from "firebase/firestore";
 import firebaseDb from "@/Lib/FirebaseDb";
 import playerHelper from "@/Lib/PlayerHelper";
 import logHelper from "@/Lib/LogHelper";
+import { dateDisplay ,firebaseTimestamp} from "@/Lib/DateHelper";
 
 const db = firebaseDb;
 
@@ -166,6 +217,7 @@ export default defineComponent({
     return {
       games: [], // 当天的游戏列表
       currentGame: null,
+      newGameDialog: false,
       addPlayersDialog: false,
       buyInDialog: false,
       refundDialog: false,
@@ -179,11 +231,19 @@ export default defineComponent({
       refundAmount: 0, // 退码手数
       remainingAmount: 0, // 剩余筹码数
       currentPlayerId: null,
+      chipsPerHand: 500,
+      chipsPerHandCustom: null,
+      amountPerHand: 50,
+      amountPerHandCustom: null,
+
+      chipsPerHandOptions: [500, 1000, "custom"],
+      amountPerHandOptions: [50, 100, "custom"],
+      isExporting: false,
 
       gameHeaders: [
         { title: "游戏ID", key: "id" },
         { title: "创建时间", key: "created_at" },
-        { title: "操作", value: "actions", sortable: false },
+        { title: "操作", key: "actions", sortable: false },
       ],
       playerHeaders: [
         //{ title: "固定名称", key: "player_name" },
@@ -194,7 +254,7 @@ export default defineComponent({
         { title: "剩余筹码", key: "remaining_chips" },
         { title: "胜负筹码", key: "win_loss_chips" },
         { title: "胜负金额", key: "win_loss_amount" },
-        { title: "操作", value: "actions", sortable: false },
+        { title: "操作", key: "actions", sortable: false },
       ],
       logHeaders: [
         { title: "时间", key: "date" },
@@ -211,12 +271,14 @@ export default defineComponent({
         { title: "总胜负筹码", key: "total_win_loss_chips" },
         { title: "总胜负金额", key: "total_win_loss_amount" },
         { title: "胜负筹码为0?", key: "is_zero" },
-		{ title: "游戏状态", key: "game_status" },
+        { title: "游戏状态", key: "game_status" },
       ],
-      sortByPlayer: true, // 是否按玩家排序的标志
+      sortByPlayer: false, // 是否按玩家排序的标志
     };
   },
   computed: {
+    // 动态生成 headers，导出图片时不显示操作列
+
     summaryData() {
       const totalPlayers = this.players.length;
       const totalHandsBought = this.players.reduce(
@@ -249,8 +311,10 @@ export default defineComponent({
       );
 
       // 检查是否所有的 win_loss_chips 都已计算
-      const isWinLossCalculated = this.players.every(player => player.win_loss_chips !== "未计算");
-	  console.log(isWinLossCalculated);
+      const isWinLossCalculated = this.players.every(
+        (player) => player.win_loss_chips !== "未计算"
+      );
+      console.log(isWinLossCalculated);
       const isZero = isWinLossCalculated && totalWinLossChips === 0;
 
       return {
@@ -262,17 +326,31 @@ export default defineComponent({
         total_win_loss_chips: totalWinLossChips,
         total_win_loss_amount: totalWinLossAmount,
         is_zero: isZero,
-		isWinLossCalculated,
-		game_status: isWinLossCalculated ? '游戏结束' : '游戏未结束'
+        is_game_completed: isWinLossCalculated,
+        // game_status: isWinLossCalculated ? "游戏结束" : "游戏未结束",
       };
+    },
+    playerHeadersToShow() {
+      return this.isExporting
+        ? this.playerHeaders.filter((header) => header.key !== "actions")
+        : this.playerHeaders;
     },
   },
   methods: {
+ 
+    openNewGameDialog() {
+      this.newGameDialog = true;
+    },
     async printGameInfo() {
       const gameInfoElement = this.$refs.gameInfo; // 获取需要截图的元素
+      const buttons = document.querySelectorAll("button, .v-btn"); // 选择所有按钮元素
+      buttons.forEach((button) => (button.style.visibility = "hidden")); // 隐藏所有按钮
+      this.isExporting = true; // 设置为导出状态，隐藏操作列和按钮
+      await this.$nextTick(); // 等待视图更新，确保所有按钮和操作列隐藏
+
       if (gameInfoElement) {
         try {
-           const canvas = await html2canvas(gameInfoElement, {
+          const canvas = await html2canvas(gameInfoElement, {
             scrollX: 0,
             scrollY: 0,
             windowWidth: document.documentElement.clientWidth,
@@ -284,18 +362,22 @@ export default defineComponent({
           const printWindow = window.open("", "_blank");
           printWindow.document.write(`<img src="${imgData}" />`);
           printWindow.document.close();
-          
         } catch (error) {
           console.error("Error generating image:", error);
           alert("无法生成游戏信息的图片，请重试。");
+        } finally {
+          // 恢复所有按钮的可见性
+          buttons.forEach((button) => (button.style.visibility = "visible"));
+          this.isExporting = false; // 恢复正常状态，显示操作列和按钮
         }
       }
     },
     async fetchTodayGames() {
       try {
-        const today = new Date().toLocaleDateString();
+        const today = new Date();
+		today.setHours(0, 0, 0, 0); // 设置为今天的开始时间 00:00:00
         const gamesRef = collection(db, "games");
-        const q = query(gamesRef, where("created_at", ">=", today));
+        const q = query(gamesRef, where("created_at_timestamp", ">=", today));
         const querySnapshot = await getDocs(q);
         this.games = querySnapshot.docs.map((doc) => ({
           id: doc.id,
@@ -331,14 +413,25 @@ export default defineComponent({
     },
     async createNewGame() {
       try {
+        const chipsPerHandValue =
+          this.chipsPerHand === "custom"
+            ? this.chipsPerHandCustom
+            : this.chipsPerHand;
+        const amountPerHandValue =
+          this.amountPerHand === "custom"
+            ? this.amountPerHandCustom
+            : this.amountPerHand;
+
         const gameData = {
-          created_at: new Date().toLocaleString(),
-          chips_per_hand: 500,
-          amount_per_hand: 50,
+          created_at: dateDisplay(),
+          chips_per_hand: parseInt(chipsPerHandValue, 10),
+          amount_per_hand: parseInt(amountPerHandValue, 10),
+          created_at_timestamp: firebaseTimestamp(),
         };
         const gameRef = await addDoc(collection(db, "games"), gameData);
         this.resetGame();
         this.currentGame = { id: gameRef.id, ...gameData };
+        this.newGameDialog = false;
       } catch (error) {
         console.error("Error creating new game:", error);
         alert("无法创建新游戏，请重试。");
@@ -453,10 +546,10 @@ export default defineComponent({
                   ? this.calculateWinLossAmount(winLossChips)
                   : "未计算",
               logs: arrayUnion({
-                date: new Date().toLocaleString(),
+                date: dateDisplay(),
                 action: "buyin",
                 hands: this.buyInAmount,
-                timestamp: new Date().toISOString(),
+                timestamp: firebaseTimestamp(),
               }),
             });
 
@@ -522,10 +615,10 @@ export default defineComponent({
                   ? this.calculateWinLossAmount(winLossChips)
                   : "未计算",
               logs: arrayUnion({
-                date: new Date().toLocaleString(),
+                date: dateDisplay(),
                 action: "refund",
                 hands: refund,
-                timestamp: new Date().toISOString(),
+                timestamp: firebaseTimestamp(),
               }),
             });
 
@@ -573,10 +666,10 @@ export default defineComponent({
               win_loss_chips: winLossChips,
               win_loss_amount: this.calculateWinLossAmount(winLossChips),
               logs: arrayUnion({
-                date: new Date().toLocaleString(),
+                date: dateDisplay(),
                 action: "setRemaining",
                 chips: remaining,
-                timestamp: new Date().toISOString(),
+                timestamp: firebaseTimestamp(),
               }),
             });
 
@@ -691,6 +784,7 @@ export default defineComponent({
     },
   },
   async created() {
+    console.log(dateDisplay());
     console.log(this.gameId);
     if (this.gameId) {
       // 如果提供了gameId，直接加载该游戏的信息
@@ -715,7 +809,7 @@ export default defineComponent({
 
 /* 为玩家信息表格的每个单元格添加边框样式 */
 .player-table .v-table__wrapper td {
-  border: 1px solid #ddd!important; /* 添加边框 */
+  border: 1px solid #ddd !important; /* 添加边框 */
   padding: 8px; /* 增加内边距 */
 }
 </style>
