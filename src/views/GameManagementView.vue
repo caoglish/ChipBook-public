@@ -63,6 +63,7 @@
         :headers="playerHeadersToShow"
         :items="players"
         :items-per-page="-1"
+		:hide-default-footer="1"
         class="mt-4 player-table"
       >
         <template #item.actions="{ item }">
@@ -84,9 +85,9 @@
       <!-- 总结表格 -->
       <h3>总结</h3>
       <v-data-table
-        :headers="summaryHeaders"
+        :headers="summaryHeadersToShow"
         :items="[summaryData]"
-        :hide-default-footer="1"
+         :hide-default-footer="1"
         class="mt-4"
       >
         <template #item.is_zero="{ item }">
@@ -97,7 +98,18 @@
             :style="{ color: item.is_game_completed ? 'green' : 'red' }"
           >{{ item.is_game_completed ? "游戏结束" : "游戏未结束" }}</span>
         </template>
+		 <!-- 添加一个footer插槽来放置保存总结的按钮 -->
+        <template #item.actions="{ item }">
+          <v-btn 
+            v-if="summaryData.is_game_completed" 
+            color="success" 
+            @click="saveSummary"
+            class="ma-4"
+          >保存总结</v-btn>
+        </template>
       </v-data-table>
+
+
 
       <!-- 日志记录表格 -->
       <h3>日志记录</h3>
@@ -258,8 +270,8 @@ export default defineComponent({
       ],
       logHeaders: [
         { title: "时间", key: "date" },
+		{ title: "玩家名称", key: "player_display_name" },
         { title: "操作类型", key: "action" },
-        { title: "玩家名称", key: "player_display_name" },
         { title: "详细信息", key: "details" },
       ],
       summaryHeaders: [
@@ -272,6 +284,7 @@ export default defineComponent({
         { title: "总胜负金额", key: "total_win_loss_amount" },
         { title: "胜负筹码为0?", key: "is_zero" },
         { title: "游戏状态", key: "game_status" },
+		 { title: "操作", key: "actions", sortable: false },
       ],
       sortByPlayer: false, // 是否按玩家排序的标志
     };
@@ -335,8 +348,25 @@ export default defineComponent({
         ? this.playerHeaders.filter((header) => header.key !== "actions")
         : this.playerHeaders;
     },
+	summaryHeadersToShow() {
+      return this.isExporting
+        ? this.summaryHeaders.filter((header) => header.key !== "actions")
+        : this.summaryHeaders;
+    },
   },
   methods: {
+
+	async saveSummary() {
+      try {
+        const summary = this.summaryData;
+        const summaryRef = doc(db, "games", this.currentGame.id);
+        await updateDoc(summaryRef, { summary });
+        alert("总结保存成功！");
+      } catch (error) {
+        console.error("Error saving summary:", error);
+        alert("无法保存总结，请重试。");
+      }
+    },
  
     openNewGameDialog() {
       this.newGameDialog = true;
@@ -808,8 +838,11 @@ export default defineComponent({
 }
 
 /* 为玩家信息表格的每个单元格添加边框样式 */
-.player-table .v-table__wrapper td {
-  border: 1px solid #ddd !important; /* 添加边框 */
-  padding: 8px; /* 增加内边距 */
+.player-table .v-table__wrapper td ,.player-table .v-table__wrapper th{
+  border: 1px solid #ddd ; /* Add border to all cells and headers */
+  padding: 8px; /* Add padding to all cells and headers */
+  text-align: center; /* Center-align text for a uniform appearance */
+  vertical-align: middle; /* Vertically center the content */
+  background-color: #f9f9f9; /* Optional: Light background color for better readability */
 }
 </style>
