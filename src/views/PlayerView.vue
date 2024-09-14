@@ -7,10 +7,10 @@
     <v-data-table :headers="headers" :items="players">
       <!-- 动态生成表格中的操作列 -->
       <template #item.actions="{ item }">
-        <v-btn icon @click="editPlayer(item)">
+        <v-btn color="primary" icon @click="editPlayer(item)">
           <v-icon>mdi-pencil</v-icon>
         </v-btn>
-        <v-btn icon @click="confirmDeletePlayer(item.id)">
+        <v-btn color="error" icon @click="confirmDeletePlayer(item.id)">
           <v-icon>mdi-delete</v-icon>
         </v-btn>
       </template>

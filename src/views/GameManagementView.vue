@@ -1,12 +1,14 @@
 <template>
   <div>
     <!-- 列出当天的所有游戏 -->
-    <h2 v-if="!gameId">当天的游戏进程</h2>
-    <v-data-table v-if="!gameId" :headers="gameHeaders" :items="games" class="mt-4">
+	<div v-if="!gameId&&!currentGame">
+    <h2 >当天的游戏进程</h2>
+    <v-data-table :headers="gameHeaders" :items="games" class="mt-4">
       <template #item.actions="{ item }">
-        <v-btn  color="primary" @click="selectGame(item.id)">继续记录</v-btn>
+        <v-btn color="primary" @click="selectGame(item.id)">继续记录</v-btn>
       </template>
     </v-data-table>
+	</div>
 
     <!-- 创建新德州局按钮 -->
     <!-- 创建新德州局按钮 -->
@@ -55,61 +57,21 @@
         <v-btn color="secondary" @click="openAddPlayersDialog">加入玩家</v-btn>
       </div>
 
-      
+      <PlayerTable
+        :players="players"
+        :isExporting="isExporting"
+        @buy-in="buyIn"
+        @set-remaining="setRemaining"
+        @refund="refund"
+      />
 
-      <!-- 玩家信息表格 -->
-      <v-data-table
-        v-if="currentGame"
-        :headers="playerHeadersToShow"
-        :items="players"
-        :items-per-page="-1"
-		:hide-default-footer="1"
-        class="mt-4 player-table"
-      >
-        <template #item.actions="{ item }">
-          <v-btn color="primary" @click="buyIn(item)">买入</v-btn>
-          <v-btn color="primary" @click="setRemaining(item)">剩余</v-btn>
-          <v-btn color="primary" @click="refund(item)">退码</v-btn>
-        </template>
-        <template #item.remaining_chips="{ item }">
-          <span>{{ item.remaining_chips !== null ? item.remaining_chips : '未输入' }}</span>
-        </template>
-        <template #item.win_loss_chips="{ item }">
-          <span>{{ item.remaining_chips !== null ? item.win_loss_chips : '未计算' }}</span>
-        </template>
-        <template #item.win_loss_amount="{ item }">
-          <span>{{ item.remaining_chips !== null ? item.win_loss_amount : '未计算' }}</span>
-        </template>
-      </v-data-table>
-
-      <!-- 总结表格 -->
-      <h3>总结</h3>
-      <v-data-table
-        :headers="summaryHeadersToShow"
-        :items="[summaryData]"
-         :hide-default-footer="1"
-        class="mt-4"
-      >
-        <template #item.is_zero="{ item }">
-          <span :style="{ color: item.is_zero ? 'green' : 'red' }">{{ item.is_zero ? '是' : '否' }}</span>
-        </template>
-        <template #item.game_status="{ item }">
-          <span
-            :style="{ color: item.is_game_completed ? 'green' : 'red' }"
-          >{{ item.is_game_completed ? "游戏结束" : "游戏未结束" }}</span>
-        </template>
-		 <!-- 添加一个footer插槽来放置保存总结的按钮 -->
-        <template #item.actions="{ item }">
-          <v-btn 
-            v-if="summaryData.is_game_completed" 
-            color="success" 
-            @click="saveSummary"
-            class="ma-4"
-          >保存总结</v-btn>
-        </template>
-      </v-data-table>
-
-
+      <!-- 引入总结表格组件 -->
+      <SummaryTable
+        :summaryData="summaryData"
+        :isExporting="isExporting"
+        :gameId="currentGame.id"
+        @save-summary="saveSummary"
+      />
 
       <!-- 日志记录表格 -->
       <h3>日志记录</h3>
@@ -126,7 +88,7 @@
     </div>
 
     <!-- 打印按钮 -->
-    <v-btn v-if="currentGame"  color="primary" @click="printGameInfo">打印游戏信息</v-btn>
+    <v-btn v-if="currentGame" color="primary" @click="printGameInfo">打印游戏信息</v-btn>
 
     <!-- 添加玩家对话框 -->
     <v-dialog v-model="addPlayersDialog" max-width="500px">
@@ -213,12 +175,18 @@ import {
 import firebaseDb from "@/Lib/FirebaseDb";
 import playerHelper from "@/Lib/PlayerHelper";
 import logHelper from "@/Lib/LogHelper";
-import { dateDisplay ,firebaseTimestamp} from "@/Lib/DateHelper";
+import { dateDisplay, firebaseTimestamp } from "@/Lib/DateHelper";
+import PlayerTable from "@/components/PlayerTable.vue"; // 导入新的组件
+import SummaryTable from "@/components/SummaryTable.vue"; // 导入新的组件
 
 const db = firebaseDb;
 
 export default defineComponent({
   name: "GameManagement",
+  components: {
+    PlayerTable,
+    SummaryTable,
+  },
   props: {
     gameId: {
       type: String,
@@ -257,35 +225,14 @@ export default defineComponent({
         { title: "创建时间", key: "created_at" },
         { title: "操作", key: "actions", sortable: false },
       ],
-      playerHeaders: [
-        //{ title: "固定名称", key: "player_name" },
-        { title: "显示名称", key: "player_display_name" },
-        { title: "买入手数", key: "hands_bought" },
-        { title: "买入筹码", key: "chips_bought" },
-        { title: "买入金额", key: "amount_bought" },
-        { title: "剩余筹码", key: "remaining_chips" },
-        { title: "胜负筹码", key: "win_loss_chips" },
-        { title: "胜负金额", key: "win_loss_amount" },
-        { title: "操作", key: "actions", sortable: false },
-      ],
+
       logHeaders: [
         { title: "时间", key: "date" },
-		{ title: "玩家名称", key: "player_display_name" },
+        { title: "玩家名称", key: "player_display_name" },
         { title: "操作类型", key: "action" },
         { title: "详细信息", key: "details" },
       ],
-      summaryHeaders: [
-        { title: "总人数", key: "total_players" },
-        { title: "总买入手数", key: "total_hands_bought" },
-        { title: "总买入筹码", key: "total_chips_bought" },
-        { title: "总买入金额", key: "total_amount_bought" },
-        { title: "总剩余筹码", key: "total_remaining_chips" },
-        { title: "总胜负筹码", key: "total_win_loss_chips" },
-        { title: "总胜负金额", key: "total_win_loss_amount" },
-        { title: "胜负筹码为0?", key: "is_zero" },
-        { title: "游戏状态", key: "game_status" },
-		 { title: "操作", key: "actions", sortable: false },
-      ],
+
       sortByPlayer: false, // 是否按玩家排序的标志
     };
   },
@@ -343,31 +290,14 @@ export default defineComponent({
         // game_status: isWinLossCalculated ? "游戏结束" : "游戏未结束",
       };
     },
-    playerHeadersToShow() {
-      return this.isExporting
-        ? this.playerHeaders.filter((header) => header.key !== "actions")
-        : this.playerHeaders;
-    },
-	summaryHeadersToShow() {
+
+    summaryHeadersToShow() {
       return this.isExporting
         ? this.summaryHeaders.filter((header) => header.key !== "actions")
         : this.summaryHeaders;
     },
   },
   methods: {
-
-	async saveSummary() {
-      try {
-        const summary = this.summaryData;
-        const summaryRef = doc(db, "games", this.currentGame.id);
-        await updateDoc(summaryRef, { summary });
-        alert("总结保存成功！");
-      } catch (error) {
-        console.error("Error saving summary:", error);
-        alert("无法保存总结，请重试。");
-      }
-    },
- 
     openNewGameDialog() {
       this.newGameDialog = true;
     },
@@ -405,7 +335,7 @@ export default defineComponent({
     async fetchTodayGames() {
       try {
         const today = new Date();
-		today.setHours(0, 0, 0, 0); // 设置为今天的开始时间 00:00:00
+        today.setHours(0, 0, 0, 0); // 设置为今天的开始时间 00:00:00
         const gamesRef = collection(db, "games");
         const q = query(gamesRef, where("created_at_timestamp", ">=", today));
         const querySnapshot = await getDocs(q);
@@ -479,7 +409,7 @@ export default defineComponent({
       try {
         this.addPlayersDialog = false;
         const gameRef = doc(db, "games", this.currentGame.id);
-        const currentPlayerCount = this.players.length;
+      
 
         for (const playerId of this.selectedPlayers) {
           if (this.players.some((p) => p.player_id === playerId)) {
@@ -487,7 +417,7 @@ export default defineComponent({
           }
 
           const player = this.allPlayers.find((p) => p.id === playerId);
-          //const playerIndex = this.players.length + 1;
+      
           const newPlayerData = {
             player_id: playerId,
             player_name: player.player_name,
@@ -504,7 +434,20 @@ export default defineComponent({
           const playerIndex = playerHelper.getNextPlayerId(this.players);
           console.log("playerIndex", playerIndex);
           await setDoc(doc(gameRef, "players", playerIndex), newPlayerData);
+
+		  // 添加加入游戏的log
+          const logEntry = {
+            date: dateDisplay(),
+            action: "join",
+            hands: 1,
+            timestamp: firebaseTimestamp(),
+          };
+
+          await updateDoc(doc(gameRef, "players", playerIndex), {
+            logs: arrayUnion(logEntry),
+          });
           await this.fetchInGamePlayers();
+		  await this.fetchAllPlayerLogs();
         }
       } catch (error) {
         console.error("Error adding players to game:", error);
@@ -547,6 +490,7 @@ export default defineComponent({
 
       if (this.currentPlayerId && buyin > 0) {
         const playerResult = await this.fetchPlayerById(this.currentPlayerId);
+		
         if (playerResult) {
           const playerData = playerResult.data;
           const playerDocId = playerResult.id;
@@ -566,6 +510,8 @@ export default defineComponent({
           try {
             const gameRef = doc(db, "games", this.currentGame.id);
             const playerRef = doc(collection(gameRef, "players"), playerDocId);
+			console.log("debug:",playerResult)
+			console.log("debug:",playerDocId)
             await updateDoc(playerRef, {
               hands_bought: newHandsBought,
               chips_bought: newChipsBought,
@@ -726,10 +672,9 @@ export default defineComponent({
       return remainingChips - chipsBought;
     },
     calculateWinLossAmount(winLossChips) {
-      return (
-        winLossChips *
-        (this.currentGame.amount_per_hand / this.currentGame.chips_per_hand)
-      );
+      let result= winLossChips *
+        (this.currentGame.amount_per_hand / this.currentGame.chips_per_hand);
+      return result.toFixed(2);
     },
 
     async fetchAllPlayerLogs() {
@@ -755,25 +700,26 @@ export default defineComponent({
 
           return accumulator.concat(logs);
         }, []);
-        console.log(allLogs);
+        console.log("allLogs:",allLogs);
         this.combinedLogs = allLogs;
         this.sortLogs();
       } catch (error) {
         console.error("Error fetching all player logs:", error);
         alert("无法加载所有玩家日志，请重试。");
       }
+
     },
     sortLogs() {
       if (this.sortByPlayer) {
         this.combinedLogs.sort((a, b) => {
           if (a.player_id === b.player_id) {
-            return new Date(a.timestamp) - new Date(b.timestamp);
+            return a.timestamp.toDate() - b.timestamp.toDate();
           }
           return a.player_id.localeCompare(b.player_id);
         });
       } else {
         this.combinedLogs.sort(
-          (a, b) => new Date(a.timestamp) - new Date(b.timestamp)
+          (a, b) =>  a.timestamp.toDate() - b.timestamp.toDate()
         );
       }
     },
@@ -835,14 +781,5 @@ export default defineComponent({
 .print-container {
   width: 100%;
   overflow: visible; /* 确保内容不被裁剪 */
-}
-
-/* 为玩家信息表格的每个单元格添加边框样式 */
-.player-table .v-table__wrapper td ,.player-table .v-table__wrapper th{
-  border: 1px solid #ddd ; /* Add border to all cells and headers */
-  padding: 8px; /* Add padding to all cells and headers */
-  text-align: center; /* Center-align text for a uniform appearance */
-  vertical-align: middle; /* Vertically center the content */
-  background-color: #f9f9f9; /* Optional: Light background color for better readability */
 }
 </style>

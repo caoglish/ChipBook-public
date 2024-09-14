@@ -5,9 +5,11 @@ interface Item {
 	date: Date;
   }
 function makeLogDetail(item: Item) {
+	const actionsSet = new Set(['join', 'buyin']);
 	return {
 		'remaining chips': item.action == 'setRemaining' ? item.chips : undefined,
-		'buy in': item.action == 'buyin' ? item.hands : undefined,
+		'buy in': actionsSet.has(item.action) ? item.hands : undefined,
+	
 		'refund hands': item.action == 'refund' ? item.hands : undefined
 	}
 }
@@ -15,3 +17,4 @@ function makeLogDetail(item: Item) {
 export default {
 	makeLogDetail
 }
+
