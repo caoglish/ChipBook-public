@@ -4,7 +4,7 @@
     <v-btn color="primary" @click="openDialog">添加玩家</v-btn>
 
     <!-- 显示玩家列表的表格 -->
-    <v-data-table :headers="headers" :items="players">
+    <v-data-table :headers="headers" :items="players" :items-per-page="50">
       <!-- 动态生成表格中的操作列 -->
       <template #item.actions="{ item }">
         <v-btn color="primary" icon @click="editPlayer(item)">
