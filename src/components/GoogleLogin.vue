@@ -8,13 +8,14 @@
       @click="clearErrorMessage"
     >{{ loginUserStore.errorMessage }}</v-alert>
 
-    <h1 v-if="user">current user: {{user}}</h1>
+    <LoginUserCard></LoginUserCard>
   </div>
 </template>
 
 <script setup lang="ts">
 import { useLoginUserStore } from "@/store/LoginUserStore";
 import { computed } from "vue";
+import LoginUserCard from '@/components/LoginUserCard.vue'
 
 // 使用 Pinia store
 const loginUserStore = useLoginUserStore();
