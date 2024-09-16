@@ -1,17 +1,22 @@
 <template>
-  <div class="about">
-    <h1>About</h1>
+	<div class="about">
+		<h1>About</h1>
 
-    
+		<h2>
+			env:
+			<span :style="{ color: rmsg == 'Development' ? 'green' : 'red' }">{{ rmsg }}</span>
+		</h2>
 
-    <h2 >env: <span :style="{ color: rmsg=='Development' ? 'green' : 'red'}">{{rmsg}}</span></h2>
-  </div>
+		<LoginUserCard></LoginUserCard>
+
+	</div>
 </template>
 
 
 <script lang="ts">
 import { defineComponent } from "vue";
 import TestApp from "@/components/TestApp.vue";
+import LoginUserCard from '@/components/LoginUserCard.vue'
 
 // @ is an alias to /src
 import firebaseDb from "@/Lib/FirebaseDb";
@@ -24,16 +29,16 @@ const db = firebaseDb;
 const querySnapshot = await getDocs(collection(db, "info"));
 
 export default defineComponent({
-  name: "testView",
-  components: { TestApp },
-  data() {
-    return {
-      rmsg: "start",
-    };
-  },
-  mounted() {
-    querySnapshot.forEach((doc) => {
-      let post = doc.data();
+	name: "testView",
+	components: { TestApp, LoginUserCard },
+	data() {
+		return {
+			rmsg: "start",
+		};
+	},
+	mounted() {
+		querySnapshot.forEach((doc) => {
+			let post = doc.data();
       console.log(post);
       this.rmsg = post.env;
     });
