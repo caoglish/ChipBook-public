@@ -4,6 +4,7 @@ export interface Player{
 	id: string
 	player_name: string
 	player_display_name: string
+	allow_select:boolean
 }
 
 export interface PlayerInGame extends Player {

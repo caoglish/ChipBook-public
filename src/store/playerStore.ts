@@ -17,6 +17,15 @@ export const usePlayerStore = defineStore('playerStore', {
 		getPlayerById: (state) => {
 			return (id: string) => state.players.find(player => player.id === id);
 		},
+		// 根据allow_select过滤出可供选择的玩家列表
+		ForSelectPlayerList(state): Player[] {
+			return state.players.filter(player => player.allow_select);
+		},
+
+		// 根据allow_select过滤出不允许选择的玩家列表
+		NotForSelectPlayerList(state): Player[] {
+			return state.players.filter(player => !player.allow_select);
+		},
 	},
 
 	// Actions: 用于修改状态的方法
@@ -26,15 +35,27 @@ export const usePlayerStore = defineStore('playerStore', {
 				const playersCol = collection(db, 'players');
 				const playerSnapshot = await getDocs(playersCol);
 				this.players = playerSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Player));
-				
+
 			} catch (error) {
 				console.error('Error fetching players:', error);
 				alert('无法加载玩家列表，请重试。');
 			}
 		},
+		// 切换玩家的allow_select状态
+		async toggleAllowSelect(playerId: string) {
+			const player = this.players.find(p => p.id === playerId);
+			if (player) {
+				player.allow_select = !player.allow_select;
+				// 更新Firebase中的allow_select字段
+				const playerRef = doc(firebaseDb, 'players', player.id);
+				await updateDoc(playerRef, { allow_select: player.allow_select });
+			}
+		},
 
 		async addPlayer(newPlayer: Player) {
+			
 			try {
+				newPlayer.allow_select=true;
 				const playersCol = collection(db, 'players');
 				await addDoc(playersCol, newPlayer);
 				this.fetchPlayers(); // 重新获取玩家列表以更新视图

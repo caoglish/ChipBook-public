@@ -97,7 +97,7 @@
         <v-card-text>
           <v-select
             v-model="selectedPlayers"
-            :items="allPlayers"
+            :items="ForSelectPlayer"
             item-title="player_name"
             item-value="id"
             label="选择一个或多个玩家"
@@ -236,7 +236,14 @@ export default defineComponent({
       sortByPlayer: false, // 是否按玩家排序的标志
     };
   },
-  computed: {
+  computed: 
+  {
+	ForSelectPlayer(){
+		console.log(this.allPlayers);
+		return this.allPlayers.filter((p)=>p.allow_select )
+	},
+
+
     // 动态生成 headers，导出图片时不显示操作列
 
     summaryData() {
