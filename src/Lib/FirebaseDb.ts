@@ -1,6 +1,7 @@
 // @ is an alias to /src
 import { initializeApp } from "firebase/app";
 import { getFirestore, collection, getDocs } from "firebase/firestore";
+import { getAuth, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
@@ -28,7 +29,8 @@ console.log(firebaseConfig);
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 
+
+export const firebaseAuth = getAuth(app);
+
 const firebaseDb = getFirestore(app);
-
-
 export default firebaseDb

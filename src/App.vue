@@ -1,33 +1,31 @@
 <template>
-
   <v-app>
     <v-main>
-		<nav>
-			<router-link to="/">Home</router-link> |
-			<router-link to="/game">Game</router-link>|
-			<router-link to="/history">History</router-link>|
-			<router-link to="/player">Player</router-link>|
-			<router-link to="/about">About</router-link> | 
-	
-			
-		</nav>
-      <router-view/>
+      <nav>
+        <router-link to="/">Home</router-link>|
+        <router-link to="/game">Game</router-link>|
+        <router-link to="/history">History</router-link>|
+        <router-link to="/player">Player</router-link>|
+        <router-link to="/about">About</router-link>
+|
+      </nav>
+      <router-view />
     </v-main>
   </v-app>
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue'
+import { defineComponent } from "vue";
 
 export default defineComponent({
-  name: 'App',
+  name: "App",
 
-  data () {
+  data() {
     return {
       //
-    }
+    };
   },
-})
+});
 </script>
 
 
