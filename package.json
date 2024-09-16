@@ -17,6 +17,7 @@
     "firebase": "^10.13.0",
     "html2canvas": "^1.4.1",
     "pinia": "^2.2.2",
+    "pinia-plugin-persistedstate": "^4.0.1",
     "roboto-fontface": "*",
     "vue": "^3.2.13",
     "vue-router": "^4.0.3",

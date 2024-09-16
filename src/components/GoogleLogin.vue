@@ -8,13 +8,13 @@
       @click="clearErrorMessage"
     >{{ loginUserStore.errorMessage }}</v-alert>
 
-	<h1 v-if="user">current user: {{user}}</h1>
+    <h1 v-if="user">current user: {{user}}</h1>
   </div>
 </template>
 
 <script setup lang="ts">
 import { useLoginUserStore } from "@/store/LoginUserStore";
-import {  computed } from 'vue'
+import { computed } from "vue";
 
 // 使用 Pinia store
 const loginUserStore = useLoginUserStore();
@@ -28,10 +28,8 @@ const clearErrorMessage = () => {
   loginUserStore.errorMessage = null;
 };
 
-const user = computed(() =>loginUserStore.user)
+const user = computed(() => loginUserStore.user);
 </script>
-
-
 
 <style scoped>
 .v-btn {
