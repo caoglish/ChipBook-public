@@ -1,8 +1,7 @@
 <template>
 	<div>
 		<v-col cols="12" md="2">
-			<v-card class="mt-4" outlined>
-				<v-card-title>Current Game</v-card-title>
+			<v-card class="mt-4"  variant="outlined" title="Current Game">
 				<v-card-text>
 					<p>{{ gameId }}</p>
 				</v-card-text>
