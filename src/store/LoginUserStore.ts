@@ -51,8 +51,6 @@ export const useLoginUserStore = defineStore('loginUserStore', {
 			}
 		},
 
-
-
 		// 检查用户的登录状态
 		checkAuthState() {
 			onAuthStateChanged(firebaseAuth, (user) => {
@@ -67,9 +65,5 @@ export const useLoginUserStore = defineStore('loginUserStore', {
 				}
 			});
 		}
-
 	},
-
-	
-
 });

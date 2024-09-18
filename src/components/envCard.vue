@@ -4,9 +4,7 @@
 			<v-card class="mt-4" outlined>
 				<v-card-title>System Environment</v-card-title>
 				<v-card-text>
-				
-	
-					<h1 :style="{ color: env == 'Development' ? 'green' : 'red' }">{{ env }}</h1>
+					<h1 :style="{ color: isDevelopment ? 'green' : 'red' }">{{ env }}</h1>
 				</v-card-text>
 			</v-card>
 		</v-col>
@@ -18,7 +16,8 @@ import { computed ,onMounted} from "vue";
 import { useEnvStore } from "@/store/envStore";
 
 const envStore = useEnvStore();
-const env = computed(() => envStore.env);
+const env = computed(() => envStore.env?envStore.env:"");
+const isDevelopment = computed(() => env.value == 'Development');
 
 onMounted(async () => {
    await envStore.loadEnv();
