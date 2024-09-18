@@ -1,15 +1,5 @@
 <template>
 	<div>
-		<!-- 列出当天的所有游戏 -->
-		<div v-if="!gameId && !currentGame">
-			<h2>当天的游戏进程</h2>
-			<v-data-table :headers="gameHeaders" :items="games" class="mt-4">
-				<template #item.actions="{ item }">
-					<v-btn color="primary" @click="selectGame(item.id)">继续记录</v-btn>
-				</template>
-			</v-data-table>
-		</div>
-
 		<!-- 创建新德州局按钮 -->
 		<v-btn v-if="!gameId" color="primary" @click="openNewGameDialog">创建新德州局</v-btn>
 
@@ -140,7 +130,7 @@ import {
 	where,
 	setDoc,
 	arrayUnion,
-	Timestamp,
+	
 } from "firebase/firestore";
 import firebaseDb from "@/Lib/FirebaseDb";
 import playerHelper from "@/Lib/PlayerHelper";
@@ -172,7 +162,6 @@ export default defineComponent({
 	},
 	data() {
 		return {
-			games: [], // 当天的游戏列表
 			currentGame: null,
 			newGameDialog: false,
 			addPlayersDialog: false,
@@ -197,11 +186,7 @@ export default defineComponent({
 			amountPerHandOptions: [50, 100, "custom"],
 			isExporting: false,
 
-			gameHeaders: [
-				{ title: "游戏ID", key: "id" },
-				{ title: "创建时间", key: "created_at" },
-				{ title: "操作", key: "actions", sortable: false },
-			],
+			
 
 			logHeaders: [
 				{ title: "时间", key: "date" },
@@ -316,22 +301,7 @@ export default defineComponent({
 				}
 			}
 		},
-		async fetchTodayGames() {
-			try {
-				const today = new Date();
-				today.setHours(0, 0, 0, 0); // 设置为今天的开始时间 00:00:00
-				const gamesRef = collection(db, "games");
-				const q = query(gamesRef, where("created_at_timestamp", ">=", today));
-				const querySnapshot = await getDocs(q);
-				this.games = querySnapshot.docs.map((doc) => ({
-					id: doc.id,
-					...doc.data(),
-				}));
-			} catch (error) {
-				console.error("Error fetching today's games:", error);
-				alert("无法加载当天的游戏，请重试。");
-			}
-		},
+
 		async selectGame(gameId) {
 			this.currentGame = await this.fetchGameById(gameId);
 			await this.fetchInGamePlayers();
@@ -752,10 +722,7 @@ export default defineComponent({
 		if (this.gameId) {
 			// 如果提供了gameId，直接加载该游戏的信息
 			await this.selectGame(this.gameId);
-		} else {
-			// 否则，加载当天的游戏
-			this.fetchTodayGames();
-		}
+		} 
 		this.fetchPlayers();
 	},
 });

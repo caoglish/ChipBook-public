@@ -5,7 +5,7 @@ import firebaseDb from "@/Lib/FirebaseDb";
 import { collection, getDocs } from "firebase/firestore";
 const db = firebaseDb;
 
-const querySnapshot = await getDocs(collection(db, "info"));
+
 export const useEnvStore = defineStore('envStore', {
 	state: () => ({
 		env: null as string | null,
@@ -13,6 +13,7 @@ export const useEnvStore = defineStore('envStore', {
 	actions: {
 		async loadEnv(): Promise<void> {
 			try {
+				const querySnapshot = await getDocs(collection(db, "info"));
 				querySnapshot.forEach((doc) => {
 					const post = doc.data();
 					console.log(post);

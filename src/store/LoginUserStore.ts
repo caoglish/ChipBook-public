@@ -9,7 +9,9 @@ export const useLoginUserStore = defineStore('loginUserStore', {
 		user: null as User | null,
 		errorMessage: null as string | null,
 	}),
-
+	getters: {
+		isAuthenticated: (state) => !!state.user,
+	},
 	// 使用持久化选项
 	persist: true,
 
