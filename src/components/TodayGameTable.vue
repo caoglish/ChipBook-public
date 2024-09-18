@@ -1,16 +1,14 @@
 <template>
-	
-		<h2>当天的游戏进程</h2>
-		<v-data-table   :headers="headers" :items="games" class="mt-4">
-			<template #item.actions="{ item }">
-				<v-btn color="primary" @click="selectGame(item.id)">继续记录</v-btn>
-			</template>
-		</v-data-table>
-	
+	<h2>当天的游戏进程</h2>
+	<v-data-table :headers="headers" :items="games" class="mt-4">
+		<template #item.actions="{ item }">
+			<v-btn color="primary" @click="selectGame(item.id)">继续记录</v-btn>
+		</template>
+	</v-data-table>
 </template>
 
 <script setup>
-import { onMounted,computed } from "vue";
+import { onMounted, computed } from "vue";
 import { useGameStore } from "@/store/TodayGameStore"; // 引入 Pinia store
 import { useRouter } from 'vue-router'; // 引入 useRouter
 
@@ -26,7 +24,7 @@ const headers = [
 	{ title: "操作", key: "actions", sortable: false }
 ];
 
-const games = computed(()=>gameStore.games); // 从 store 中获取游戏数据
+const games = computed(() => gameStore.games); // 从 store 中获取游戏数据
 const selectGame = (gameId) => {
 	router.push({ name: 'GameManagement', params: { gameId } });
 };

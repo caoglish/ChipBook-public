@@ -1,11 +1,11 @@
 <template>
-		<v-col v-if="loginUserStore.isAuthenticated" cols="12" md="2">
-			<v-card  variant="outlined"  title="System Environment">
-				<v-card-text>
-					<h1 :style="{ color: isDevelopment ? 'green' : 'red' }">{{ env }}</h1>
-				</v-card-text>
-			</v-card>
-		</v-col>
+	<v-col v-if="loginUserStore.isAuthenticated" cols="12" md="2">
+		<v-card variant="outlined" title="System Environment">
+			<v-card-text>
+				<h1 :style="{ color: isDevelopment ? 'green' : 'red' }">{{ env }}</h1>
+			</v-card-text>
+		</v-card>
+	</v-col>
 </template>
 
 <script setup>

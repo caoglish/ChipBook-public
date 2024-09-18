@@ -1,7 +1,7 @@
 <template>
-  <v-container>
-    <h1>Chip Book</h1>
-  </v-container>
+	<v-container>
+		<h1>Chip Book</h1>
+	</v-container>
 </template>
 
 <script lang='ts'>
@@ -12,11 +12,11 @@ import { defineComponent } from "vue";
 //const db = firebaseDb;
 
 export default defineComponent({
-  name: "HelloWorld",
+	name: "HelloWorld",
 
-  data() {
-    return {};
-  },
-  methods: {},
+	data() {
+		return {};
+	},
+	methods: {},
 });
 </script>

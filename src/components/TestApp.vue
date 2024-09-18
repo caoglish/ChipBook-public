@@ -1,6 +1,6 @@
 <template>
 
-<h1>{{msg}}</h1>
+	<h1>{{ msg }}</h1>
 
 </template>
 
@@ -10,9 +10,9 @@ import { defineComponent } from 'vue';
 //import HelloWorld from '@/components/HelloWorld.vue'; 
 
 export default defineComponent({
- name:"testApp",
-		props: {
-			msg: String,
-		},
-  });
+	name: "testApp",
+	props: {
+		msg: String,
+	},
+});
 </script>

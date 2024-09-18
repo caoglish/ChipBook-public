@@ -1,12 +1,12 @@
 <template>
-		<v-col cols="12" md="2">
-			<v-card  variant="outlined" title="User Information">
-				<v-card-text>
-					<p>Name: {{ loginUserStore.user?.displayName || 'Unknown' }}</p>
-					<p>Email: {{ loginUserStore.user?.email }}</p>
-				</v-card-text>
-			</v-card>
-		</v-col>
+	<v-col cols="12" md="2">
+		<v-card variant="outlined" title="User Information">
+			<v-card-text>
+				<p>Name: {{ loginUserStore.user?.displayName || 'Unknown' }}</p>
+				<p>Email: {{ loginUserStore.user?.email }}</p>
+			</v-card-text>
+		</v-card>
+	</v-col>
 </template>
 
 <script setup>

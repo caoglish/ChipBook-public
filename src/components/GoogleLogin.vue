@@ -4,8 +4,8 @@
 			<v-btn v-if="!user" color="primary" @click="signInWithGoogle">使用 Google 登录</v-btn>
 		</v-row>
 		<v-row>
-			<v-alert v-if="loginUserStore.errorMessage" type="error" dismissible
-				@click="clearErrorMessage">{{ loginUserStore.errorMessage }}</v-alert>
+			<v-alert v-if="loginUserStore.errorMessage" type="error" dismissible @click="clearErrorMessage">{{
+				loginUserStore.errorMessage }}</v-alert>
 		</v-row>
 	</v-col>
 
