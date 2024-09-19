@@ -46,12 +46,7 @@
 				@save-summary="saveSummary" />
 
 			<!-- 日志记录表格 -->
-			<h3>日志记录</h3>
-			<!-- 切换显示模式的按钮 -->
-			<v-btn color="primary" @click="sortLogsByPlayer">按玩家排序</v-btn>
-			<v-btn color="secondary" @click="sortLogsByTime">按时间排序</v-btn>
-			<v-data-table :headers="logHeaders" :items="combinedLogs" :items-per-page="-1" :hide-default-footer="1"
-				class="mt-4"></v-data-table>
+			<LogsTable />
 		</div>
 
 		<!-- 打印按钮 -->
@@ -130,15 +125,16 @@ import {
 	where,
 	setDoc,
 	arrayUnion,
-	
+
 } from "firebase/firestore";
 import firebaseDb from "@/Lib/FirebaseDb";
 import playerHelper from "@/Lib/PlayerHelper";
-import logHelper from "@/Lib/LogHelper";
 import { dateDisplay, firebaseTimestamp } from "@/Lib/DateHelper";
 import PlayerTable from "@/components/gameManagement/PlayerTable.vue"; // 导入新的组件
 import SummaryTable from "@/components/gameManagement/SummaryTable.vue"; // 导入新的组件
 import { useGameSessionStore } from '@/store/GameSessionStore'; // 引入 store
+import LogsTable from '@/components/gameManagement/LogsTable.vue';
+import { useLogStore } from '@/store/useLogStore';
 
 const db = firebaseDb;
 
@@ -147,11 +143,14 @@ export default defineComponent({
 	components: {
 		PlayerTable,
 		SummaryTable,
+		LogsTable,
 	},
 	setup() {
 		const GameSessionStore = useGameSessionStore();
+		const logStore = useLogStore();
 		return {
-			GameSessionStore
+			GameSessionStore,
+			logStore
 		}
 	},
 	props: {
@@ -172,7 +171,7 @@ export default defineComponent({
 			selectedPlayers: [],
 			players: [],
 
-			combinedLogs: [], // 组合的日志列表
+		
 			buyInAmount: 0,
 			refundAmount: 0, // 退码手数
 			remainingAmount: 0, // 剩余筹码数
@@ -185,15 +184,6 @@ export default defineComponent({
 			chipsPerHandOptions: [500, 1000, "custom"],
 			amountPerHandOptions: [50, 100, "custom"],
 			isExporting: false,
-
-			
-
-			logHeaders: [
-				{ title: "时间", key: "date" },
-				{ title: "玩家名称", key: "player_display_name" },
-				{ title: "操作类型", key: "action" },
-				{ title: "详细信息", key: "details" },
-			],
 
 			sortByPlayer: false, // 是否按玩家排序的标志
 		};
@@ -357,8 +347,7 @@ export default defineComponent({
 		resetGame() {
 			this.players = [];
 			this.selectedPlayers = [];
-			this.combinedLogs = [];
-		},
+			
 		openAddPlayersDialog() {
 			this.addPlayersDialog = true;
 		},
@@ -635,59 +624,12 @@ export default defineComponent({
 		},
 
 		async fetchAllPlayerLogs() {
-			try {
-				// 获取当前游戏中的所有玩家日志
-				const gameRef = doc(db, "games", this.currentGame.id);
-				const combinedLogs = [];
-
-				const playersSnapshot = await getDocs(collection(gameRef, "players"));
-				const allplayers = playersSnapshot.docs.map((doc) => ({
-					id: doc.id,
-					...doc.data(),
-				}));
-				const allLogs = allplayers.reduce((accumulator, currentpalyer) => {
-					console.log(accumulator);
-					console.log(currentpalyer.logs);
-					const logs = currentpalyer.logs.map((item) => ({
-						...item,
-						player_display_name: currentpalyer.player_display_name,
-						player_id: currentpalyer.player_id,
-						details: logHelper.makeLogDetail(item),
-					}));
-
-					return accumulator.concat(logs);
-				}, []);
-				console.log("allLogs:", allLogs);
-				this.combinedLogs = allLogs;
-				this.sortLogs();
-			} catch (error) {
-				console.error("Error fetching all player logs:", error);
-				alert("无法加载所有玩家日志，请重试。");
-			}
-
-		},
-		sortLogs() {
-			if (this.sortByPlayer) {
-				this.combinedLogs.sort((a, b) => {
-					if (a.player_id === b.player_id) {
-						return a.timestamp.toDate() - b.timestamp.toDate();
-					}
-					return a.player_id.localeCompare(b.player_id);
-				});
-			} else {
-				this.combinedLogs.sort(
-					(a, b) => a.timestamp.toDate() - b.timestamp.toDate()
-				);
+			if (this.currentGame?.id) {
+				await this.logStore.fetchAllPlayerLogs(this.currentGame.id);
 			}
 		},
-		sortLogsByPlayer() {
-			this.sortByPlayer = true;
-			this.sortLogs();
-		},
-		sortLogsByTime() {
-			this.sortByPlayer = false;
-			this.sortLogs();
-		},
+		
+		
 		async fetchPlayers() {
 			try {
 				const playersSnapshot = await getDocs(collection(db, "players"));
@@ -716,13 +658,14 @@ export default defineComponent({
 			}
 		},
 	},
+
 	async created() {
 		console.log(dateDisplay());
 		console.log(this.gameId);
 		if (this.gameId) {
 			// 如果提供了gameId，直接加载该游戏的信息
 			await this.selectGame(this.gameId);
-		} 
+		}
 		this.fetchPlayers();
 	},
 });

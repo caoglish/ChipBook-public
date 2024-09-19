@@ -8,6 +8,7 @@ export interface Player{
 }
 
 export interface PlayerInGame extends Player {
+	player_id: string
 	hands_bought: number
 	chips_bought: number
 	amount_bought: number
