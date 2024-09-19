@@ -16,13 +16,13 @@
 
 <script lang="ts">
 import { defineComponent, computed, ref } from 'vue';
-import { useGameSessionStore } from '@/store/GameSessionStore';
+import { useCurrentGameIdStore } from '@/store/CurrentGameIdStore';
 import { useRouter } from 'vue-router'; // 引入 useRouter
 
 export default defineComponent({
 	name: 'ContinueGame',
 	setup() {
-		const gameSessionStore = useGameSessionStore(); // 使用 store
+		const gameSessionStore = useCurrentGameIdStore(); // 使用 store
 		const router = useRouter(); // 获取 router 实例
 		const noGameSession = ref(false); // 控制显示“没有进行的游戏”警告
 

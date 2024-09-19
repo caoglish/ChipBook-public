@@ -3,7 +3,7 @@ import firebaseDb from "@/Lib/FirebaseDb";// 确保 Firebase 正确导入
 import { doc ,getDoc} from 'firebase/firestore';
 
 // 使用 `pinia-plugin-persistedstate` 插件来持久化状态
-export const useGameSessionStore = defineStore('gameSession', {
+export const useCurrentGameIdStore = defineStore('currentGameIdStore', {
 	state: () => ({
 		currentGameId: null as string | null, // 保存当前游戏的 ID
 	}),

@@ -132,7 +132,7 @@ import playerHelper from "@/Lib/PlayerHelper";
 import { dateDisplay, firebaseTimestamp } from "@/Lib/DateHelper";
 import PlayerTable from "@/components/gameManagement/PlayerTable.vue"; // 导入新的组件
 import SummaryTable from "@/components/gameManagement/SummaryTable.vue"; // 导入新的组件
-import { useGameSessionStore } from '@/store/GameSessionStore'; // 引入 store
+import { useCurrentGameIdStore } from '@/store/CurrentGameIdStore'; // 引入 store
 import LogsTable from '@/components/gameManagement/LogsTable.vue';
 import { useLogStore } from '@/store/useLogStore';
 
@@ -146,7 +146,7 @@ export default defineComponent({
 		LogsTable,
 	},
 	setup() {
-		const GameSessionStore = useGameSessionStore();
+		const GameSessionStore = useCurrentGameIdStore();
 		const logStore = useLogStore();
 		return {
 			GameSessionStore,
@@ -347,7 +347,7 @@ export default defineComponent({
 		resetGame() {
 			this.players = [];
 			this.selectedPlayers = [];
-			
+		},
 		openAddPlayersDialog() {
 			this.addPlayersDialog = true;
 		},
