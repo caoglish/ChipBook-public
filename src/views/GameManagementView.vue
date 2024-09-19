@@ -136,8 +136,8 @@ import firebaseDb from "@/Lib/FirebaseDb";
 import playerHelper from "@/Lib/PlayerHelper";
 import logHelper from "@/Lib/LogHelper";
 import { dateDisplay, firebaseTimestamp } from "@/Lib/DateHelper";
-import PlayerTable from "@/components/PlayerTable.vue"; // 导入新的组件
-import SummaryTable from "@/components/SummaryTable.vue"; // 导入新的组件
+import PlayerTable from "@/components/gameManagement/PlayerTable.vue"; // 导入新的组件
+import SummaryTable from "@/components/gameManagement/SummaryTable.vue"; // 导入新的组件
 import { useGameSessionStore } from '@/store/GameSessionStore'; // 引入 store
 
 const db = firebaseDb;

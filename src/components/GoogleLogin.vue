@@ -16,7 +16,7 @@
 <script setup lang="ts">
 import { useLoginUserStore } from "@/store/LoginUserStore";
 import { computed } from "vue";
-import LoginUserCard from '@/components/LoginUserCard.vue'
+import LoginUserCard from '@/components/card/LoginUserCard.vue'
 
 // 使用 Pinia store
 const loginUserStore = useLoginUserStore();

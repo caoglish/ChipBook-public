@@ -14,8 +14,8 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 
-import LoginUserCard from '@/components/LoginUserCard.vue'
-import envCard from '@/components/envCard.vue'
+import LoginUserCard from '@/components/card/LoginUserCard.vue'
+import envCard from '@/components/card/envCard.vue'
 
 export default defineComponent({
 	name: "testView",

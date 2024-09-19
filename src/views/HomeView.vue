@@ -11,8 +11,8 @@
 <script lang="ts">
 import { defineComponent ,computed} from 'vue';
 import GoogleLogin from "@/components/GoogleLogin.vue";
-import ContinueGame from "@/components/ContinueGameCard.vue";
-import envCard from '@/components/envCard.vue'
+import ContinueGame from "@/components/card/ContinueGameCard.vue";
+import envCard from '@/components/card/envCard.vue'
 import TodayGameTable from '@/components/TodayGameTable.vue'
 import { useLoginUserStore } from "@/store/LoginUserStore";// 导入 Pinia store
 
