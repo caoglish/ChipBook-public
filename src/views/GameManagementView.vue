@@ -169,10 +169,10 @@ export default defineComponent({
 			remainingDialog: false,
 			allPlayers: [], // 所有玩家列表
 			selectedPlayers: [],
-			players: [],
+			players: [], // Players in game
 
 		
-			buyInAmount: 0,
+			buyInAmount: 0, 
 			refundAmount: 0, // 退码手数
 			remainingAmount: 0, // 剩余筹码数
 			currentPlayerId: null,
@@ -219,19 +219,19 @@ export default defineComponent({
 			const totalWinLossChips = this.players.reduce(
 				(sum, player) =>
 					sum +
-					(player.win_loss_chips !== "未计算" ? player.win_loss_chips : 0),
+					(player.win_loss_chips !== null ? player.win_loss_chips : 0),
 				0
 			);
 			const totalWinLossAmount = this.players.reduce(
 				(sum, player) =>
 					sum +
-					(player.win_loss_amount !== "未计算" ? player.win_loss_amount : 0),
+					(player.win_loss_amount !== null ? parseInt(player.win_loss_amount) : 0), //in case of firebase save amount as string
 				0
 			);
 
 			// 检查是否所有的 win_loss_chips 都已计算
 			const isWinLossCalculated = this.players.every(
-				(player) => player.win_loss_chips !== "未计算"
+				(player) => player.win_loss_chips !== null
 			);
 			console.log(isWinLossCalculated);
 			const isZero = isWinLossCalculated && totalWinLossChips === 0;
@@ -372,8 +372,8 @@ export default defineComponent({
 						chips_bought: this.currentGame.chips_per_hand,
 						amount_bought: this.currentGame.amount_per_hand,
 						remaining_chips: null,
-						win_loss_chips: "未计算",
-						win_loss_amount: "未计算",
+						win_loss_chips: null,
+						win_loss_amount: null,
 						logs: [],
 					};
 					console.log("players", this.players);
@@ -451,7 +451,7 @@ export default defineComponent({
 								newChipsBought,
 								playerData.remaining_chips
 							)
-							: "未计算";
+							: null;
 
 					try {
 						const gameRef = doc(db, "games", this.currentGame.id);
@@ -466,7 +466,7 @@ export default defineComponent({
 							win_loss_amount:
 								playerData.remaining_chips !== null
 									? this.calculateWinLossAmount(winLossChips)
-									: "未计算",
+									: null,
 							logs: arrayUnion({
 								date: dateDisplay(),
 								action: "buyin",
@@ -487,7 +487,7 @@ export default defineComponent({
 						player.win_loss_amount =
 							playerData.remaining_chips !== null
 								? this.calculateWinLossAmount(winLossChips)
-								: "未计算";
+								: null;
 
 						this.buyInDialog = false;
 						this.buyInAmount = 0;
@@ -522,7 +522,7 @@ export default defineComponent({
 								newChipsBought,
 								playerData.remaining_chips
 							)
-							: "未计算";
+							: null;
 
 					try {
 						const gameRef = doc(db, "games", this.currentGame.id);
@@ -535,7 +535,7 @@ export default defineComponent({
 							win_loss_amount:
 								playerData.remaining_chips !== null
 									? this.calculateWinLossAmount(winLossChips)
-									: "未计算",
+									: null,
 							logs: arrayUnion({
 								date: dateDisplay(),
 								action: "refund",
@@ -556,7 +556,7 @@ export default defineComponent({
 						player.win_loss_amount =
 							playerData.remaining_chips !== null
 								? this.calculateWinLossAmount(winLossChips)
-								: "未计算";
+								: null;
 
 						this.refundDialog = false;
 						this.refundAmount = 0;
@@ -602,6 +602,7 @@ export default defineComponent({
 						);
 						player.remaining_chips = remaining;
 						player.win_loss_chips = winLossChips;
+			
 						player.win_loss_amount = this.calculateWinLossAmount(winLossChips);
 
 						this.remainingDialog = false;
@@ -620,7 +621,7 @@ export default defineComponent({
 		calculateWinLossAmount(winLossChips) {
 			let result = winLossChips *
 				(this.currentGame.amount_per_hand / this.currentGame.chips_per_hand);
-			return result.toFixed(2);
+			return parseInt(result.toFixed(2)) ;
 		},
 
 		async fetchAllPlayerLogs() {

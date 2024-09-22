@@ -13,7 +13,7 @@ export interface PlayerInGame extends Player {
 	chips_bought: number
 	amount_bought: number
 	remaining_chips: number | null
-	win_loss_chips: string | number
-	win_loss_amount: string | number
+	win_loss_chips:  number | null
+	win_loss_amount: number | null
 	logs: Log[]
   }
