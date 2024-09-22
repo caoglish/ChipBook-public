@@ -225,7 +225,7 @@ export default defineComponent({
 			const totalWinLossAmount = this.players.reduce(
 				(sum, player) =>
 					sum +
-					(player.win_loss_amount !== null ? parseInt(player.win_loss_amount) : 0), //in case of firebase save amount as string
+					(player.win_loss_amount !== null ? parseFloat(player.win_loss_amount) : 0), //in case of firebase save amount as string
 				0
 			);
 
@@ -621,7 +621,7 @@ export default defineComponent({
 		calculateWinLossAmount(winLossChips) {
 			let result = winLossChips *
 				(this.currentGame.amount_per_hand / this.currentGame.chips_per_hand);
-			return parseInt(result.toFixed(2)) ;
+			return parseFloat(result.toFixed(2)) ;
 		},
 
 		async fetchAllPlayerLogs() {
