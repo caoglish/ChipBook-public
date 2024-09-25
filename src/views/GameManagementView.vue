@@ -104,7 +104,7 @@
 				</v-card-text>
 				<v-card-actions>
 					<v-btn color="blue darken-1" @click="confirmRemaining">确认</v-btn>
-					<v-btn color="grey darken-1" @click="remainingDialog = false">取消</v-btn>
+					<v-btn color="grey darken-1" @click="cancelRemaining">取消</v-btn>
 				</v-card-actions>
 			</v-card>
 		</v-dialog>
@@ -171,8 +171,8 @@ export default defineComponent({
 			selectedPlayers: [],
 			players: [], // Players in game
 
-		
-			buyInAmount: 0, 
+
+			buyInAmount: 0,
 			refundAmount: 0, // 退码手数
 			remainingAmount: 0, // 剩余筹码数
 			currentPlayerId: null,
@@ -410,6 +410,7 @@ export default defineComponent({
 		},
 		setRemaining(player) {
 			this.currentPlayerId = player.player_id;
+			this.remainingAmount = player.remaining_chips !== null ? player.remaining_chips : 0;
 			this.remainingDialog = true;
 		},
 		async fetchPlayerById(playerId) {
@@ -602,11 +603,11 @@ export default defineComponent({
 						);
 						player.remaining_chips = remaining;
 						player.win_loss_chips = winLossChips;
-			
-						player.win_loss_amount = this.calculateWinLossAmount(winLossChips);
 
-						this.remainingDialog = false;
+						player.win_loss_amount = this.calculateWinLossAmount(winLossChips);
 						this.remainingAmount = 0;
+						this.remainingDialog = false;
+						
 					} catch (error) {
 						console.error("Error updating remaining chips:", error);
 						alert("更新剩余筹码失败，请重试。");
@@ -621,7 +622,13 @@ export default defineComponent({
 		calculateWinLossAmount(winLossChips) {
 			let result = winLossChips *
 				(this.currentGame.amount_per_hand / this.currentGame.chips_per_hand);
-			return parseFloat(result.toFixed(2)) ;
+			return parseFloat(result.toFixed(2));
+		},
+
+		cancelRemaining() {
+			this.remainingAmount = 0;
+			this.remainingDialog = false;
+			
 		},
 
 		async fetchAllPlayerLogs() {
@@ -629,8 +636,8 @@ export default defineComponent({
 				await this.logStore.fetchAllPlayerLogs(this.currentGame.id);
 			}
 		},
-		
-		
+
+
 		async fetchPlayers() {
 			try {
 				const playersSnapshot = await getDocs(collection(db, "players"));
