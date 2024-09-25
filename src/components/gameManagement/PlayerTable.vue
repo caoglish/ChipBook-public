@@ -23,6 +23,8 @@
 
 
 <script>
+
+import { useGameStore } from "@/store/useGameStore"; // 导入 gameStore
 export default {
 	name: "PlayerTable",
 	props: {
@@ -58,13 +60,17 @@ export default {
 	},
 	methods: {
 		buyIn(player) {
-			this.$emit("buy-in", player);
+			const gameStore = useGameStore();
+			gameStore.buyIn(player);
+			
 		},
 		setRemaining(player) {
-			this.$emit("set-remaining", player);
+			const gameStore = useGameStore();
+			gameStore.setRemaining(player);
 		},
 		refund(player) {
-			this.$emit("refund", player);
+			const gameStore = useGameStore();
+			gameStore.refund(player);
 		},
 	},
 };

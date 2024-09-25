@@ -3,14 +3,14 @@ import { defineStore } from 'pinia';
 import { collection, getDocs, doc } from 'firebase/firestore';
 import firebaseDb from '@/Lib/FirebaseDb';
 import logHelper from '@/Lib/LogHelper';
-import {Log} from '@/Type/Log'
+import {Log,LogForDisplay} from '@/Type/Log'
 import {PlayerInGame} from '@/Type/Player'
 
 const db = firebaseDb;
 
 export const useLogStore = defineStore('logStore', {
   state: () => ({
-    combinedLogs: [] as Array<Log>,
+    combinedLogs: [] as Array<LogForDisplay>,
     sortByPlayer: false,
   }),
   actions: {
@@ -23,7 +23,7 @@ export const useLogStore = defineStore('logStore', {
           ...doc.data(),
         })) as PlayerInGame[];
 
-        const allLogs = allplayers.reduce((accumulator: Log[] , currentPlayer:PlayerInGame) => {
+        const allLogs = allplayers.reduce((accumulator: LogForDisplay[] , currentPlayer:PlayerInGame) => {
           const logs = currentPlayer.logs.map((item: any) => ({
             ...item,
             player_display_name: currentPlayer.player_display_name,
@@ -31,7 +31,7 @@ export const useLogStore = defineStore('logStore', {
             details: logHelper.makeLogDetail(item),
           }));
           return accumulator.concat(logs);
-        }, [] as Array<any>);
+        }, [] as Array<LogForDisplay>);
 
         this.combinedLogs = allLogs;
         this.sortLogs();
@@ -41,14 +41,14 @@ export const useLogStore = defineStore('logStore', {
     },
     sortLogs() {
       if (this.sortByPlayer) {
-        this.combinedLogs.sort((a:Log, b:Log) => {
+        this.combinedLogs.sort((a:LogForDisplay, b:LogForDisplay) => {
           if (a.player_id === b.player_id) {
             return a.timestamp.seconds - b.timestamp.seconds;
           }
           return a.player_id.localeCompare(b.player_id);
         });
       } else {
-        this.combinedLogs.sort((a:Log, b:Log) => a.timestamp.seconds - b.timestamp.seconds);
+        this.combinedLogs.sort((a:LogForDisplay, b:LogForDisplay) => a.timestamp.seconds - b.timestamp.seconds);
       }
     },
     sortLogsByPlayer() {

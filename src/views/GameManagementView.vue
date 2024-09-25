@@ -1,17 +1,13 @@
 <template>
 	<div>
 		<!-- 创建新德州局按钮 -->
-		<v-btn color="primary" @click="gameStore.openNewGameDialog">创建新德州局</v-btn>
-
-   <!-- 引入创建新德州局对话框 -->
-   <CreateNewGameDialog />
+		<v-btn color="primary" v-if="!gameStore.currentGame" @click="gameStore.openNewGameDialog">创建新德州局</v-btn>
 
 		<div ref="gameInfo" class="print-container" v-if="gameStore.currentGame">
 			<!-- 显示当前局信息 -->
 			<GameInfoDisplay />
 
-			<PlayerTable :players="gameStore.players" :isExporting="gameStore.isExporting" @buy-in="gameStore.buyIn"
-				@set-remaining="gameStore.setRemaining" @refund="gameStore.refund" />
+			<PlayerTable :players="gameStore.players" :isExporting="gameStore.isExporting" />
 
 			<!-- 引入总结表格组件 -->
 			<SummaryTable :summaryData="gameStore.summaryData" :isExporting="gameStore.isExporting"
@@ -23,6 +19,9 @@
 
 		<!-- 打印按钮 -->
 		<v-btn v-if="gameStore.currentGame" color="primary" @click="printGameInfo">打印游戏信息</v-btn>
+
+		<!-- 引入创建新德州局对话框 -->
+		<CreateNewGameDialog />
 
 		<!-- 添加玩家对话框 -->
 		<v-dialog v-model="gameStore.addPlayersDialog" max-width="500px">
@@ -84,7 +83,7 @@
 </template>
 
 <script setup>
-import { onMounted, ref,nextTick } from 'vue';
+import { onMounted, ref, nextTick } from 'vue';
 import { useRoute } from 'vue-router';
 import html2canvas from 'html2canvas';
 
@@ -104,6 +103,8 @@ onMounted(async () => {
 	console.log(gameId)
 	if (gameId) {
 		await gameStore.selectGame(gameId);
+	} else {
+		gameStore.currentGame = null;
 	}
 	await gameStore.fetchPlayers();
 });

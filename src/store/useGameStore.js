@@ -1,5 +1,5 @@
 // store/useGameStore.js
-import { defineStore } from 'pinia';
+import { defineStore } from "pinia";
 import {
   collection,
   addDoc,
@@ -11,15 +11,15 @@ import {
   where,
   setDoc,
   arrayUnion,
-} from 'firebase/firestore';
-import firebaseDb from '@/Lib/FirebaseDb';
-import playerHelper from '@/Lib/PlayerHelper';
-import { dateDisplay, firebaseTimestamp } from '@/Lib/DateHelper';
-import { useLogStore } from '@/store/useLogStore';
-import { useCurrentGameIdStore } from '@/store/CurrentGameIdStore'; 
+} from "firebase/firestore";
+import firebaseDb from "@/Lib/FirebaseDb";
+import playerHelper from "@/Lib/PlayerHelper";
+import { dateDisplay, firebaseTimestamp } from "@/Lib/DateHelper";
+import { useLogStore } from "@/store/useLogStore";
+import { useCurrentGameIdStore } from "@/store/CurrentGameIdStore";
 const db = firebaseDb;
 
-export const useGameStore = defineStore('game', {
+export const useGameStore = defineStore("game", {
   state: () => ({
     currentGame: null,
     newGameDialog: false,
@@ -40,8 +40,8 @@ export const useGameStore = defineStore('game', {
     amountPerHand: 50,
     amountPerHandCustom: null,
 
-    chipsPerHandOptions: [500, 1000, 'custom'],
-    amountPerHandOptions: [50, 100, 'custom'],
+    chipsPerHandOptions: [500, 1000, "custom"],
+    amountPerHandOptions: [50, 100, "custom"],
     isExporting: false,
 
     sortByPlayer: false, // 是否按玩家排序的标志
@@ -106,14 +106,14 @@ export const useGameStore = defineStore('game', {
       this.newGameDialog = true;
     },
     async createNewGame() {
-	  const currentGameIdStore=useCurrentGameIdStore()
+      const currentGameIdStore = useCurrentGameIdStore();
       try {
         const chipsPerHandValue =
-          this.chipsPerHand === 'custom'
+          this.chipsPerHand === "custom"
             ? this.chipsPerHandCustom
             : this.chipsPerHand;
         const amountPerHandValue =
-          this.amountPerHand === 'custom'
+          this.amountPerHand === "custom"
             ? this.amountPerHandCustom
             : this.amountPerHand;
 
@@ -123,18 +123,17 @@ export const useGameStore = defineStore('game', {
           amount_per_hand: parseInt(amountPerHandValue, 10),
           created_at_timestamp: firebaseTimestamp(),
         };
-        const gameRef = await addDoc(collection(db, 'games'), gameData);
+        const gameRef = await addDoc(collection(db, "games"), gameData);
         this.resetGame();
         this.currentGame = { id: gameRef.id, ...gameData };
-        console.log('current game id:', gameRef.id);
-		
-		currentGameIdStore.setGameId( this.currentGame.id)
-		console.log(currentGameIdStore)
+        console.log("current game id:", gameRef.id);
+
+        currentGameIdStore.setGameId(this.currentGame.id);
+        console.log(currentGameIdStore);
         this.newGameDialog = false;
-		
       } catch (error) {
-        console.error('Error creating new game:', error);
-        alert('无法创建新游戏，请重试。');
+        console.error("Error creating new game:", error);
+        alert("无法创建新游戏，请重试。");
       }
     },
     resetGame() {
@@ -142,54 +141,54 @@ export const useGameStore = defineStore('game', {
       this.selectedPlayers = [];
     },
     async selectGame(gameId) {
-		console.log("gamestore",gameId)
+      console.log("gamestore", gameId);
       this.currentGame = await this.fetchGameById(gameId);
-	  console.log("gamestore currentGame",this.currentGame )
+      console.log("gamestore currentGame", this.currentGame);
       await this.fetchInGamePlayers();
       await this.fetchAllPlayerLogs();
     },
     async fetchGameById(gameId) {
       try {
-        const gameRef = doc(db, 'games', gameId);
+        const gameRef = doc(db, "games", gameId);
         const gameSnapshot = await getDoc(gameRef);
         if (gameSnapshot.exists()) {
           return { id: gameId, ...gameSnapshot.data() };
         } else {
-          console.error('No game found with the given ID.');
-          alert('无法找到指定的游戏。');
+          console.error("No game found with the given ID.");
+          alert("无法找到指定的游戏。");
           return null;
         }
       } catch (error) {
-        console.error('Error fetching game by ID:', error);
-        alert('无法获取游戏信息，请重试。');
+        console.error("Error fetching game by ID:", error);
+        alert("无法获取游戏信息，请重试。");
         return null;
       }
     },
     async fetchPlayers() {
       try {
-        const playersSnapshot = await getDocs(collection(db, 'players'));
+        const playersSnapshot = await getDocs(collection(db, "players"));
         this.allPlayers = playersSnapshot.docs.map((doc) => ({
           id: doc.id,
           ...doc.data(),
         }));
       } catch (error) {
-        console.error('Error fetching players:', error);
-        alert('无法加载玩家列表，请重试。');
+        console.error("Error fetching players:", error);
+        alert("无法加载玩家列表，请重试。");
       }
     },
     async fetchInGamePlayers() {
       try {
-        const gameRef = doc(db, 'games', this.currentGame.id);
+        const gameRef = doc(db, "games", this.currentGame.id);
         const inGamePlayersSnapshot = await getDocs(
-          collection(gameRef, 'players')
+          collection(gameRef, "players")
         );
         this.players = inGamePlayersSnapshot.docs.map((doc) => ({
           id: doc.id,
           ...doc.data(),
         }));
       } catch (error) {
-        console.error('Error fetching in-game players:', error);
-        alert('无法加载当前游戏中的玩家，请重试。');
+        console.error("Error fetching in-game players:", error);
+        alert("无法加载当前游戏中的玩家，请重试。");
       }
     },
     openAddPlayersDialog() {
@@ -198,7 +197,7 @@ export const useGameStore = defineStore('game', {
     async addPlayersToGame() {
       try {
         this.addPlayersDialog = false;
-        const gameRef = doc(db, 'games', this.currentGame.id);
+        const gameRef = doc(db, "games", this.currentGame.id);
 
         for (const playerId of this.selectedPlayers) {
           if (this.players.some((p) => p.player_id === playerId)) {
@@ -220,25 +219,25 @@ export const useGameStore = defineStore('game', {
             logs: [],
           };
           const playerIndex = playerHelper.getNextPlayerId(this.players);
-          await setDoc(doc(gameRef, 'players', playerIndex), newPlayerData);
+          await setDoc(doc(gameRef, "players", playerIndex), newPlayerData);
 
           // 添加加入游戏的log
           const logEntry = {
             date: dateDisplay(),
-            action: 'join',
+            action: "join",
             hands: 1,
             timestamp: firebaseTimestamp(),
           };
 
-          await updateDoc(doc(gameRef, 'players', playerIndex), {
+          await updateDoc(doc(gameRef, "players", playerIndex), {
             logs: arrayUnion(logEntry),
           });
           await this.fetchInGamePlayers();
           await this.fetchAllPlayerLogs();
         }
       } catch (error) {
-        console.error('Error adding players to game:', error);
-        alert('无法添加玩家，请重试。');
+        console.error("Error adding players to game:", error);
+        alert("无法添加玩家，请重试。");
       }
     },
     buyIn(player) {
@@ -257,20 +256,20 @@ export const useGameStore = defineStore('game', {
     },
     async fetchPlayerById(playerId) {
       try {
-        const gameRef = doc(db, 'games', this.currentGame.id);
-        const playersRef = collection(gameRef, 'players');
-        const q = query(playersRef, where('player_id', '==', playerId));
+        const gameRef = doc(db, "games", this.currentGame.id);
+        const playersRef = collection(gameRef, "players");
+        const q = query(playersRef, where("player_id", "==", playerId));
         const querySnapshot = await getDocs(q);
         if (!querySnapshot.empty) {
           const playerDoc = querySnapshot.docs[0];
           return { id: playerDoc.id, data: playerDoc.data() };
         } else {
-          console.log('No player found with the given ID');
+          console.log("No player found with the given ID");
           return null;
         }
       } catch (error) {
-        console.error('Error fetching player by ID:', error);
-        alert('无法获取玩家信息，请重试。');
+        console.error("Error fetching player by ID:", error);
+        alert("无法获取玩家信息，请重试。");
         return null;
       }
     },
@@ -297,8 +296,8 @@ export const useGameStore = defineStore('game', {
               : null;
 
           try {
-            const gameRef = doc(db, 'games', this.currentGame.id);
-            const playerRef = doc(collection(gameRef, 'players'), playerDocId);
+            const gameRef = doc(db, "games", this.currentGame.id);
+            const playerRef = doc(collection(gameRef, "players"), playerDocId);
             await updateDoc(playerRef, {
               hands_bought: newHandsBought,
               chips_bought: newChipsBought,
@@ -310,7 +309,7 @@ export const useGameStore = defineStore('game', {
                   : null,
               logs: arrayUnion({
                 date: dateDisplay(),
-                action: 'buyin',
+                action: "buyin",
                 hands: this.buyInAmount,
                 timestamp: firebaseTimestamp(),
               }),
@@ -322,8 +321,8 @@ export const useGameStore = defineStore('game', {
             this.buyInDialog = false;
             this.buyInAmount = 0;
           } catch (error) {
-            console.error('Error updating buy-in data:', error);
-            alert('买入操作失败，请重试。');
+            console.error("Error updating buy-in data:", error);
+            alert("买入操作失败，请重试。");
           }
         }
       }
@@ -339,7 +338,7 @@ export const useGameStore = defineStore('game', {
           const newHandsBought = playerData.hands_bought - refund;
 
           if (newHandsBought < 0) {
-            alert('退码手数不能超过当前买入手数！');
+            alert("退码手数不能超过当前买入手数！");
             return;
           }
           const newChipsBought =
@@ -355,8 +354,8 @@ export const useGameStore = defineStore('game', {
               : null;
 
           try {
-            const gameRef = doc(db, 'games', this.currentGame.id);
-            const playerRef = doc(collection(gameRef, 'players'), playerDocId);
+            const gameRef = doc(db, "games", this.currentGame.id);
+            const playerRef = doc(collection(gameRef, "players"), playerDocId);
             await updateDoc(playerRef, {
               hands_bought: newHandsBought,
               chips_bought: newChipsBought,
@@ -368,7 +367,7 @@ export const useGameStore = defineStore('game', {
                   : null,
               logs: arrayUnion({
                 date: dateDisplay(),
-                action: 'refund',
+                action: "refund",
                 hands: refund,
                 timestamp: firebaseTimestamp(),
               }),
@@ -380,8 +379,8 @@ export const useGameStore = defineStore('game', {
             this.refundDialog = false;
             this.refundAmount = 0;
           } catch (error) {
-            console.error('Error updating refund data:', error);
-            alert('退码操作失败，请重试。');
+            console.error("Error updating refund data:", error);
+            alert("退码操作失败，请重试。");
           }
         }
       }
@@ -400,15 +399,15 @@ export const useGameStore = defineStore('game', {
           );
 
           try {
-            const gameRef = doc(db, 'games', this.currentGame.id);
-            const playerRef = doc(collection(gameRef, 'players'), playerDocId);
+            const gameRef = doc(db, "games", this.currentGame.id);
+            const playerRef = doc(collection(gameRef, "players"), playerDocId);
             await updateDoc(playerRef, {
               remaining_chips: remaining,
               win_loss_chips: winLossChips,
               win_loss_amount: this.calculateWinLossAmount(winLossChips),
               logs: arrayUnion({
                 date: dateDisplay(),
-                action: 'setRemaining',
+                action: "setRemaining",
                 chips: remaining,
                 timestamp: firebaseTimestamp(),
               }),
@@ -420,8 +419,8 @@ export const useGameStore = defineStore('game', {
             this.remainingAmount = 0;
             this.remainingDialog = false;
           } catch (error) {
-            console.error('Error updating remaining chips:', error);
-            alert('更新剩余筹码失败，请重试。');
+            console.error("Error updating remaining chips:", error);
+            alert("更新剩余筹码失败，请重试。");
           }
         }
       }
