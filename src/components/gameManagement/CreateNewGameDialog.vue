@@ -23,17 +23,7 @@
 	</v-dialog>
 </template>
 
-<script>
+<script setup>
 import { useGameStore } from '@/store/useGameStore'; // 引入使用的 Pinia store
-
-export default {
-	name: 'CreateNewGameDialog',
-	setup() {
-		const gameStore = useGameStore(); // 直接返回 gameStore
-
-		return {
-			gameStore, // 简单返回整个 store 对象，减少重复代码
-		};
-	},
-};
+const gameStore = useGameStore(); // 直接返回 gameStore
 </script>

@@ -21,36 +21,17 @@
 
 
 
-    <!-- 引入添加玩家对话框组件 -->
-    <AddPlayerDialog />
+		<!-- 引入添加玩家对话框组件 -->
+		<AddPlayerDialog />
 
-		<!-- 退码手数对话框 -->
-		<v-dialog v-model="gameStore.refundDialog" max-width="400px">
-			<v-card>
-				<v-card-title>玩家退码</v-card-title>
-				<v-card-text>
-					<v-text-field v-model="gameStore.refundAmount" label="退码手数" type="number"></v-text-field>
-				</v-card-text>
-				<v-card-actions>
-					<v-btn color="blue darken-1" @click="gameStore.confirmRefund">确认</v-btn>
-					<v-btn color="grey darken-1" @click="gameStore.refundDialog = false">取消</v-btn>
-				</v-card-actions>
-			</v-card>
-		</v-dialog>
+		 <!-- 引入买入手数对话框组件 -->
+		 <BuyInDialog />
 
-		<!-- 剩余筹码对话框 -->
-		<v-dialog v-model="gameStore.remainingDialog" max-width="400px">
-			<v-card>
-				<v-card-title>设置剩余筹码</v-card-title>
-				<v-card-text>
-					<v-text-field v-model="gameStore.remainingAmount" label="剩余筹码数" type="number"></v-text-field>
-				</v-card-text>
-				<v-card-actions>
-					<v-btn color="blue darken-1" @click="gameStore.confirmRemaining">确认</v-btn>
-					<v-btn color="grey darken-1" @click="gameStore.cancelRemaining">取消</v-btn>
-				</v-card-actions>
-			</v-card>
-		</v-dialog>
+		<!-- 引入退码手数对话框组件 -->
+		<RefundDialog />
+
+		<!-- 引入剩余筹码对话框组件 -->
+		<RemainingChipsDialog />
 	</div>
 </template>
 
@@ -66,6 +47,9 @@ import LogsTable from '@/components/gameManagement/LogsTable.vue';
 import GameInfoDisplay from '@/components/gameManagement/GameInfoDisplay.vue';
 import CreateNewGameDialog from '@/components/gameManagement/CreateNewGameDialog.vue';
 import AddPlayerDialog from '@/components/gameManagement/AddPlayerDialog.vue';
+import RefundDialog from '@/components/gameManagement/RefundDialog.vue';
+import RemainingChipsDialog from '@/components/gameManagement/RemainingChipsDialog.vue';
+import BuyInDialog from '@/components/gameManagement/BuyInDialog.vue';
 
 const gameStore = useGameStore();
 const route = useRoute();
