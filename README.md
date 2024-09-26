@@ -1,29 +1,6 @@
 # chipbook
 
-## Project setup
-```
-npm install
-```
-
-### Compiles and hot-reloads for development
-```
-npm run serve
-```
-
-### Compiles and minifies for production
-```
-npm run build
-```
-
-### Run your unit tests
-```
-npm run test:unit
-```
-
-### Lints and fixes files
-```
-npm run lint
-```
-
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+## version system
+1. version will be updated every time when I  deploy to Live site.
+2. version need to change in package.json.
+3. git need to tag the version when I do the version update.
