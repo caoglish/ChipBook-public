@@ -6,51 +6,23 @@
 		<div ref="gameInfo" class="print-container" v-if="gameStore.currentGame">
 			<!-- 显示当前局信息 -->
 			<GameInfoDisplay />
-
 			<PlayerTable :players="gameStore.players" :isExporting="gameStore.isExporting" />
-
 			<!-- 引入总结表格组件 -->
 			<SummaryTable :summaryData="gameStore.summaryData" :isExporting="gameStore.isExporting"
 				:gameId="gameStore.currentGame.id" />
-
 			<!-- 日志记录表格 -->
 			<LogsTable />
 		</div>
-
 		<!-- 打印按钮 -->
 		<v-btn v-if="gameStore.currentGame" color="primary" @click="printGameInfo">打印游戏信息</v-btn>
 
 		<!-- 引入创建新德州局对话框 -->
 		<CreateNewGameDialog />
 
-		<!-- 添加玩家对话框 -->
-		<v-dialog v-model="gameStore.addPlayersDialog" max-width="500px">
-			<v-card>
-				<v-card-title>选择玩家</v-card-title>
-				<v-card-text>
-					<v-select v-model="gameStore.selectedPlayers" :items="gameStore.ForSelectPlayer"
-						item-title="player_name" item-value="id" label="选择一个或多个玩家" chips multiple></v-select>
-				</v-card-text>
-				<v-card-actions>
-					<v-btn color="blue darken-1" @click="gameStore.addPlayersToGame">添加</v-btn>
-					<v-btn color="grey darken-1" @click="gameStore.addPlayersDialog = false">取消</v-btn>
-				</v-card-actions>
-			</v-card>
-		</v-dialog>
 
-		<!-- 买入手数对话框 -->
-		<v-dialog v-model="gameStore.buyInDialog" max-width="400px">
-			<v-card>
-				<v-card-title>玩家买入</v-card-title>
-				<v-card-text>
-					<v-text-field v-model="gameStore.buyInAmount" label="买入手数" type="number"></v-text-field>
-				</v-card-text>
-				<v-card-actions>
-					<v-btn color="blue darken-1" @click="gameStore.confirmBuyIn">确认</v-btn>
-					<v-btn color="grey darken-1" @click="gameStore.buyInDialog = false">取消</v-btn>
-				</v-card-actions>
-			</v-card>
-		</v-dialog>
+
+    <!-- 引入添加玩家对话框组件 -->
+    <AddPlayerDialog />
 
 		<!-- 退码手数对话框 -->
 		<v-dialog v-model="gameStore.refundDialog" max-width="400px">
@@ -93,6 +65,7 @@ import SummaryTable from '@/components/gameManagement/SummaryTable.vue';
 import LogsTable from '@/components/gameManagement/LogsTable.vue';
 import GameInfoDisplay from '@/components/gameManagement/GameInfoDisplay.vue';
 import CreateNewGameDialog from '@/components/gameManagement/CreateNewGameDialog.vue';
+import AddPlayerDialog from '@/components/gameManagement/AddPlayerDialog.vue';
 
 const gameStore = useGameStore();
 const route = useRoute();

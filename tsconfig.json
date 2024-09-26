@@ -34,7 +34,7 @@
     "src/**/*.vue",
     "tests/**/*.ts",
     "tests/**/*.tsx"
-, "src/store/useGameStore.js"  ],
+, "src/store/useGameStore.js", "tests/unit/useLogStore.spec.text"  ],
   "exclude": [
     "node_modules"
   ]

@@ -19,6 +19,8 @@ import { useLogStore } from "@/store/useLogStore";
 import { useCurrentGameIdStore } from "@/store/CurrentGameIdStore";
 const db = firebaseDb;
 
+
+const DEFAULT_BUYIN_AMOUNT= 1;
 export const useGameStore = defineStore("game", {
   state: () => ({
     currentGame: null,
@@ -31,7 +33,7 @@ export const useGameStore = defineStore("game", {
     selectedPlayers: [],
     players: [], // Players in game
 
-    buyInAmount: 0,
+    buyInAmount: DEFAULT_BUYIN_AMOUNT,
     refundAmount: 0, // 退码手数
     remainingAmount: 0, // 剩余筹码数
     currentPlayerId: null,
@@ -310,16 +312,16 @@ export const useGameStore = defineStore("game", {
               logs: arrayUnion({
                 date: dateDisplay(),
                 action: "buyin",
-                hands: this.buyInAmount,
+                hands: buyin,
                 timestamp: firebaseTimestamp(),
               }),
             });
-
+			this.buyInDialog = false;
             await this.fetchInGamePlayers();
             await this.fetchAllPlayerLogs();
 
-            this.buyInDialog = false;
-            this.buyInAmount = 0;
+            
+            this.buyInAmount = DEFAULT_BUYIN_AMOUNT;
           } catch (error) {
             console.error("Error updating buy-in data:", error);
             alert("买入操作失败，请重试。");
@@ -413,10 +415,12 @@ export const useGameStore = defineStore("game", {
               }),
             });
 
+			this.remainingAmount = 0;
+
             await this.fetchInGamePlayers();
             await this.fetchAllPlayerLogs();
 
-            this.remainingAmount = 0;
+            
             this.remainingDialog = false;
           } catch (error) {
             console.error("Error updating remaining chips:", error);
@@ -443,9 +447,6 @@ export const useGameStore = defineStore("game", {
       if (this.currentGame?.id) {
         await logStore.fetchAllPlayerLogs(this.currentGame.id);
       }
-    },
-    async printGameInfo() {
-      // 这里的逻辑可以放在组件中，因为涉及到 DOM 操作
     },
   },
 });
