@@ -20,7 +20,7 @@
 
 
 		<!-- 成功保存的提示框 -->
-		<v-alert v-if="showAlert" type="success" class="mt-2">
+		<v-alert v-if="gameStore.showAlert" type="success" class="mt-2">
 			总结保存成功！
 		</v-alert>
 	</div>
@@ -28,10 +28,7 @@
 
 <script>
 
-import { doc, updateDoc, collection } from "firebase/firestore";
-import firebaseDb from "@/Lib/FirebaseDb"; // 导入Firebase数据库实例
-
-const db = firebaseDb;
+import { useGameStore } from '@/store/useGameStore';
 
 
 export default {
@@ -51,6 +48,10 @@ export default {
 		},
 	},
 	computed: {
+		// 使用 Pinia 的 store
+		gameStore() {
+			return useGameStore();
+		},
 		// 动态生成 headers，包括保存总结的列
 		headersToShow() {
 			const headers = [
@@ -63,7 +64,6 @@ export default {
 				{ title: "总胜负金额", key: "total_win_loss_amount" },
 				{ title: "胜负筹码为0?", key: "is_zero" },
 				{ title: "游戏状态", key: "game_status" },
-
 			];
 
 			// 如果不在导出模式下，添加操作列
@@ -74,33 +74,10 @@ export default {
 			return headers;
 		}
 	},
-	data() {
-		return {
-			showAlert: false, // 用于控制alert显示状态的变量
-		};
-	},
+
 	methods: {
-		async saveSummary() {
-			try {
-				// 获取game文档的引用
-				const gameRef = doc(collection(db, "games"), this.gameId);
-
-				// 更新game文档中的总结数据
-				await updateDoc(gameRef, {
-					summary: this.summaryData, // 保存当前的总结数据到Firebase
-				});
-
-				// 显示保存成功的提示框
-				this.showAlert = true;
-
-				// 3秒后隐藏提示框
-				setTimeout(() => {
-					this.showAlert = false;
-				}, 3000);
-			} catch (error) {
-				console.error("Error saving summary:", error);
-				alert("无法保存总结，请重试。");
-			}
+		saveSummary() {
+			this.gameStore.saveSummary(this.gameId, this.summaryData);
 		},
 	},
 };

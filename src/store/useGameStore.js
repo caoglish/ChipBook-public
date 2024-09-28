@@ -19,8 +19,7 @@ import { useLogStore } from "@/store/useLogStore";
 import { useCurrentGameIdStore } from "@/store/CurrentGameIdStore";
 const db = firebaseDb;
 
-
-const DEFAULT_BUYIN_AMOUNT= 1;
+const DEFAULT_BUYIN_AMOUNT = 1;
 export const useGameStore = defineStore("game", {
   state: () => ({
     currentGame: null,
@@ -45,7 +44,7 @@ export const useGameStore = defineStore("game", {
     chipsPerHandOptions: [500, 1000, "custom"],
     amountPerHandOptions: [50, 100, "custom"],
     isExporting: false,
-
+    showAlert: false, // 控制 alert 显示状态
     sortByPlayer: false, // 是否按玩家排序的标志
   }),
   getters: {
@@ -316,11 +315,10 @@ export const useGameStore = defineStore("game", {
                 timestamp: firebaseTimestamp(),
               }),
             });
-			this.buyInDialog = false;
+            this.buyInDialog = false;
             await this.fetchInGamePlayers();
             await this.fetchAllPlayerLogs();
 
-            
             this.buyInAmount = DEFAULT_BUYIN_AMOUNT;
           } catch (error) {
             console.error("Error updating buy-in data:", error);
@@ -415,12 +413,11 @@ export const useGameStore = defineStore("game", {
               }),
             });
 
-			this.remainingAmount = 0;
+            this.remainingAmount = 0;
 
             await this.fetchInGamePlayers();
             await this.fetchAllPlayerLogs();
 
-            
             this.remainingDialog = false;
           } catch (error) {
             console.error("Error updating remaining chips:", error);
@@ -446,6 +443,27 @@ export const useGameStore = defineStore("game", {
       const logStore = useLogStore();
       if (this.currentGame?.id) {
         await logStore.fetchAllPlayerLogs(this.currentGame.id);
+      }
+    },
+    async saveSummary(gameId, summaryData) {
+      try {
+        const gameRef = doc(collection(db, "games"), gameId);
+
+        // 更新 game 文档中的总结数据
+        await updateDoc(gameRef, {
+          summary: summaryData, // 保存总结数据到 Firebase
+        });
+
+        // 显示保存成功的提示框
+        this.showAlert = true;
+
+        // 3 秒后隐藏提示框
+        setTimeout(() => {
+          this.showAlert = false;
+        }, 3000);
+      } catch (error) {
+        console.error("Error saving summary:", error);
+        alert("无法保存总结，请重试。");
       }
     },
   },
