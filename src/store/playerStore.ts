@@ -53,9 +53,9 @@ export const usePlayerStore = defineStore('playerStore', {
 		},
 
 		async addPlayer(newPlayer: Player) {
-			
+
 			try {
-				newPlayer.allow_select=true;
+				newPlayer.allow_select = true;
 				const playersCol = collection(db, 'players');
 				await addDoc(playersCol, newPlayer);
 				this.fetchPlayers(); // 重新获取玩家列表以更新视图
