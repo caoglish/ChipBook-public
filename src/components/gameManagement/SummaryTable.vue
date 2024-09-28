@@ -1,6 +1,5 @@
 <template>
 	<div>
-		<!-- 总结信息表格 -->
 		<v-data-table :headers="headersToShow" :items="[summaryData]" :hide-default-footer="1"
 			class="mt-4 summary-table">
 			<template #item.is_zero="{ item }">
@@ -17,20 +16,13 @@
 					@click="saveSummary">保存总结</v-btn>
 			</template>
 		</v-data-table>
-
-
-		<!-- 成功保存的提示框 -->
 		<v-alert v-if="gameStore.showAlert" type="success" class="mt-2">
 			总结保存成功！
 		</v-alert>
 	</div>
 </template>
-
 <script>
-
 import { useGameStore } from '@/store/useGameStore';
-
-
 export default {
 	name: "SummaryTable",
 	props: {
@@ -48,11 +40,9 @@ export default {
 		},
 	},
 	computed: {
-		// 使用 Pinia 的 store
 		gameStore() {
 			return useGameStore();
 		},
-		// 动态生成 headers，包括保存总结的列
 		headersToShow() {
 			const headers = [
 				{ title: "总人数", key: "total_players" },
@@ -65,16 +55,12 @@ export default {
 				{ title: "胜负筹码为0?", key: "is_zero" },
 				{ title: "游戏状态", key: "game_status" },
 			];
-
-			// 如果不在导出模式下，添加操作列
 			if (!this.isExporting) {
 				headers.push({ title: "保存总结", key: "save_summary", sortable: false });// 添加保存总结列
 			}
-
 			return headers;
 		}
 	},
-
 	methods: {
 		saveSummary() {
 			this.gameStore.saveSummary(this.gameId, this.summaryData);
@@ -82,13 +68,10 @@ export default {
 	},
 };
 </script>
-
 <style>
-/* 添加样式以美化表格和按钮 */
 .v-data-table {
 	margin-top: 20px;
 }
-
 .summary-table .v-table__wrapper td,
 .summary-table .v-table__wrapper th {
 	border: 1px solid #ddd !important;
