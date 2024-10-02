@@ -1,6 +1,6 @@
 // @ is an alias to /src
 import { initializeApp } from "firebase/app";
-import { getFirestore,   } from "firebase/firestore";
+import { getFirestore  } from "firebase/firestore";
 import { getAuth} from "firebase/auth";
 
 const firebaseConfig = {
