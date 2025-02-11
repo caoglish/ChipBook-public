@@ -20,7 +20,7 @@ import { useCurrentGameIdStore } from "@/store/CurrentGameIdStore";
 const db = firebaseDb;
 
 const DEFAULT_BUYIN_AMOUNT = 1;
-export const useGameStore = defineStore("game", {
+export const useGameStore = defineStore("useGameStore", {
   state: () => ({
     currentGame: null,
     newGameDialog: false,
@@ -37,9 +37,9 @@ export const useGameStore = defineStore("game", {
     remainingAmount: 0, // 剩余筹码数
     currentPlayerId: null,
     chipsPerHand: 500,
-    chipsPerHandCustom: null,
+    chipsPerHandCustom: 500,//default custom number
     amountPerHand: 50,
-    amountPerHandCustom: null,
+    amountPerHandCustom: 50,//default custom amount
 
     chipsPerHandOptions: [500, 1000, "custom"],
     amountPerHandOptions: [50, 100, "custom"],

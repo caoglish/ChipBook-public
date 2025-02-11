@@ -3,7 +3,14 @@
 		<v-card>
 			<v-card-title>设置剩余筹码</v-card-title>
 			<v-card-text>
-				<v-text-field v-model="gameStore.remainingAmount" label="剩余筹码数" type="number"></v-text-field>
+				
+				<v-number-input 
+				v-model="gameStore.remainingAmount" 
+				label="剩余筹码数" 
+				controlVariant="split" 
+				inset
+				:min="0"
+				></v-number-input>
 			</v-card-text>
 			<v-card-actions>
 				<v-btn color="blue darken-1" @click="gameStore.confirmRemaining">确认</v-btn>

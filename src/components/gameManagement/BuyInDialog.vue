@@ -3,7 +3,13 @@
 		<v-card>
 			<v-card-title>玩家买入</v-card-title>
 			<v-card-text>
-				<v-text-field v-model="gameStore.buyInAmount" label="买入手数" type="number"></v-text-field>
+				<v-number-input 
+				v-model="gameStore.buyInAmount" 
+				label="买入手数" 
+				controlVariant="split" 
+				:min="1"
+				inset
+				></v-number-input>
 			</v-card-text>
 			<v-card-actions>
 				<v-btn color="blue darken-1" @click="gameStore.confirmBuyIn">确认</v-btn>
@@ -16,3 +22,9 @@
 import { useGameStore } from '@/store/useGameStore';
 const gameStore = useGameStore(); // 获取 gameStore
 </script>
+
+<style>
+.v-number-input__control{
+	align-items:center;
+}
+</style>

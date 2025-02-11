@@ -6,14 +6,17 @@
 				<!-- 输入每手筹码数 -->
 				<v-select v-model="gameStore.chipsPerHand" :items="gameStore.chipsPerHandOptions" label="每手筹码数"
 					clearable />
-				<v-text-field v-model="gameStore.chipsPerHandCustom" label="自定义每手筹码数" type="number"
-					v-if="gameStore.chipsPerHand === 'custom'" />
+
+
+				<v-number-input v-model="gameStore.chipsPerHandCustom" label="自定义每手筹码数" controlVariant="split" inset :min="0"  :step="100"
+					v-if="gameStore.chipsPerHand === 'custom'"></v-number-input>
 
 				<!-- 输入每手金额 -->
-				<v-select v-model="gameStore.amountPerHand" :items="gameStore.amountPerHandOptions" label="每手金额"
+				<v-select v-model="gameStore.amountPerHand" :items="gameStore.amountPerHandOptions" label="每手金额" 
 					clearable />
-				<v-text-field v-model="gameStore.amountPerHandCustom" label="自定义每手金额" type="number"
-					v-if="gameStore.amountPerHand === 'custom'" />
+
+				<v-number-input v-model="gameStore.amountPerHandCustom" label="自定义每手金额" controlVariant="split" inset :min="0" :step="10"
+					v-if="gameStore.amountPerHand === 'custom'"></v-number-input>
 			</v-card-text>
 			<v-card-actions>
 				<v-btn color="blue darken-1" @click="gameStore.createNewGame">创建</v-btn>

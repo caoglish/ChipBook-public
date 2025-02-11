@@ -3,7 +3,13 @@
 		<v-card>
 			<v-card-title>玩家退码</v-card-title>
 			<v-card-text>
-				<v-text-field v-model="gameStore.refundAmount" label="退码手数" type="number"></v-text-field>
+				<v-number-input 
+				v-model="gameStore.refundAmount" 
+				label="退码手数" 
+				controlVariant="split" 
+				:min="1"
+				inset
+				></v-number-input>
 			</v-card-text>
 			<v-card-actions>
 				<v-btn color="blue darken-1" @click="gameStore.confirmRefund">确认</v-btn>
