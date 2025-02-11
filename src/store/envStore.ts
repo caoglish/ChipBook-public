@@ -6,7 +6,7 @@ import { collection, getDocs } from "firebase/firestore";
 const db = firebaseDb;
 
 
-export const useEnvStore = defineStore('envStore', {
+export const useEnvStore = defineStore('useEnvStore', {
 	state: () => ({
 		env: null as string | null,
 	}),

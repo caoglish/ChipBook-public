@@ -5,7 +5,7 @@ import firebaseDb from "@/Lib/FirebaseDb"; // 引入 Firebase 数据库实例
 
 const db = firebaseDb;
 
-export const useGameStore = defineStore("gameStore", {
+export const useTodayGameStore = defineStore("useTodayGameStore", {
   state: () => ({
     games: [] as {id:string}[], // 存储当天的游戏列表
     //selectedGame: null as string|undefined|null, // 当前选中的游戏

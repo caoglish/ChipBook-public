@@ -4,7 +4,7 @@ import { signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from
 import { User } from '@/Type/User';
 
 
-export const useLoginUserStore = defineStore('loginUserStore', {
+export const useLoginUserStore = defineStore('useLoginUserStore', {
 	state: () => ({
 		user: null as User | null,
 		errorMessage: null as string | null,

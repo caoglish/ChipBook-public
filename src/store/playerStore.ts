@@ -6,7 +6,7 @@ import { Player } from '@/Type/Player'; // 确保你有一个类型定义文件�
 
 const db = firebaseDb;
 
-export const usePlayerStore = defineStore('playerStore', {
+export const usePlayerStore = defineStore('usePlayerStore', {
 	// State: 管理玩家数据的状态
 	state: () => ({
 		players: [] as Player[], // 存储玩家列表
