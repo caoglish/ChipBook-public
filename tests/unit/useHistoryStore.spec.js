@@ -3,20 +3,6 @@ import { useHistoryStore } from "@/store/useHistoryStore";
 import { createPinia, setActivePinia } from "pinia";
 import { getDocs, deleteDoc } from "firebase/firestore";
 
-jest.mock("firebase/auth", () => ({
-  getAuth: jest.fn(() => ({
-    // 可以根据需要添加模拟的认证方法
-  })),
-}));
-
-jest.mock("firebase/firestore", () => ({
-  collection: jest.fn(),
-  doc: jest.fn(),
-  getDocs: jest.fn(),
-  deleteDoc: jest.fn(),
-  getFirestore: jest.fn(),
-}));
-
 describe("HistoryStore", () => {
   beforeEach(() => {
     setActivePinia(createPinia());

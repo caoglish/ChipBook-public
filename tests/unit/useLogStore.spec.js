@@ -4,20 +4,6 @@ import { useLogStore } from "@/store/useLogStore";
 import { createPinia, setActivePinia } from "pinia";
 import { getDocs } from "firebase/firestore";
 
-// 模拟 firebase 模块
-jest.mock("firebase/auth", () => ({
-  getAuth: jest.fn(() => ({
-    // 可以根据需要添加模拟的认证方法
-  })),
-}));
-
-jest.mock("firebase/firestore", () => ({
-  collection: jest.fn(),
-  doc: jest.fn(),
-  getDocs: jest.fn(),
-  getFirestore: jest.fn(),
-}));
-
 describe("useLogStore", () => {
   beforeEach(() => {
     setActivePinia(createPinia());
