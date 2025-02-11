@@ -9,11 +9,11 @@
 
 <script setup>
 import { onMounted, computed } from "vue";
-import { useGameStore } from "@/store/TodayGameStore"; // 引入 Pinia store
+import { useTodayGameStore } from "@/store/useTodayGameStore"; // 引入 Pinia store
 import { useRouter } from 'vue-router'; // 引入 useRouter
 
 const router = useRouter(); // 获取 router 实例
-const gameStore = useGameStore();
+const gameStore = useTodayGameStore();
 onMounted(() => {
 	gameStore.fetchTodayGames();
 });
