@@ -24,7 +24,7 @@
 </template>
 <script setup>
 import { useGameStore } from '@/store/useGameStore';
-import { debounce } from 'lodash';
+import { debounce } from '@/Lib/Helper';
 const gameStore = useGameStore();
-const confirmRefund = debounce(gameStore.confirmRefund, 300);
+const confirmRefund = debounce(gameStore.confirmRefund);
 </script>

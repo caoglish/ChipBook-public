@@ -25,9 +25,13 @@
 </template>
 <script setup>
 import { useGameStore } from '@/store/useGameStore';
-import { debounce } from 'lodash';
+import { debounce } from '@/Lib/Helper';
+
 const gameStore = useGameStore(); // 获取 gameStore
-const confirmBuyIn = debounce(gameStore.confirmBuyIn, 300);
+const confirmBuyIn = debounce(gameStore.confirmBuyIn);
+
+
+
 </script>
 
 <style>

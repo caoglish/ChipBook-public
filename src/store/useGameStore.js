@@ -35,7 +35,8 @@ export const useGameStore = defineStore("useGameStore", {
     buyInAmount: DEFAULT_BUYIN_AMOUNT,
     refundAmount: 0, // 退码手数
     remainingAmount: 0, // 剩余筹码数
-    currentPlayerId: null,
+   // currentPlayerId: null,
+	currentPlayer: null,
     chipsPerHand: 500,
     chipsPerHandCustom: 500,//default custom number
     amountPerHand: 50,
@@ -106,6 +107,10 @@ export const useGameStore = defineStore("useGameStore", {
     async openNewGameDialog() {
       this.newGameDialog = true;
     },
+
+	closeNewGameDialog() {	
+		this.newGameDialog = false;
+	},
     async createNewGame() {
       const currentGameIdStore = useCurrentGameIdStore();
       try {
@@ -242,15 +247,15 @@ export const useGameStore = defineStore("useGameStore", {
       }
     },
     buyIn(player) {
-      this.currentPlayerId = player.player_id;
+      this.currentPlayer=player;
       this.buyInDialog = true;
     },
     refund(player) {
-      this.currentPlayerId = player.player_id;
+ 	  this.currentPlayer=player;
       this.refundDialog = true;
     },
     setRemaining(player) {
-      this.currentPlayerId = player.player_id;
+      this.currentPlayer=player;
       this.remainingAmount =
         player.remaining_chips !== null ? player.remaining_chips : 0;
       this.remainingDialog = true;
@@ -277,8 +282,8 @@ export const useGameStore = defineStore("useGameStore", {
     async confirmBuyIn() {
       let buyin = parseInt(this.buyInAmount, 10);
 
-      if (this.currentPlayerId && buyin > 0) {
-        const playerResult = await this.fetchPlayerById(this.currentPlayerId);
+      if (this.currentPlayer.player_id && buyin > 0) {
+        const playerResult = await this.fetchPlayerById(this.currentPlayer.player_id);
 
         if (playerResult) {
           const playerData = playerResult.data;
@@ -330,8 +335,8 @@ export const useGameStore = defineStore("useGameStore", {
     async confirmRefund() {
       let refund = parseInt(this.refundAmount, 10);
 
-      if (this.currentPlayerId && refund > 0) {
-        const playerResult = await this.fetchPlayerById(this.currentPlayerId);
+      if (this.currentPlayer.player_id && refund > 0) {
+        const playerResult = await this.fetchPlayerById(this.currentPlayer.player_id);
         if (playerResult) {
           const playerData = playerResult.data;
           const playerDocId = playerResult.id;
@@ -388,8 +393,8 @@ export const useGameStore = defineStore("useGameStore", {
     async confirmRemaining() {
       let remaining = parseInt(this.remainingAmount, 10);
 
-      if (this.currentPlayerId && remaining >= 0) {
-        const playerResult = await this.fetchPlayerById(this.currentPlayerId);
+      if (this.currentPlayer.player_id && remaining >= 0) {
+        const playerResult = await this.fetchPlayerById(this.currentPlayer.player_id);
         if (playerResult) {
           const playerData = playerResult.data;
           const playerDocId = playerResult.id;

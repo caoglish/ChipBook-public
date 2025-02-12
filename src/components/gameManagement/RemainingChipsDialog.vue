@@ -25,7 +25,7 @@
 
 <script setup>
 import { useGameStore } from '@/store/useGameStore';
-import { debounce } from 'lodash';
+import { debounce } from '@/Lib/Helper';
 const gameStore = useGameStore();
-const confirmRemaining = debounce(gameStore.confirmRemaining, 300);
+const confirmRemaining = debounce(gameStore.confirmRemaining);
 </script>
