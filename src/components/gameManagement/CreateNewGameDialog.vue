@@ -19,8 +19,8 @@
 					v-if="gameStore.amountPerHand === 'custom'"></v-number-input>
 			</v-card-text>
 			<v-card-actions>
-				<v-btn color="blue darken-1" @click="createNewGame">创建</v-btn>
-				<v-btn color="grey darken-1" @click="gameStore.closeNewGameDialog">取消</v-btn>
+				<v-btn color="blue darken-1" @click="createNewGame"  variant="flat">创建</v-btn>
+				<v-btn color="grey darken-1" @click="gameStore.closeNewGameDialog" variant="outlined">取消</v-btn>
 			</v-card-actions>.
 		</v-card>
 	</v-dialog>

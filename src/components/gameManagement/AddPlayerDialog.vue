@@ -8,8 +8,8 @@
 				</v-select>
 			</v-card-text>
 			<v-card-actions>
-				<v-btn color="blue darken-1" @click="addPlayersToGame">添加</v-btn>
-				<v-btn color="grey darken-1" @click="gameStore.addPlayersDialog = false">取消</v-btn>
+				<v-btn color="blue darken-1" @click="addPlayersToGame" variant="flat">添加</v-btn>
+				<v-btn color="grey darken-1" @click="gameStore.addPlayersDialog = false" variant="outlined">取消</v-btn>
 			</v-card-actions>
 		</v-card>
 	</v-dialog>

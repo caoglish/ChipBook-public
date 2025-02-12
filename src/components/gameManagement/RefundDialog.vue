@@ -3,9 +3,8 @@
 
 		<v-card>
 			<v-card-title>
-				
-				<div class="text-h6 mb-3 d-md-inline-block">玩家退码：</div>
-				<div class="font-weight-black mb-3 d-md-inline-block">{{ gameStore.currentPlayer.player_display_name }}</div></v-card-title>
+				玩家退码
+				<v-chip color="primary" variant="flat">{{ gameStore.currentPlayer.player_display_name }}</v-chip></v-card-title>
 			<v-card-text>
 				<v-number-input 
 				v-model="gameStore.refundAmount" 
@@ -16,8 +15,8 @@
 				></v-number-input>
 			</v-card-text>
 			<v-card-actions>
-				<v-btn color="blue darken-1" @click="confirmRefund">确认</v-btn>
-				<v-btn color="grey darken-1" @click="gameStore.refundDialog = false">取消</v-btn>
+				<v-btn color="blue darken-1" @click="confirmRefund" variant="flat">确认</v-btn>
+				<v-btn color="grey darken-1" @click="gameStore.refundDialog = false" variant="outlined">取消</v-btn>
 			</v-card-actions>
 		</v-card>
 	</v-dialog>
