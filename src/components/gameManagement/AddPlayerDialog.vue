@@ -1,5 +1,5 @@
 <template>
-	<v-dialog v-model="gameStore.addPlayersDialog" max-width="500px">
+	<v-dialog v-model="gameStore.addPlayersDialog" max-width="500px" persistent>
 		<v-card>
 			<v-card-title>选择玩家</v-card-title>
 			<v-card-text>

@@ -1,5 +1,5 @@
 <template>
-	<v-dialog v-model="gameStore.newGameDialog" max-width="500px">
+	<v-dialog v-model="gameStore.newGameDialog" max-width="500px" persistent>
 		<v-card>
 			<v-card-title>创建新德州局</v-card-title>
 			<v-card-text>

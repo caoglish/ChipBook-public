@@ -1,21 +1,20 @@
 <template>
 	<div>
-		<!-- 添加玩家按钮 -->
-		<v-btn color="primary" @click="openDialog">添加玩家</v-btn>
+		<!-- 添加玩家按钮 --><v-btn color="primary" @click="openDialog">添加玩家</v-btn><!-- 添加隐藏/显示 ID 列的复选框 --><v-checkbox v-model="showIdColumn" label="显示 ID 列"></v-checkbox>
 
 		<!-- 显示玩家列表的表格 -->
 		<h3>可选择的玩家列表</h3>
-		<v-data-table :headers="headers" :items="forSelectPlayers" :items-per-page="50">
+		<v-data-table :headers="filteredHeaders" :items="forSelectPlayers" :items-per-page="50">
 			<!-- 动态生成表格中的操作列 -->
 			<template #item.actions="{ item }">
-				<v-btn color="primary" icon @click="editPlayer(item)">
+				<v-btn color="primary" icon @click="editPlayer(item)" size="small">
 					<v-icon>mdi-pencil</v-icon>
 				</v-btn>
 
-				<v-btn color="secondary" icon @click="toggleAllowSelect(item.id)">
+				<v-btn color="secondary" icon @click="toggleAllowSelect(item.id)" size="small">
 					<v-icon>mdi-minus</v-icon>
 				</v-btn>
-				<v-btn color="error" icon @click="confirmDeletePlayer(item.id)">
+				<v-btn color="error" icon @click="confirmDeletePlayer(item.id)" size="small">
 					<v-icon>mdi-delete</v-icon>
 				</v-btn>
 			</template>
@@ -23,16 +22,16 @@
 
 		<!-- 显示不允许选择的玩家列表 -->
 		<h3>不允许选择的玩家列表</h3>
-		<v-data-table :headers="headers" :items="notForSelectPlayers" :items-per-page="50">
+		<v-data-table :headers="filteredHeaders" :items="notForSelectPlayers" :items-per-page="50">
 			<template #item.actions="{ item }">
-				<v-btn color="primary" icon @click="editPlayer(item)">
+				<v-btn color="primary" icon @click="editPlayer(item)" size="small">
 					<v-icon>mdi-pencil</v-icon>
 				</v-btn>
 
-				<v-btn color="secondary" icon @click="toggleAllowSelect(item.id)">
+				<v-btn color="secondary" icon @click="toggleAllowSelect(item.id)" size="small">
 					<v-icon>mdi-plus</v-icon>
 				</v-btn>
-				<v-btn color="error" icon @click="confirmDeletePlayer(item.id)">
+				<v-btn color="error" icon @click="confirmDeletePlayer(item.id)" size="small">
 					<v-icon>mdi-delete</v-icon>
 				</v-btn>
 			</template>
@@ -40,7 +39,7 @@
 
 
 		<!-- 添加或编辑玩家的对话框 -->
-		<v-dialog v-model="dialog" max-width="500px">
+		<v-dialog v-model="dialog" max-width="500px" persistent>
 			<v-card>
 				<v-card-title>
 					<span class="headline">{{ editingPlayer ? '编辑玩家' : '添加玩家' }}</span>
@@ -62,7 +61,7 @@
 		</v-dialog>
 
 		<!-- 删除确认对话框 -->
-		<v-dialog v-model="deleteDialog" max-width="400px">
+		<v-dialog v-model="deleteDialog" max-width="400px" persistent>
 			<v-card>
 				<v-card-title class="headline">确认删除</v-card-title>
 				<v-card-text>您确定要删除这个玩家吗？此操作无法撤销。</v-card-text>
@@ -97,6 +96,9 @@ export default defineComponent({
 		notForSelectPlayers() {
 			return this.playerStore.NotForSelectPlayerList;
 		},
+		filteredHeaders() {
+            return this.showIdColumn ? this.headers : this.headers.filter(header => header.key !== 'id');
+        }
 	},
 	data() {
 		return {
@@ -112,6 +114,7 @@ export default defineComponent({
 			player: { player_name: "", player_display_name: "" },
 			sameName: true,
 			confirmedDeleteId: null,
+			showIdColumn: false, // 控制 ID 列显示的状态
 		};
 	},
 	methods: {
