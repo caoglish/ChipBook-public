@@ -1,42 +1,25 @@
 <template>
 	<div>
-		<!-- 添加玩家按钮 --><v-btn color="primary" @click="openDialog">添加玩家</v-btn><!-- 添加隐藏/显示 ID 列的复选框 --><v-checkbox v-model="showIdColumn" label="显示 ID 列"></v-checkbox>
+		<!-- 添加玩家按钮 -->
+		 <v-btn color="primary" @click="openDialog">添加玩家</v-btn><!-- 添加隐藏/显示 ID 列的复选框 --><v-checkbox v-model="showIdColumn" label="显示 ID 列"></v-checkbox>
 
-		<!-- 显示玩家列表的表格 -->
-		<h3>可选择的玩家列表</h3>
-		<v-data-table :headers="filteredHeaders" :items="forSelectPlayers" :items-per-page="50">
-			<!-- 动态生成表格中的操作列 -->
-			<template #item.actions="{ item }">
-				<v-btn color="primary" icon @click="editPlayer(item)" size="small">
-					<v-icon>mdi-pencil</v-icon>
-				</v-btn>
+		  <PlayerTable 
+		  title="可选择的玩家列表" 
+		  :headers="filteredHeaders" 
+		  :items="forSelectPlayers" 
+		  icon="minus"
+		  @edit-player="editPlayer"
+		  @toggle-allow-select="toggleAllowSelect" 
+		  @delete-player="confirmDeletePlayer"></PlayerTable>
 
-				<v-btn color="secondary" icon @click="toggleAllowSelect(item.id)" size="small">
-					<v-icon>mdi-minus</v-icon>
-				</v-btn>
-				<v-btn color="error" icon @click="confirmDeletePlayer(item.id)" size="small">
-					<v-icon>mdi-delete</v-icon>
-				</v-btn>
-			</template>
-		</v-data-table>
-
-		<!-- 显示不允许选择的玩家列表 -->
-		<h3>不允许选择的玩家列表</h3>
-		<v-data-table :headers="filteredHeaders" :items="notForSelectPlayers" :items-per-page="50">
-			<template #item.actions="{ item }">
-				<v-btn color="primary" icon @click="editPlayer(item)" size="small">
-					<v-icon>mdi-pencil</v-icon>
-				</v-btn>
-
-				<v-btn color="secondary" icon @click="toggleAllowSelect(item.id)" size="small">
-					<v-icon>mdi-plus</v-icon>
-				</v-btn>
-				<v-btn color="error" icon @click="confirmDeletePlayer(item.id)" size="small">
-					<v-icon>mdi-delete</v-icon>
-				</v-btn>
-			</template>
-		</v-data-table>
-
+		  <PlayerTable 
+		  title="不允许选择的玩家列表" 
+		  :headers="filteredHeaders" 
+		  :items="notForSelectPlayers" 
+		  icon="plus"
+		  @edit-player="editPlayer"
+		  @toggle-allow-select="toggleAllowSelect" 
+		  @delete-player="confirmDeletePlayer"></PlayerTable>
 
 		<!-- 添加或编辑玩家的对话框 -->
 		<v-dialog v-model="dialog" max-width="500px" persistent>
@@ -61,25 +44,25 @@
 		</v-dialog>
 
 		<!-- 删除确认对话框 -->
-		<v-dialog v-model="deleteDialog" max-width="400px" persistent>
-			<v-card>
-				<v-card-title class="headline">确认删除</v-card-title>
-				<v-card-text>您确定要删除这个玩家吗？此操作无法撤销。</v-card-text>
-				<v-card-actions>
-					<v-btn color="red darken-1" @click="deletePlayer(confirmedDeleteId)">确认</v-btn>
-					<v-btn color="grey darken-1" @click="closeDeleteDialog">取消</v-btn>
-				</v-card-actions>
-			</v-card>
-		</v-dialog>
+		 <DeleteDialog 
+		 v-model="deleteDialog" 
+		 :player="confirmedDeletePlayer"
+		 ></DeleteDialog>
+		
 	</div>
 </template>
 
 <script>
 import { defineComponent } from "vue";
 import { usePlayerStore } from "@/store/playerStore";
-
+import PlayerTable from "@/components/PlayerView/PlayerTable";
+import DeleteDialog from "@/components/PlayerView/DeleteDialog";
 export default defineComponent({
 	name: "PlayerPage",
+	components: {
+		PlayerTable,
+		DeleteDialog,
+	},
 	setup() {
 		const playerStore = usePlayerStore(); // 使用 Pinia store
 		return {
@@ -113,7 +96,7 @@ export default defineComponent({
 			editingPlayer: false,
 			player: { player_name: "", player_display_name: "" },
 			sameName: true,
-			confirmedDeleteId: null,
+			confirmedDeletePlayer: null,
 			showIdColumn: false, // 控制 ID 列显示的状态
 		};
 	},
@@ -127,13 +110,13 @@ export default defineComponent({
 		closeDialog() {
 			this.dialog = false;
 		},
-		confirmDeletePlayer(playerId) {
+		confirmDeletePlayer(player) {
 			this.deleteDialog = true;
-			this.confirmedDeleteId = playerId;
+			this.confirmedDeletePlayer = player;
 		},
 		closeDeleteDialog() {
 			this.deleteDialog = false;
-			this.confirmedDeleteId = null;
+			this.confirmedDeletePlayer = null;
 		},
 		syncDisplayName() {
 			if (this.sameName) {
@@ -145,13 +128,10 @@ export default defineComponent({
 			this.editingPlayer = true;
 			this.player = { ...item };
 		},
-		async toggleAllowSelect(playerId){
-			this.playerStore.toggleAllowSelect(playerId)
+		async toggleAllowSelect(player){
+			this.playerStore.toggleAllowSelect(player.id)
 		},
-		async deletePlayer(playerId) {
-			await this.playerStore.deletePlayer(playerId);
-			this.closeDeleteDialog();
-		},
+
 		async savePlayer() {
 			if (this.editingPlayer) {
 				await this.playerStore.updatePlayer(this.player.id, {
