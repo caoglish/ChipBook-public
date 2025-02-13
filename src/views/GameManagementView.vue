@@ -63,7 +63,7 @@ onMounted(async () => {
 	} else {
 		gameStore.currentGame = null;
 	}
-	await gameStore.fetchPlayers();
+	
 });
 
 const printGameInfo = async () => {

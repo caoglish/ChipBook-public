@@ -28,7 +28,7 @@ export const useGameStore = defineStore("useGameStore", {
     buyInDialog: false,
     refundDialog: false,
     remainingDialog: false,
-    allPlayers: [], // 所有玩家列表
+    
     selectedPlayers: [],
     players: [], // Players in game
 
@@ -49,9 +49,7 @@ export const useGameStore = defineStore("useGameStore", {
     sortByPlayer: false, // 是否按玩家排序的标志
   }),
   getters: {
-    ForSelectPlayer(state) {
-      return state.allPlayers.filter((p) => p.allow_select);
-    },
+
     summaryData(state) {
       const totalPlayers = state.players.length;
       const totalHandsBought = state.players.reduce(
@@ -170,18 +168,7 @@ export const useGameStore = defineStore("useGameStore", {
         return null;
       }
     },
-    async fetchPlayers() {
-      try {
-        const playersSnapshot = await getDocs(collection(db, "players"));
-        this.allPlayers = playersSnapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
-      } catch (error) {
-        console.error("Error fetching players:", error);
-        alert("无法加载玩家列表，请重试。");
-      }
-    },
+
     async fetchInGamePlayers() {
       try {
         const gameRef = doc(db, "games", this.currentGame.id);
@@ -200,17 +187,17 @@ export const useGameStore = defineStore("useGameStore", {
     openAddPlayersDialog() {
       this.addPlayersDialog = true;
     },
-    async addPlayersToGame() {
+    async addPlayersToGame(selectedPlayerList,PlayersList) {
       try {
         this.addPlayersDialog = false;
         const gameRef = doc(db, "games", this.currentGame.id);
 
-        for (const playerId of this.selectedPlayers) {
+        for (const playerId of selectedPlayerList) {
           if (this.players.some((p) => p.player_id === playerId)) {
             continue;
           }
 
-          const player = this.allPlayers.find((p) => p.id === playerId);
+          const player = PlayersList.find((p) => p.id === playerId);
 
           const newPlayerData = {
             player_id: playerId,
