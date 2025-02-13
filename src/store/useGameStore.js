@@ -35,8 +35,7 @@ export const useGameStore = defineStore("useGameStore", {
     buyInAmount: DEFAULT_BUYIN_AMOUNT,
     refundAmount: 0, // 退码手数
     remainingAmount: 0, // 剩余筹码数
-   // currentPlayerId: null,
-	currentPlayer: null,
+   currentPlayer: null,
     chipsPerHand: 500,
     chipsPerHandCustom: 500,//default custom number
     amountPerHand: 50,
@@ -49,7 +48,12 @@ export const useGameStore = defineStore("useGameStore", {
     sortByPlayer: false, // 是否按玩家排序的标志
   }),
   getters: {
-
+	isWinLossCalculated(state){
+		return state.players.every(
+			(player) => player.win_loss_chips !== null
+		);
+	},
+					
     summaryData(state) {
       const totalPlayers = state.players.length;
       const totalHandsBought = state.players.reduce(
@@ -82,11 +86,8 @@ export const useGameStore = defineStore("useGameStore", {
         0
       );
 
-      // 检查是否所有的 win_loss_chips 都已计算
-      const isWinLossCalculated = state.players.every(
-        (player) => player.win_loss_chips !== null
-      );
-      const isZero = isWinLossCalculated && totalWinLossChips === 0;
+      
+      const isZero = this.isWinLossCalculated && totalWinLossChips === 0;
 
       return {
         total_players: totalPlayers,
@@ -97,9 +98,16 @@ export const useGameStore = defineStore("useGameStore", {
         total_win_loss_chips: totalWinLossChips,
         total_win_loss_amount: totalWinLossAmount,
         is_zero: isZero,
-        is_game_completed: isWinLossCalculated,
+        is_game_completed: this.isWinLossCalculated,
       };
     },
+	playerWithMostChips(state) {
+		if (state.players.length === 0 ||  !this.isWinLossCalculated) return null;
+  
+		return state.players.reduce((maxPlayer, player) => {
+		  return player.win_loss_chips > maxPlayer.win_loss_chips ? player : maxPlayer;
+		}, state.players[0]);
+	  },
   },
   actions: {
     async openNewGameDialog() {

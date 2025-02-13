@@ -3,7 +3,7 @@
 		<!-- 添加玩家按钮 -->
 		 <v-btn color="primary" @click="openDialog">添加玩家</v-btn><!-- 添加隐藏/显示 ID 列的复选框 --><v-checkbox v-model="showIdColumn" label="显示 ID 列"></v-checkbox>
 
-		  <PlayerTable 
+		  <PlayerTable
 		  title="可选择的玩家列表" 
 		  :headers="filteredHeaders" 
 		  :items="forSelectPlayers" 
