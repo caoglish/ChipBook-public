@@ -104,9 +104,11 @@ export const useGameStore = defineStore("useGameStore", {
 	playerWithMostChips(state) {
 		if (state.players.length === 0 ||  !this.isWinLossCalculated) return null;
   
-		return state.players.reduce((maxPlayer, player) => {
-		  return player.win_loss_chips > maxPlayer.win_loss_chips ? player : maxPlayer;
-		}, state.players[0]);
+		 // 找到最高的 win_loss_chips
+		 const maxChips = Math.max(...state.players.map(player => player.win_loss_chips));
+
+		 // 过滤出所有 win_loss_chips 等于 maxChips 的玩家
+		 return state.players.filter(player => player.win_loss_chips === maxChips);
 	  },
   },
   actions: {
