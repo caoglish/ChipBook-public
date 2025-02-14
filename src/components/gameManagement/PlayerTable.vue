@@ -1,13 +1,13 @@
 <template>
-	<div>
+	<div class="player-table">
 		<!-- 玩家信息表格 -->
-		<v-data-table :headers="headersToShow" :items="players" :row-props="rowProps" :items-per-page="-1"
-			:hide-default-footer="1" class="mt-4 player-table">
+		<v-data-table :headers="headersToShow" :items="playerList" :row-props="rowProps" :items-per-page="-1"
+			:hide-default-footer="1" class="mt-4 ">
 			<template #item.player_display_name="{ item }">
 				<span v-if="isFirstPlace(item)">
 					<v-chip color="default" variant="flat">🏆{{ item.player_display_name }}</v-chip>
-				</span>
-				<span v-else>
+				</span> 
+				<span v-else class="text-subtitle-1 font-weight-black">
 					{{ item.player_display_name }}
 				</span>
 			</template>
@@ -17,13 +17,18 @@
 				<v-btn color="primary" @click="refund(item)">退码</v-btn>
 			</template>
 			<template #item.remaining_chips="{ item }">
-				<span>{{ item.remaining_chips !== null ? item.remaining_chips : '未输入' }}</span>
+				<span v-if="item.remaining_chips !== null">{{ item.remaining_chips }}</span>
+				<v-chip v-else color="red" variant="flat">未输入</v-chip>
 			</template>
 			<template #item.win_loss_chips="{ item }">
-				<span>{{ item.remaining_chips !== null ? item.win_loss_chips : '未计算' }}</span>
+				<span v-if="item.remaining_chips !== null">{{ item.win_loss_chips }}</span>
+				<v-chip v-else color="red" variant="flat">未计算</v-chip>
+		
 			</template>
 			<template #item.win_loss_amount="{ item }">
-				<span>{{ item.remaining_chips !== null ? item.win_loss_amount : '未计算' }}</span>
+				<span v-if="item.remaining_chips !== null">{{ item.win_loss_amount }}</span>
+				<v-chip v-else color="red" variant="flat">未计算</v-chip>
+				
 			</template>
 		</v-data-table>
 	</div>
@@ -45,6 +50,7 @@ export default {
 			default: false,
 		},
 	},
+	
 	computed: {
 		// 根据导出状态动态生成表头
 		headersToShow() {
@@ -64,6 +70,13 @@ export default {
 			}
 
 			return headers;
+		},
+		playerList() {
+			const gameStore = useGameStore();
+			if (gameStore.isWinLossCalculated) {
+            	gameStore.players.sort((a, b) => b.win_loss_chips - a.win_loss_chips);
+            }
+			return gameStore.players;
 		},
 	},
 	methods: {
@@ -101,9 +114,13 @@ export default {
 };
 </script>
 
-<style>
-.summary-table .v-table__wrapper tr>th,
-.player-table .v-table__wrapper tr>th {
+<style scoped>
+.player-table >>> .v-btn {
+	margin-left: 10px;
+}
+
+.summary-table  >>> .v-table__wrapper tr>th,
+.player-table  >>> .v-table__wrapper tr>th {
 	color: black;
 	border: 1px solid #999 !important;
 	background-color: #e0e0e0 !important;
@@ -112,8 +129,8 @@ export default {
 	;
 }
 
-.player-table .v-table__wrapper td,
-.player-table .v-table__wrapper th {
+.player-table  >>> .v-table__wrapper td,
+.player-table >>> .v-table__wrapper th {
 	border: 1px solid #ddd !important;
 	/* 添加边框 */
 	padding: 8px;
@@ -129,20 +146,18 @@ export default {
 
 
 /* 偶数行颜色 */
-.even-row {
-
+.player-table >>> .even-row {
 	background-color: #f9f9f9 !important;
 }
 
-.first-place {
+.player-table >>> .first-place {
 	background-color: rgb(211, 211, 211) !important;
 	color: black;
 	font-weight: bold;
 }
 
 /* 奇数行颜色 */
-.odd-row {
-
+.player-table  >>> .odd-row {
 	background-color: #f0f0f0 !important;
 }
 </style>

@@ -64,7 +64,7 @@ export default defineComponent({
 </script>
 
 <style scoped>
-.v-btn {
-	margin: 10px;
+.v-data-table__td .v-btn {
+	margin-left: 10px;
 }
 </style>

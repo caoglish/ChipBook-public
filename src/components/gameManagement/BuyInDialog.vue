@@ -28,13 +28,5 @@ import { debounce } from '@/Lib/Helper';
 
 const gameStore = useGameStore(); // 获取 gameStore
 const confirmBuyIn = debounce(gameStore.confirmBuyIn);
-
-
-
 </script>
 
-<style>
-.v-number-input__control{
-	align-items:center;
-}
-</style>

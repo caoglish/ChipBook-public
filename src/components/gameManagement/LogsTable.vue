@@ -1,5 +1,5 @@
 <template>
-	<div>
+	<div class="game-log">
 		<h3>日志记录</h3>
 		<v-btn color="primary" @click="sortLogsByPlayer">按玩家排序</v-btn>
 		<v-btn color="secondary" @click="sortLogsByTime">按时间排序</v-btn>
@@ -29,3 +29,10 @@ const sortLogsByTime = () => {
 	logStore.sortLogsByTime();
 };
 </script>
+
+<style scoped>
+.game-log .v-btn {
+	margin-left: 10px;
+}
+
+</style>

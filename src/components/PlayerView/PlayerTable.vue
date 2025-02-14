@@ -58,13 +58,3 @@ export default {
 };
 </script>
 
-<!-- <style>
-.player-table .v-table__wrapper td,
-.player-table .v-table__wrapper th {
-    border: 1px solid #ddd !important;
-    padding: 8px;
-    text-align: center;
-    vertical-align: middle;
-    background-color: #f9f9f9;
-}
-</style> -->

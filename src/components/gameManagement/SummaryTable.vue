@@ -1,7 +1,7 @@
 <template>
-	<div>
+	<div class="summary-table">
 		<v-data-table :headers="headersToShow" :items="[summaryData]" :hide-default-footer="1"
-			class="mt-4 summary-table">
+			class="mt-4">
 			<template #item.is_zero="{ item }">
 				<span :style="{ color: item.is_zero ? 'green' : 'red' }">{{ item.is_zero ? '是' : '否' }}</span>
 			</template>
@@ -68,12 +68,22 @@ export default {
 	},
 };
 </script>
-<style>
+<style scoped>
+
+.summary-table  >>>  tr>th
+ {
+	color: black;
+	border: 1px solid #999 !important;
+	background-color: #e0e0e0 !important;
+	font-weight: bold !important;
+	font-size: 16px !important;
+	;
+}
 .v-data-table {
 	margin-top: 20px;
 }
-.summary-table .v-table__wrapper td,
-.summary-table .v-table__wrapper th {
+.summary-table >>> td
+{
 	border: 1px solid #ddd !important;
 	/* 添加边框 */
 	padding: 8px;

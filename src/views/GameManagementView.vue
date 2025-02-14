@@ -1,5 +1,5 @@
 <template>
-	<div>
+	<div class="game-management">
 		<!-- 创建新德州局按钮 -->
 		<v-btn color="primary" v-if="!gameStore.currentGame" @click="gameStore.openNewGameDialog">创建新德州局</v-btn>
 
@@ -98,9 +98,7 @@ const printGameInfo = async () => {
 </script>
 
 <style>
-.v-btn {
-	margin: 10px;
-}
+
 
 .print-container {
 	width: 100%;

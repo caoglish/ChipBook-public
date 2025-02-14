@@ -1,21 +1,27 @@
 <template>
 	<v-app>
 		<v-main>
-			<nav>
-				<!-- 显示 Home 链接，始终可见 -->
-				<router-link to="/">Home</router-link> |
+			<v-container>
+				<v-app-bar app color="default" dark>
+					<v-toolbar-title>
+						Chip Book
+					</v-toolbar-title>
+					<v-spacer></v-spacer>
+					<v-bottom-navigation color="primary" horizontal v-if="isAuthenticated">
+						<v-btn to="/" class="nav-link">Home</v-btn>
+						<v-btn to="/game" class="nav-link">Game</v-btn>
+						<v-btn to="/history" class="nav-link">History</v-btn>
+						<v-btn to="/player" class="nav-link">Player</v-btn>
+						<v-btn to="/about" class="nav-link">About</v-btn>
+					</v-bottom-navigation>
+				</v-app-bar>
 
-				<!-- 仅在用户已登录时显示以下链接 -->
-				<template v-if="isAuthenticated">
-					<router-link to="/game">Game</router-link> |
-					<router-link to="/history">History</router-link> |
-					<router-link to="/player">Player</router-link> |
-					<router-link to="/about">About</router-link>
-				</template>
-			</nav>
 
+			</v-container>
+			<v-container>
+				<router-view />
+			</v-container>
 
-			<router-view />
 		</v-main>
 	</v-app>
 </template>
@@ -26,17 +32,12 @@ import { useLoginUserStore } from "@/store/LoginUserStore";// 导入 Pinia store
 
 export default defineComponent({
 	name: "App",
-
 	setup() {
 		const loginUserStore = useLoginUserStore(); // 获取登录用户 store
-
-		// 计算属性，检查用户是否已登录
-		const isAuthenticated = computed(() => !!loginUserStore.user);
-
+		const isAuthenticated = computed(() => !!loginUserStore.user);// 计算属性，检查用户是否已登录
 		onMounted(() => {
 			loginUserStore.checkAuthState(); // 检查用户登录状态
 		});
-
 		return {
 			isAuthenticated,
 			loginUserStore
