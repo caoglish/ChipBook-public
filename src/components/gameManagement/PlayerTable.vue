@@ -117,6 +117,7 @@ export default {
 <style scoped>
 .player-table >>> .v-btn {
 	margin-left: 10px;
+	margin-top: 10px;
 }
 
 .summary-table  >>> .v-table__wrapper tr>th,
