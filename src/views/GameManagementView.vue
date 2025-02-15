@@ -5,7 +5,13 @@
 
 		<div ref="gameInfo" class="print-container" v-if="gameStore.currentGame">
 			<!-- 显示当前局信息 -->
-			<GameInfoDisplay />
+			<v-row>	
+				<v-col cols="12" md="4">
+					<GameInfoDisplay />
+				</v-col>
+			</v-row>
+
+			
 			<PlayerTable :players="gameStore.players" :isExporting="gameStore.isExporting" />
 			<!-- 引入总结表格组件 -->
 			<SummaryTable :summaryData="gameStore.summaryData" :isExporting="gameStore.isExporting"

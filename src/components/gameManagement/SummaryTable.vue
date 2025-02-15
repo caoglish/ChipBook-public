@@ -3,16 +3,19 @@
 		<v-data-table :headers="headersToShow" :items="[summaryData]" :hide-default-footer="1"
 			class="mt-4">
 			<template #item.is_zero="{ item }">
-				<span :style="{ color: item.is_zero ? 'green' : 'red' }">{{ item.is_zero ? '是' : '否' }}</span>
+				
+				<v-chip :color="item.is_zero ? 'green' : 'red'" dark variant="flat" v-if="isStarted">{{ item.is_zero ? '是' : '否' }}</v-chip>
 			</template>
-			<template #item.game_status="{ item }">
-				<span :style="{ color: item.is_game_completed ? 'green' : 'red' }">
+			<!-- <template #item.game_status="{ item }">
+			
+				<v-chip :color="item.is_game_completed ? 'green' : 'red'" variant="flat" v-if="isStarted">
 					{{ item.is_game_completed ? '游戏结束' : '游戏未结束' }}
-				</span>
-			</template>
+				</v-chip>
+				<v-chip v-else color="default"  variant="flat"> 游戏未开始</v-chip>
+			</template> -->
 			<!-- 添加保存总结按钮 -->
 			<template #item.save_summary="{ item }">
-				<v-btn v-if="item.total_players > 0 && item.is_game_completed" color="green darken-1"
+				<v-btn v-if="item.total_players > 0 && item.is_game_completed" color="primary" 
 					@click="saveSummary">保存总结</v-btn>
 			</template>
 		</v-data-table>
@@ -43,6 +46,9 @@ export default {
 		gameStore() {
 			return useGameStore();
 		},
+		isStarted() {
+			return this.summaryData.total_players > 0;
+		},
 		headersToShow() {
 			const headers = [
 				{ title: "总人数", key: "total_players" },
@@ -53,7 +59,7 @@ export default {
 				{ title: "总胜负筹码", key: "total_win_loss_chips" },
 				{ title: "总胜负金额", key: "total_win_loss_amount" },
 				{ title: "胜负筹码为0?", key: "is_zero" },
-				{ title: "游戏状态", key: "game_status" },
+				
 			];
 			if (!this.isExporting) {
 				headers.push({ title: "保存总结", key: "save_summary", sortable: false });// 添加保存总结列
