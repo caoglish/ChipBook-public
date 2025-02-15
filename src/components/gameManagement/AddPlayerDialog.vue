@@ -3,7 +3,7 @@
 		<v-card>
 			<v-card-title>选择玩家</v-card-title>
 			<v-card-text>
-				<v-select v-model="selectedPlayers" :items="playerStore.ForSelectPlayerList"
+				<v-select v-model="selectedPlayerIds" :items="ForSelectPlayerList"
 				:item-props="itemProps" item-value="id" label="选择一个或多个玩家" chips multiple>
 				</v-select>
 			</v-card-text>
@@ -17,16 +17,23 @@
 <script setup>
 import { useGameStore } from '@/store/useGameStore';
 import { usePlayerStore } from '@/store/playerStore';
-import { ref, onMounted } from 'vue';
+import { ref, onMounted,computed } from 'vue';
 import { debounce } from '@/Lib/Helper';
 
 const gameStore = useGameStore();
 const playerStore = usePlayerStore();
 
-const selectedPlayers = ref([]);
+const selectedPlayerIds = ref([]);
+
+const ForSelectPlayerList = computed(() => {
+      const gamePlayerIds = new Set(gameStore.players.map(player => player.player_id));
+      return playerStore.ForSelectPlayerList.filter(player => !gamePlayerIds.has(player.id));
+    });
 
 const addPlayersToGame = debounce(() => {
-    gameStore.addPlayersToGame(selectedPlayers.value,playerStore.ForSelectPlayerList);
+
+    gameStore.addPlayersToGame(selectedPlayerIds.value,playerStore.ForSelectPlayerList);
+	selectedPlayerIds.value = [];
 });
 
 const itemProps = item=>({
