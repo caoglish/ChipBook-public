@@ -14,8 +14,8 @@
 			<p>一手筹码数: {{ gameStore.currentGame.chips_per_hand }}</p>
 			<p>每手金额: {{ gameStore.currentGame.amount_per_hand }}</p>
 			<p>游戏状态：
-				<v-chip :color="gameStore.summaryData.is_game_completed ? 'green' : 'red'" variant="flat" v-if="isStarted">
-					{{ gameStore.summaryData.is_game_completed ? '游戏结束' : '游戏未结束' }}
+				<v-chip :color="isgamecompleted ? 'green' : 'red'" variant="flat" v-if="isStarted">
+					{{ isgamecompleted ? '游戏结束' : '游戏未结束' }}
 				</v-chip>
 				<v-chip v-else color="default" variant="flat"> 游戏未开始</v-chip>
 			</p>
@@ -30,9 +30,13 @@
 
 <script setup>
 import { useGameStore } from '@/store/useGameStore';
-import { ref, onMounted,computed } from 'vue';
+import { computed } from 'vue';
 const gameStore = useGameStore();
 const isStarted = computed(() => {
 	return gameStore.summaryData.total_players > 0;
+});
+
+const isgamecompleted = computed(() => {
+	return gameStore.summaryData.is_game_completed;
 });
 </script>

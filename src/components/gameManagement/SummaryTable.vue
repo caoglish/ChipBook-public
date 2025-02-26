@@ -56,9 +56,9 @@ export default {
 				{ title: "总买入筹码", key: "total_chips_bought" },
 				{ title: "总买入金额", key: "total_amount_bought" },
 				{ title: "总剩余筹码", key: "total_remaining_chips" },
-				{ title: "总胜负筹码", key: "total_win_loss_chips" },
-				{ title: "总胜负金额", key: "total_win_loss_amount" },
-				{ title: "胜负筹码为0?", key: "is_zero" },
+				{ title: "总收益筹码", key: "total_win_loss_chips" },
+				{ title: "总收益金额", key: "total_win_loss_amount" },
+				{ title: "收益筹码为0?", key: "is_zero" },
 				
 			];
 			if (!this.isExporting) {
@@ -75,30 +75,23 @@ export default {
 };
 </script>
 <style scoped>
-
-.summary-table  >>>  tr>th
- {
-	color: black;
-	border: 1px solid #999 !important;
-	background-color: #e0e0e0 !important;
-	font-weight: bold !important;
-	font-size: 16px !important;
-	;
-}
 .v-data-table {
 	margin-top: 20px;
 }
-.summary-table >>> td
-{
-	border: 1px solid #ddd !important;
-	/* 添加边框 */
+
+.summary-table :deep(thead > tr > th) {
+	color: black;
+	border: 1px solid #999;
+	background-color: #e0e0e0;
+	font-weight: bold;
+	font-size: 16px;
+	/* 移除多余分号 */
+}
+
+.summary-table :deep(td) {	border: 1px solid #ddd !important;
 	padding: 8px;
-	/* 增加内边距 */
 	text-align: center;
-	/* 居中对齐文本 */
 	vertical-align: middle;
-	/* 垂直居中对齐 */
 	background-color: #f9f9f9;
-	/* 可选：背景色 */
 }
 </style>

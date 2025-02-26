@@ -18,9 +18,15 @@
 				:gameId="gameStore.currentGame.id" />
 			<!-- 日志记录表格 -->
 			<LogsTable />
+			<!-- 打印按钮 -->
+			<v-btn v-if="gameStore.currentGame" color="primary" @click="printGameInfo">打印游戏信息</v-btn>
 		</div>
-		<!-- 打印按钮 -->
-		<v-btn v-if="gameStore.currentGame" color="primary" @click="printGameInfo">打印游戏信息</v-btn>
+
+		<br/>
+		<br/>
+		<br/>
+		<br/>
+		
 
 		<!-- 引入创建新德州局对话框 -->
 		<CreateNewGameDialog />

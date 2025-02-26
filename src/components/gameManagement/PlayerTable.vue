@@ -60,8 +60,8 @@ export default {
 				{ title: "买入筹码", key: "chips_bought" },
 				{ title: "买入金额", key: "amount_bought" },
 				{ title: "剩余筹码", key: "remaining_chips" },
-				{ title: "胜负筹码", key: "win_loss_chips" },
-				{ title: "胜负金额", key: "win_loss_amount" },
+				{ title: "收益筹码", key: "win_loss_chips" },
+				{ title: "收益金额", key: "win_loss_amount" },
 			];
 
 			// 如果不在导出模式下，添加操作列
@@ -115,50 +115,43 @@ export default {
 </script>
 
 <style scoped>
-.player-table >>> .v-btn {
-	margin-left: 10px;
-	margin-top: 10px;
+.player-table :deep(.v-btn) {
+  margin-left: 10px;
+  margin-top: 10px;
 }
 
-.summary-table  >>> .v-table__wrapper tr>th,
-.player-table  >>> .v-table__wrapper tr>th {
-	color: black;
-	border: 1px solid #999 !important;
-	background-color: #e0e0e0 !important;
-	font-weight: bold !important;
-	font-size: 16px !important;
-	;
+.summary-table :deep(.v-table__wrapper tr > th),
+.player-table :deep(.v-table__wrapper tr > th) {
+  color: black;
+  border: 1px solid #999 !important;
+  background-color: #e0e0e0 !important;
+  font-weight: bold !important;
+  font-size: 16px; /* 移除多余分号 */
 }
 
-.player-table  >>> .v-table__wrapper td,
-.player-table >>> .v-table__wrapper th {
-	border: 1px solid #ddd !important;
-	/* 添加边框 */
-	padding: 8px;
-	/* 增加内边距 */
-	text-align: center;
-	/* 居中对齐文本 */
-	vertical-align: middle;
-	/* 垂直居中对齐 */
-
-	/* 可选：背景色 */
+.player-table :deep(.v-table__wrapper td),
+.player-table :deep(.v-table__wrapper th) {
+  border: 1px solid #ddd !important;
+  padding: 8px;
+  text-align: center;
+  vertical-align: middle;
 }
 
 
 
 /* 偶数行颜色 */
-.player-table >>> .even-row {
-	background-color: #f9f9f9 !important;
+.player-table :deep(.even-row) {
+    background-color: #f9f9f9 !important;
 }
 
-.player-table >>> .first-place {
-	background-color: rgb(211, 211, 211) !important;
-	color: black;
-	font-weight: bold;
+.player-table :deep(.first-place) {
+    background-color: rgb(211, 211, 211) !important;
+    color: black;
+    font-weight: bold;
 }
 
 /* 奇数行颜色 */
-.player-table  >>> .odd-row {
-	background-color: #f0f0f0 !important;
+.player-table :deep(.odd-row) {
+    background-color: #f0f0f0 !important;
 }
 </style>
