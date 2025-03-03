@@ -163,6 +163,7 @@ export const useGameStore = defineStore("useGameStore", {
     },
     async selectGame(gameId) {
       console.log("gamestore", gameId);
+	  this.currentGame = null;
       this.currentGame = await this.fetchGameById(gameId);
 
       console.log("gamestore currentGame", this.currentGame);
