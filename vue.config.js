@@ -16,6 +16,14 @@ configureWebpack: config => {
       config.devtool = 'eval-source-map'; // 使用 eval-source-map 提升开发速度
     }
   },
+  chainWebpack: (config) => {
+    config.module
+      .rule('raw')
+      .test(/\.md$/) // 处理 .md 文件
+      .use('raw-loader')
+      .loader('raw-loader')
+      .end();
+  },
 
   pluginOptions: {
     vuetify: {
