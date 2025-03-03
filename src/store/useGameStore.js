@@ -36,7 +36,7 @@ export const useGameStore = defineStore("useGameStore", {
     buyInAmount: DEFAULT_BUYIN_AMOUNT,
     refundAmount: 0, // 退码手数
     remainingAmount: 0, // 剩余筹码数
-   currentPlayer: null,
+    currentPlayer: null,
     chipsPerHand: 500,
     chipsPerHandCustom: 500,//default custom number
     amountPerHand: 50,
@@ -46,7 +46,8 @@ export const useGameStore = defineStore("useGameStore", {
     amountPerHandOptions: [50, 100, "custom"],
     isExporting: false,
     showAlert: false, // 控制 alert 显示状态
-    sortByPlayer: false, // 是否按玩家排序的标志
+    sortByPlayer: false,
+	gameCreater:null, // 是否按玩家排序的标志
   }),
   getters: {
 	isWinLossCalculated(state){
@@ -54,7 +55,9 @@ export const useGameStore = defineStore("useGameStore", {
 			(player) => player.win_loss_chips !== null
 		);
 	},
-					
+
+	
+
     summaryData(state) {
       const totalPlayers = state.players.length;
       const totalHandsBought = state.players.reduce(
@@ -113,6 +116,8 @@ export const useGameStore = defineStore("useGameStore", {
 	  },
   },
   actions: {
+
+	
     async openNewGameDialog() {
       this.newGameDialog = true;
     },
@@ -160,10 +165,18 @@ export const useGameStore = defineStore("useGameStore", {
     async selectGame(gameId) {
       console.log("gamestore", gameId);
       this.currentGame = await this.fetchGameById(gameId);
+	  
       console.log("gamestore currentGame", this.currentGame);
+	  await this.fetchGameCreater();
       await this.fetchInGamePlayers();
       await this.fetchAllPlayerLogs();
     },
+	async fetchGameCreater(){
+	  const loginUserStore = useLoginUserStore();
+	  const user=await loginUserStore.getLoginUserFromCollection(this.currentGame.created_by)
+	  console.log("gameCreater",user.displayName);
+	  this.gameCreater =user.displayName;
+	},
     async fetchGameById(gameId) {
       try {
         const gameRef = doc(db, "games", gameId);

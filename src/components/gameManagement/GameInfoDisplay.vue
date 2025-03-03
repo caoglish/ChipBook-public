@@ -13,6 +13,7 @@
 			<p>创建时间: {{ gameStore.currentGame.created_at }}</p>
 			<p>一手筹码数: {{ gameStore.currentGame.chips_per_hand }}</p>
 			<p>每手金额: {{ gameStore.currentGame.amount_per_hand }}</p>
+			<p>创建者: {{ gameStore.gameCreater }}</p>
 			<p>游戏状态：
 				<v-chip :color="isgamecompleted ? 'green' : 'red'" variant="flat" v-if="isStarted">
 					{{ isgamecompleted ? '游戏结束' : '游戏未结束' }}
