@@ -111,9 +111,9 @@ export const useLoginUserStore = defineStore('useLoginUserStore', {
 			try {
 				const db = firebaseDb;
 				const userRef = doc(db, LOGIN_USER_COLLECTION_NAME, userId);
-				
+
 				const userSnap = await getDoc(userRef);
-				console.log("getLoginUserFromCollection",  userId,userSnap.exists())
+				console.log("getLoginUserFromCollection", userId, userSnap.exists())
 				if (userSnap.exists()) {
 					console.log("getLoginUserFromCollection", userSnap.data(), userId)
 					return userSnap.data();

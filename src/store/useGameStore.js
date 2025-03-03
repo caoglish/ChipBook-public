@@ -29,7 +29,7 @@ export const useGameStore = defineStore("useGameStore", {
     buyInDialog: false,
     refundDialog: false,
     remainingDialog: false,
-    
+
     selectedPlayers: [],
     players: [], // Players in game
 
@@ -38,25 +38,21 @@ export const useGameStore = defineStore("useGameStore", {
     remainingAmount: 0, // 剩余筹码数
     currentPlayer: null,
     chipsPerHand: 500,
-    chipsPerHandCustom: 500,//default custom number
+    chipsPerHandCustom: 500, //default custom number
     amountPerHand: 50,
-    amountPerHandCustom: 50,//default custom amount
+    amountPerHandCustom: 50, //default custom amount
 
     chipsPerHandOptions: [500, 1000, "custom"],
     amountPerHandOptions: [50, 100, "custom"],
     isExporting: false,
     showAlert: false, // 控制 alert 显示状态
     sortByPlayer: false,
-	gameCreater:null, // 是否按玩家排序的标志
+    gameCreater: null, // 是否按玩家排序的标志
   }),
   getters: {
-	isWinLossCalculated(state){
-		return state.players.every(
-			(player) => player.win_loss_chips !== null
-		);
-	},
-
-	
+    isWinLossCalculated(state) {
+      return state.players.every((player) => player.win_loss_chips !== null);
+    },
 
     summaryData(state) {
       const totalPlayers = state.players.length;
@@ -81,16 +77,17 @@ export const useGameStore = defineStore("useGameStore", {
           sum + (player.win_loss_chips !== null ? player.win_loss_chips : 0),
         0
       );
-      const totalWinLossAmount = state.players.reduce(
-        (sum, player) =>
-          sum +
-          (player.win_loss_amount !== null
-            ? parseFloat(player.win_loss_amount)
-            : 0), // in case firebase saves amount as string
-        0
-      ).toFixed(2);
+      const totalWinLossAmount = state.players
+        .reduce(
+          (sum, player) =>
+            sum +
+            (player.win_loss_amount !== null
+              ? parseFloat(player.win_loss_amount)
+              : 0), // in case firebase saves amount as string
+          0
+        )
+        .toFixed(2);
 
-      
       const isZero = this.isWinLossCalculated && totalWinLossChips === 0;
 
       return {
@@ -105,29 +102,31 @@ export const useGameStore = defineStore("useGameStore", {
         is_game_completed: this.isWinLossCalculated,
       };
     },
-	playerWithMostChips(state) {
-		if (state.players.length === 0 ||  !this.isWinLossCalculated) return null;
-  
-		 // 找到最高的 win_loss_chips
-		 const maxChips = Math.max(...state.players.map(player => player.win_loss_chips));
+    playerWithMostChips(state) {
+      if (state.players.length === 0 || !this.isWinLossCalculated) return null;
 
-		 // 过滤出所有 win_loss_chips 等于 maxChips 的玩家
-		 return state.players.filter(player => player.win_loss_chips === maxChips);
-	  },
+      // 找到最高的 win_loss_chips
+      const maxChips = Math.max(
+        ...state.players.map((player) => player.win_loss_chips)
+      );
+
+      // 过滤出所有 win_loss_chips 等于 maxChips 的玩家
+      return state.players.filter(
+        (player) => player.win_loss_chips === maxChips
+      );
+    },
   },
   actions: {
-
-	
     async openNewGameDialog() {
       this.newGameDialog = true;
     },
 
-	closeNewGameDialog() {	
-		this.newGameDialog = false;
-	},
+    closeNewGameDialog() {
+      this.newGameDialog = false;
+    },
     async createNewGame() {
       const currentGameIdStore = useCurrentGameIdStore();
-	  const loginUserStore = useLoginUserStore();
+      const loginUserStore = useLoginUserStore();
       try {
         const chipsPerHandValue =
           this.chipsPerHand === "custom"
@@ -143,7 +142,7 @@ export const useGameStore = defineStore("useGameStore", {
           chips_per_hand: parseInt(chipsPerHandValue, 10),
           amount_per_hand: parseInt(amountPerHandValue, 10),
           created_at_timestamp: firebaseTimestamp(),
-          created_by:  loginUserStore.user.uid,
+          created_by: loginUserStore.user.uid,
         };
         const gameRef = await addDoc(collection(db, "games"), gameData);
         this.resetGame();
@@ -165,18 +164,20 @@ export const useGameStore = defineStore("useGameStore", {
     async selectGame(gameId) {
       console.log("gamestore", gameId);
       this.currentGame = await this.fetchGameById(gameId);
-	  
+
       console.log("gamestore currentGame", this.currentGame);
-	  await this.fetchGameCreater();
+      await this.fetchGameCreater();
       await this.fetchInGamePlayers();
       await this.fetchAllPlayerLogs();
     },
-	async fetchGameCreater(){
-	  const loginUserStore = useLoginUserStore();
-	  const user=await loginUserStore.getLoginUserFromCollection(this.currentGame.created_by)
-	  console.log("gameCreater",user.displayName);
-	  this.gameCreater =user.displayName;
-	},
+    async fetchGameCreater() {
+      const loginUserStore = useLoginUserStore();
+      const user = await loginUserStore.getLoginUserFromCollection(
+        this.currentGame.created_by
+      );
+      console.log("gameCreater", user.displayName);
+      this.gameCreater = user.displayName;
+    },
     async fetchGameById(gameId) {
       try {
         const gameRef = doc(db, "games", gameId);
@@ -213,7 +214,7 @@ export const useGameStore = defineStore("useGameStore", {
     openAddPlayersDialog() {
       this.addPlayersDialog = true;
     },
-    async addPlayersToGame(selectedPlayerList,PlayersList) {
+    async addPlayersToGame(selectedPlayerList, PlayersList) {
       try {
         this.addPlayersDialog = false;
         const gameRef = doc(db, "games", this.currentGame.id);
@@ -260,15 +261,15 @@ export const useGameStore = defineStore("useGameStore", {
       }
     },
     buyIn(player) {
-      this.currentPlayer=player;
+      this.currentPlayer = player;
       this.buyInDialog = true;
     },
     refund(player) {
- 	  this.currentPlayer=player;
+      this.currentPlayer = player;
       this.refundDialog = true;
     },
     setRemaining(player) {
-      this.currentPlayer=player;
+      this.currentPlayer = player;
       this.remainingAmount =
         player.remaining_chips !== null ? player.remaining_chips : 0;
       this.remainingDialog = true;
@@ -296,7 +297,9 @@ export const useGameStore = defineStore("useGameStore", {
       let buyin = parseInt(this.buyInAmount, 10);
 
       if (this.currentPlayer.player_id && buyin > 0) {
-        const playerResult = await this.fetchPlayerById(this.currentPlayer.player_id);
+        const playerResult = await this.fetchPlayerById(
+          this.currentPlayer.player_id
+        );
 
         if (playerResult) {
           const playerData = playerResult.data;
@@ -349,7 +352,9 @@ export const useGameStore = defineStore("useGameStore", {
       let refund = parseInt(this.refundAmount, 10);
 
       if (this.currentPlayer.player_id && refund > 0) {
-        const playerResult = await this.fetchPlayerById(this.currentPlayer.player_id);
+        const playerResult = await this.fetchPlayerById(
+          this.currentPlayer.player_id
+        );
         if (playerResult) {
           const playerData = playerResult.data;
           const playerDocId = playerResult.id;
@@ -407,7 +412,9 @@ export const useGameStore = defineStore("useGameStore", {
       let remaining = parseInt(this.remainingAmount, 10);
 
       if (this.currentPlayer.player_id && remaining >= 0) {
-        const playerResult = await this.fetchPlayerById(this.currentPlayer.player_id);
+        const playerResult = await this.fetchPlayerById(
+          this.currentPlayer.player_id
+        );
         if (playerResult) {
           const playerData = playerResult.data;
           const playerDocId = playerResult.id;
