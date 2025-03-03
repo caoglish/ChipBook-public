@@ -91,7 +91,7 @@ export const useLoginUserStore = defineStore('useLoginUserStore', {
 		// 检查用户的登录状态
 		checkAuthState() {
 			onAuthStateChanged(firebaseAuth, (user) => {
-				if (user && user.email && user.email.includes("cao")) {
+				if (user && user.email ) {
 					this.user = {
 						email: user.email,
 						displayName: user.displayName,
