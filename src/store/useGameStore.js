@@ -175,8 +175,8 @@ export const useGameStore = defineStore("useGameStore", {
       const user = await loginUserStore.getLoginUserFromCollection(
         this.currentGame.created_by
       );
-      console.log("gameCreater", user.displayName);
-      this.gameCreater = user.displayName;
+      console.log("gameCreater", user?.displayName);
+      this.gameCreater = user?.displayName;
     },
     async fetchGameById(gameId) {
       try {
