@@ -17,6 +17,7 @@ import playerHelper from "@/Lib/PlayerHelper";
 import { dateDisplay, firebaseTimestamp } from "@/Lib/DateHelper";
 import { useLogStore } from "@/store/useLogStore";
 import { useCurrentGameIdStore } from "@/store/CurrentGameIdStore";
+import { useLoginUserStore } from "@/store/LoginUserStore";
 const db = firebaseDb;
 
 const DEFAULT_BUYIN_AMOUNT = 1;
@@ -84,7 +85,7 @@ export const useGameStore = defineStore("useGameStore", {
             ? parseFloat(player.win_loss_amount)
             : 0), // in case firebase saves amount as string
         0
-      );
+      ).toFixed(2);
 
       
       const isZero = this.isWinLossCalculated && totalWinLossChips === 0;
@@ -121,6 +122,7 @@ export const useGameStore = defineStore("useGameStore", {
 	},
     async createNewGame() {
       const currentGameIdStore = useCurrentGameIdStore();
+	  const loginUserStore = useLoginUserStore();
       try {
         const chipsPerHandValue =
           this.chipsPerHand === "custom"
@@ -136,6 +138,7 @@ export const useGameStore = defineStore("useGameStore", {
           chips_per_hand: parseInt(chipsPerHandValue, 10),
           amount_per_hand: parseInt(amountPerHandValue, 10),
           created_at_timestamp: firebaseTimestamp(),
+          created_by:  loginUserStore.user.uid,
         };
         const gameRef = await addDoc(collection(db, "games"), gameData);
         this.resetGame();
