@@ -1,6 +1,6 @@
 <template>
 	<div class="summary-table">
-		<v-data-table :headers="headersToShow" :items="[summaryData]" :hide-default-footer="1"
+		<v-data-table :headers="headersToShow" :items="[summaryData]" :hide-default-footer="true"
 			class="mt-4">
 			<template #item.is_zero="{ item }">
 				

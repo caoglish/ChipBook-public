@@ -2,7 +2,7 @@
 	<div class="player-table">
 		<!-- 玩家信息表格 -->
 		<v-data-table :headers="headersToShow" :items="playerList" :row-props="rowProps" :items-per-page="-1"
-			:hide-default-footer="1" class="mt-4 ">
+			:hide-default-footer="true" class="mt-4 ">
 			<template #item.player_display_name="{ item }">
 				<span v-if="isFirstPlace(item)">
 					<v-chip color="default" variant="flat">🏆{{ item.player_display_name }}</v-chip>

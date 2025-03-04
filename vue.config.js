@@ -1,4 +1,6 @@
 const { defineConfig } = require('@vue/cli-service')
+const webpack = require('webpack');
+
 module.exports = defineConfig({
   lintOnSave: false,
   transpileDependencies: true,
@@ -7,6 +9,15 @@ module.exports = defineConfig({
   // <---- Here
 // 生产环境和开发环境构建配置的不同点
 configureWebpack: config => {
+	// Define Vue feature flags globally
+    config.plugins = (config.plugins || []).concat([
+		new webpack.DefinePlugin({
+		  '__VUE_OPTIONS_API__': JSON.stringify(true),
+		  '__VUE_PROD_DEVTOOLS__': JSON.stringify(false),
+		  '__VUE_PROD_HYDRATION_MISMATCH_DETAILS__': JSON.stringify(false),
+		})
+	  ]);
+	  
     if (process.env.NODE_ENV === 'production') {
       // 为生产环境修改配置
       config.optimization.minimize = true;
