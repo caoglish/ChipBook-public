@@ -12,7 +12,7 @@
 import { computed, onMounted } from "vue";
 import { useEnvStore } from "@/store/envStore";
 
-import { useLoginUserStore } from "@/store/LoginUserStore";// 导入 Pinia store
+import { useLoginUserStore } from "@/store/useLoginUserStore";// 导入 Pinia store
 const loginUserStore = useLoginUserStore();
 
 

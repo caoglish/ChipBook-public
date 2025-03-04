@@ -1,7 +1,13 @@
+/**
+ * 用于管理用户登录状态的 Pinia Store
+ * 该 Store 用于处理用户登录、登出、检查登录状态等操作
+ * 
+ *  */
 import { defineStore } from 'pinia';
 import { firebaseAuth } from "@/Lib/FirebaseDb";
 import { signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "firebase/auth";
 import { User } from '@/Type/User';
+
 import { dateDisplay, firebaseTimestamp } from "@/Lib/DateHelper";
 import {
 	getDoc,
@@ -10,8 +16,9 @@ import {
 	updateDoc,
 } from "firebase/firestore";
 import firebaseDb from "@/Lib/FirebaseDb";
+import { useLoginUserCollectionStore } from '@/store/useLoginUserCollectionStore';
 
-const LOGIN_USER_COLLECTION_NAME = "loginUsers";
+
 
 export const useLoginUserStore = defineStore('useLoginUserStore', {
 	state: () => ({
@@ -25,33 +32,7 @@ export const useLoginUserStore = defineStore('useLoginUserStore', {
 	persist: true,
 
 	actions: {
-		async createUserIfNotExists(user: User) {
-			try {
-				const db = firebaseDb;
-
-				const userRef = doc(db, LOGIN_USER_COLLECTION_NAME, user.uid!);
-				const userDoc = await getDoc(userRef);
-
-				if (!userDoc.exists()) {
-					// 用户文档不存在，创建新文档
-					await setDoc(userRef, {
-						uid: user.uid,
-						email: user.email,
-						displayName: user.displayName || "Anonymous",
-						createdAt: dateDisplay(),
-						lastLogin: dateDisplay(),
-
-					});
-					console.log("新用户文档已创建");
-				} else {
-					console.log("用户文档已存在");
-					// 可选：更新最后登录时间
-					await updateDoc(userRef, { lastLogin: dateDisplay() });
-				}
-			} catch (error) {
-				console.error("用户文档操作失败:", error);
-			}
-		},
+		
 		// 使用 Google 登录
 		async signInWithGoogle() {
 			const provider = new GoogleAuthProvider();
@@ -92,39 +73,21 @@ export const useLoginUserStore = defineStore('useLoginUserStore', {
 
 		// 检查用户的登录状态
 		checkAuthState() {
-			onAuthStateChanged(firebaseAuth, (user) => {
+			const LoginUserCollectionStore = useLoginUserCollectionStore();
+			onAuthStateChanged(firebaseAuth,async (user) => {
 				if (user && user.email) {
 					this.user = {
 						email: user.email,
 						displayName: user.displayName,
 						uid: user.uid,
 					};
-					this.createUserIfNotExists(this.user);
+					await LoginUserCollectionStore.createUserIfNotExists(this.user);
 				} else {
 					this.user = null;
 				}
 			});
 		},
 
-		async getLoginUserFromCollection(userId: string) {
-
-			try {
-				const db = firebaseDb;
-				const userRef = doc(db, LOGIN_USER_COLLECTION_NAME, userId);
-
-				const userSnap = await getDoc(userRef);
-				console.log("getLoginUserFromCollection", userId, userSnap.exists())
-				if (userSnap.exists()) {
-					console.log("getLoginUserFromCollection", userSnap.data(), userId)
-					return userSnap.data();
-				} else {
-					console.error('User not found');
-					return null;
-				}
-			} catch (error) {
-				console.error('Error fetching loginUser:', error);
-				return null;
-			}
-		},
+		
 	},
 });

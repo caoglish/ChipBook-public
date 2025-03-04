@@ -34,6 +34,12 @@ const routes: Array<RouteRecordRaw> = [
     name: 'History',
     
     component: () => import( '../views/HistoryView.vue')
+  },
+  {
+	path: '/loginUserList',
+	name: 'LoginUserList',
+	component: () => import( '../views/LoginUserListView.vue')
+
   }
 
 ]

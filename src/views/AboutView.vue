@@ -4,13 +4,12 @@
 		<AppVersion />
 		<envCard></envCard>
 		<LoginUserCard></LoginUserCard>
-		<v-btn @click="activeDevtool" color="primary" class="ma-2">
-			<v-icon icon="mdi-wrench" start></v-icon>
-			toggle devtool
-		</v-btn>
+		<DevtoolToggleButton />
+		<v-btn to="/loginUserList"  class="nav-link" color="primary">打开登陆过用户列表</v-btn>
 
-		<h2>版本信息</h2>
-		<div v-html="versionContent"></div>
+		<VersionInfoCard />
+		
+				
 	</div>
 </template>
 
@@ -19,13 +18,9 @@
 import LoginUserCard from '@/components/card/LoginUserCard.vue'
 import envCard from '@/components/card/envCard.vue'
 import AppVersion from '@/components/card/AppVersionCard.vue';
+import VersionInfoCard from '@/components/card/VersionInfoCard.vue'
+import DevtoolToggleButton from '@/components/common/DevtoolToggleButton.vue' 
 
-import { ref, onMounted } from 'vue';
-import MarkdownIt from 'markdown-it';
-import versionMd from '@/assets/version.md'; // 直接 import
-
-const md = new MarkdownIt();
-const versionContent = md.render(versionMd); // 解析 Markdown 为 HTML
 
 const activeDevtool = () => {
 	if(eruda._isInit) {

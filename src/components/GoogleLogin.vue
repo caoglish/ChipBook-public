@@ -14,7 +14,7 @@
 </template>
 
 <script setup lang="ts">
-import { useLoginUserStore } from "@/store/LoginUserStore";
+import { useLoginUserStore } from "@/store/useLoginUserStore";
 import { computed } from "vue";
 import LoginUserCard from '@/components/card/LoginUserCard.vue'
 

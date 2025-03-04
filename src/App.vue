@@ -12,6 +12,8 @@
 				<v-btn to="/history"  class="nav-link">History</v-btn>
 				<v-btn to="/player"  class="nav-link">Player</v-btn>
 				<v-btn to="/about"  class="nav-link">About</v-btn>
+				
+
 			</template>
 		</v-app-bar>
 
@@ -26,7 +28,7 @@
 
 <script lang="ts">
 import { defineComponent, computed, onMounted } from "vue";
-import { useLoginUserStore } from "@/store/LoginUserStore";// 导入 Pinia store
+import { useLoginUserStore } from "@/store/useLoginUserStore";// 导入 Pinia store
 
 export default defineComponent({
 	name: "App",

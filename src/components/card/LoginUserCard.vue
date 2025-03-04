@@ -11,7 +11,7 @@
 
 <script setup>
 import { computed } from 'vue'
-import { useLoginUserStore } from "@/store/LoginUserStore";// 导入 Pinia store
+import { useLoginUserStore } from "@/store/useLoginUserStore";// 导入 Pinia store
 const loginUserStore = useLoginUserStore();
 const isAuthenticated = computed(() => !!loginUserStore.user);
 </script>

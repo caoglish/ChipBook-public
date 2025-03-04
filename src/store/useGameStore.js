@@ -17,7 +17,8 @@ import playerHelper from "@/Lib/PlayerHelper";
 import { dateDisplay, firebaseTimestamp } from "@/Lib/DateHelper";
 import { useLogStore } from "@/store/useLogStore";
 import { useCurrentGameIdStore } from "@/store/CurrentGameIdStore";
-import { useLoginUserStore } from "@/store/LoginUserStore";
+import { useLoginUserStore } from "@/store/useLoginUserStore";
+import { useLoginUserCollectionStore } from '@/store/useLoginUserCollectionStore';
 const db = firebaseDb;
 
 const DEFAULT_BUYIN_AMOUNT = 1;
@@ -172,8 +173,8 @@ export const useGameStore = defineStore("useGameStore", {
       await this.fetchAllPlayerLogs();
     },
     async fetchGameCreater() {
-      const loginUserStore = useLoginUserStore();
-      const user = await loginUserStore.getLoginUserFromCollection(
+      const loginUserCollectionStore = useLoginUserCollectionStore();
+      const user = await loginUserCollectionStore.getLoginUserFromCollection(
         this.currentGame.created_by
       );
       console.log("gameCreater", user?.displayName);

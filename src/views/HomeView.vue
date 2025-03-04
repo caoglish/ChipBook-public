@@ -14,7 +14,7 @@ import GoogleLogin from "@/components/GoogleLogin.vue";
 import ContinueGame from "@/components/card/ContinueGameCard.vue";
 import envCard from '@/components/card/envCard.vue'
 import TodayGameTable from '@/components/TodayGameTable.vue'
-import { useLoginUserStore } from "@/store/LoginUserStore";// 导入 Pinia store
+import { useLoginUserStore } from "@/store/useLoginUserStore";// 导入 Pinia store
 
 export default defineComponent({
 	name: 'HomeView',
