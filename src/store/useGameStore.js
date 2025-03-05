@@ -20,6 +20,7 @@ import { useCurrentGameIdStore } from "@/store/CurrentGameIdStore";
 import { useLoginUserStore } from "@/store/useLoginUserStore";
 import { useLoginUserCollectionStore } from '@/store/useLoginUserCollectionStore';
 const db = firebaseDb;
+import {delay } from "@/Lib/Helper.ts";
 
 const DEFAULT_BUYIN_AMOUNT = 1;
 export const useGameStore = defineStore("useGameStore", {
@@ -338,11 +339,12 @@ export const useGameStore = defineStore("useGameStore", {
                 timestamp: firebaseTimestamp(),
               }),
             });
-            this.buyInDialog = false;
+            
             await this.fetchInGamePlayers();
             await this.fetchAllPlayerLogs();
 
-            this.buyInAmount = DEFAULT_BUYIN_AMOUNT;
+			this.buyInDialog = false;
+			delay(()=>{this.buyInAmount = DEFAULT_BUYIN_AMOUNT;})
           } catch (error) {
             console.error("Error updating buy-in data:", error);
             alert("买入操作失败，请重试。");
@@ -402,7 +404,8 @@ export const useGameStore = defineStore("useGameStore", {
             await this.fetchAllPlayerLogs();
 
             this.refundDialog = false;
-            this.refundAmount = 0;
+			delay(()=>{this.refundAmount = 0;})
+            
           } catch (error) {
             console.error("Error updating refund data:", error);
             alert("退码操作失败，请重试。");
@@ -440,12 +443,14 @@ export const useGameStore = defineStore("useGameStore", {
               }),
             });
 
-            this.remainingAmount = 0;
-
+            
+			
             await this.fetchInGamePlayers();
             await this.fetchAllPlayerLogs();
 
-            this.remainingDialog = false;
+			this.remainingDialog = false;
+			delay(()=>{	this.remainingAmount = 0;})
+			
           } catch (error) {
             console.error("Error updating remaining chips:", error);
             alert("更新剩余筹码失败，请重试。");
