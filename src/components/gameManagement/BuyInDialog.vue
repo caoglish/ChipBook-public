@@ -16,7 +16,10 @@
 				></v-number-input>
 			</v-card-text>
 			<v-card-actions>
-				<v-btn color="blue darken-1" @click="confirmBuyIn"  variant="flat">确认</v-btn>
+				<v-btn color="blue darken-1" @click="confirmBuyIn"  variant="flat" :disabled="isProcessing">
+					<v-progress-circular v-if="isProcessing" indeterminate size="20" class="mr-2"></v-progress-circular>
+					确认
+				</v-btn>
 				<v-btn color="grey darken-1" @click="gameStore.buyInDialog = false" variant="outlined">取消</v-btn>
 			</v-card-actions>
 		</v-card>
@@ -25,8 +28,22 @@
 <script setup>
 import { useGameStore } from '@/store/useGameStore';
 import { debounce } from '@/Lib/Helper';
+import { ref, watch } from 'vue';
 
-const gameStore = useGameStore(); // 获取 gameStore
-const confirmBuyIn = debounce(gameStore.confirmBuyIn);
+const isProcessing = ref(false);
+
+const gameStore = useGameStore(); 
+const confirmBuyIn = async () => {
+	if (isProcessing.value) return; // 防止重复点击
+	isProcessing.value = true;
+	await gameStore.confirmBuyIn();
+	isProcessing.value = false;
+};
+
+watch(() => gameStore.buyInDialog, (newVal) => {
+	if (newVal) {
+		isProcessing.value = false;
+	}
+});
 </script>
 
