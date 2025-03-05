@@ -19,10 +19,11 @@ import { useLogStore } from "@/store/useLogStore";
 import { useCurrentGameIdStore } from "@/store/CurrentGameIdStore";
 import { useLoginUserStore } from "@/store/useLoginUserStore";
 import { useLoginUserCollectionStore } from '@/store/useLoginUserCollectionStore';
+import { DEFAULT_BUYIN_AMOUNT } from "@/constants/appConstants";
 const db = firebaseDb;
-import {delay } from "@/Lib/Helper.ts";
 
-const DEFAULT_BUYIN_AMOUNT = 1;
+
+
 export const useGameStore = defineStore("useGameStore", {
   state: () => ({
     currentGame: null,
@@ -344,7 +345,7 @@ export const useGameStore = defineStore("useGameStore", {
             await this.fetchAllPlayerLogs();
 
 			this.buyInDialog = false;
-			delay(()=>{this.buyInAmount = DEFAULT_BUYIN_AMOUNT;})
+			//delay(()=>{this.buyInAmount = DEFAULT_BUYIN_AMOUNT;})
           } catch (error) {
             console.error("Error updating buy-in data:", error);
             alert("买入操作失败，请重试。");
@@ -404,7 +405,7 @@ export const useGameStore = defineStore("useGameStore", {
             await this.fetchAllPlayerLogs();
 
             this.refundDialog = false;
-			delay(()=>{this.refundAmount = 0;})
+			
             
           } catch (error) {
             console.error("Error updating refund data:", error);
@@ -449,7 +450,7 @@ export const useGameStore = defineStore("useGameStore", {
             await this.fetchAllPlayerLogs();
 
 			this.remainingDialog = false;
-			delay(()=>{	this.remainingAmount = 0;})
+			
 			
           } catch (error) {
             console.error("Error updating remaining chips:", error);
@@ -468,8 +469,8 @@ export const useGameStore = defineStore("useGameStore", {
       return parseFloat(result.toFixed(2));
     },
     cancelRemaining() {
-      this.remainingAmount = 0;
       this.remainingDialog = false;
+	  this.remainingAmount = 0;
     },
     async fetchAllPlayerLogs() {
       const logStore = useLogStore();

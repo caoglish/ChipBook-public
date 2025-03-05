@@ -27,8 +27,9 @@
 </template>
 <script setup>
 import { useGameStore } from '@/store/useGameStore';
-import { debounce } from '@/Lib/Helper';
 import { ref, watch } from 'vue';
+import { DEFAULT_BUYIN_AMOUNT } from "@/constants/appConstants";
+import {delay } from "@/Lib/Helper.ts";
 
 const isProcessing = ref(false);
 
@@ -38,6 +39,8 @@ const confirmBuyIn = async () => {
 	isProcessing.value = true;
 	await gameStore.confirmBuyIn();
 	isProcessing.value = false;
+	delay(()=>{gameStore.buyInAmount =DEFAULT_BUYIN_AMOUNT;});
+	
 };
 
 watch(() => gameStore.buyInDialog, (newVal) => {

@@ -27,19 +27,19 @@
 <script setup>
 import { useGameStore } from '@/store/useGameStore';
 import { ref, watch } from 'vue';
+import {delay } from "@/Lib/Helper.ts";
 
 const isProcessing = ref(false);
 
-
 const gameStore = useGameStore();
-
-
 const confirmRefund = async () => {
 	console.log('confirmRefund');
 	if (isProcessing.value) return; // 防止重复点击
 	isProcessing.value = true;
 	await gameStore.confirmRefund();
 	isProcessing.value = false;
+	
+	delay(()=>{gameStore.refundAmount = 0});
 };
 
 watch(() => gameStore.refundDialog, (newVal) => {

@@ -28,7 +28,8 @@
 
 <script setup>
 import { useGameStore } from '@/store/useGameStore';
-import { ref, watch } from 'vue';
+import { ref, watch ,nextTick } from 'vue';
+import {delay } from "@/Lib/Helper.ts";
 const isProcessing = ref(false);
 
 const gameStore = useGameStore();
@@ -37,9 +38,11 @@ const confirmRemaining = async () => {
 	isProcessing.value = true;
 	await gameStore.confirmRemaining();
 	isProcessing.value = false;
+
+	delay(()=>{gameStore.remainingAmount = 0});
 };
 
-watch(() => gameStore.remainingDialog, (newVal) => {
+watch( () => gameStore.remainingDialog,async (newVal) => {
 	if (newVal) {
 		isProcessing.value = false;
 	}
