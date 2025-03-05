@@ -15,7 +15,10 @@
 				></v-number-input>
 			</v-card-text>
 			<v-card-actions>
-				<v-btn color="blue darken-1" @click="confirmRefund" variant="flat">确认</v-btn>
+				<v-btn color="blue darken-1" @click="confirmRefund" variant="flat" :disabled="isProcessing">
+					<v-progress-circular v-if="isProcessing" indeterminate size="20" class="mr-2"></v-progress-circular>
+					确认
+				</v-btn>
 				<v-btn color="grey darken-1" @click="gameStore.refundDialog = false" variant="outlined">取消</v-btn>
 			</v-card-actions>
 		</v-card>
@@ -23,7 +26,25 @@
 </template>
 <script setup>
 import { useGameStore } from '@/store/useGameStore';
-import { debounce } from '@/Lib/Helper';
+import { ref, watch } from 'vue';
+
+const isProcessing = ref(false);
+
+
 const gameStore = useGameStore();
-const confirmRefund = debounce(gameStore.confirmRefund);
+
+
+const confirmRefund = async () => {
+	console.log('confirmRefund');
+	if (isProcessing.value) return; // 防止重复点击
+	isProcessing.value = true;
+	await gameStore.confirmRefund();
+	isProcessing.value = false;
+};
+
+watch(() => gameStore.refundDialog, (newVal) => {
+	if (newVal) {
+		isProcessing.value = false;
+	}
+});
 </script>
