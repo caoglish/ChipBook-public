@@ -21,27 +21,16 @@
 		  @toggle-allow-select="toggleAllowSelect" 
 		  @delete-player="confirmDeletePlayer"></PlayerTable>
 
-		<!-- 添加或编辑玩家的对话框 -->
-		<v-dialog v-model="dialog" max-width="500px" persistent>
-			<v-card>
-				<v-card-title>
-					<span class="headline">{{ editingPlayer ? '编辑玩家' : '添加玩家' }}</span>
-				</v-card-title>
-				<v-card-text>
-					<v-text-field v-model="player.player_name" label="玩家固定名称" :readonly="editingPlayer"
-						:color="editingPlayer ? 'grey' : 'primary'" :dense="editingPlayer" class="readonly-text-field"
-						required></v-text-field>
-					<v-checkbox v-if="!editingPlayer" v-model="sameName" label="玩家显示名称与玩家固定名称相同"
-						@change="syncDisplayName"></v-checkbox>
-					<v-text-field v-if="!sameName || editingPlayer" v-model="player.player_display_name" label="玩家显示名称"
-						required></v-text-field>
-				</v-card-text>
-				<v-card-actions>
-					<v-btn color="blue darken-1" @click="savePlayer">保存</v-btn>
-					<v-btn color="grey darken-1" @click="closeDialog">取消</v-btn>
-				</v-card-actions>
-			</v-card>
-		</v-dialog>
+		
+		<AddDialog
+			v-model="dialog"
+			v-model:error="addDialogError"
+			:player="player"
+			:editingPlayer="editingPlayer"
+			v-model:sameName="sameName"
+			@save="savePlayer"
+			@close="closeDialog"
+			/>
 
 		<!-- 删除确认对话框 -->
 		 <DeleteDialog 
@@ -57,11 +46,14 @@ import { defineComponent } from "vue";
 import { usePlayerStore } from "@/store/usePlayerStore";
 import PlayerTable from "@/components/PlayerView/PlayerTable";
 import DeleteDialog from "@/components/PlayerView/DeleteDialog";
+import AddDialog from "@/components/PlayerView/AddDialog.vue";
+
 export default defineComponent({
 	name: "PlayerPage",
 	components: {
 		PlayerTable,
 		DeleteDialog,
+		AddDialog,
 	},
 	setup() {
 		const playerStore = usePlayerStore(); // 使用 Pinia store
@@ -98,6 +90,7 @@ export default defineComponent({
 			sameName: true,
 			confirmedDeletePlayer: null,
 			showIdColumn: false, // 控制 ID 列显示的状态
+			addDialogError:null,
 		};
 	},
 	methods: {
@@ -107,9 +100,11 @@ export default defineComponent({
 			this.player = { player_name: "", player_display_name: "" };
 			this.sameName = true;
 		},
-		closeDialog() {
-			this.dialog = false;
-		},
+		// closeDialog() {
+		// 	console.log(this.sameName);
+		// 	this.dialog = false;
+		// },
+
 		confirmDeletePlayer(player) {
 			this.deleteDialog = true;
 			this.confirmedDeletePlayer = player;
@@ -133,6 +128,7 @@ export default defineComponent({
 		},
 
 		async savePlayer() {
+			this.addDialogError = null;
 			if (this.editingPlayer) {
 				await this.playerStore.updatePlayer(this.player.id, {
 					player_display_name: this.player.player_display_name,
@@ -141,10 +137,18 @@ export default defineComponent({
 				if (this.sameName) {
 					this.player.player_display_name = this.player.player_name;
 				}
-				console.log(this.player);
-				await this.playerStore.addPlayer(this.player);
+				try{
+					await this.playerStore.addPlayer(this.player);
+					
+				} catch (error) {
+					console.error(error);
+					this.addDialogError = error.message;
+					return
+				}	
+				
 			}
-			this.closeDialog();
+		
+			this.dialog = false;
 		},
 	},
 	created() {

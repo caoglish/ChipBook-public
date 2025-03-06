@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc } from 'firebase/firestore';
+import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc ,query,where} from 'firebase/firestore';
 import firebaseDb from '@/Lib/FirebaseDb';
 import { Player } from '@/Type/Player'; // 确保你有一个类型定义文件来定义 Player 接口
 
@@ -44,7 +44,7 @@ export const usePlayerStore = defineStore('usePlayerStore', {
 		// 切换玩家的allow_select状态
 		async toggleAllowSelect(playerId: string) {
 			const player = this.players.find(p => p.id === playerId);
-			if (player) {
+			if (player&&player.id) {
 				player.allow_select = !player.allow_select;
 				// 更新Firebase中的allow_select字段
 				const playerRef = doc(firebaseDb, 'players', player.id);
@@ -53,15 +53,22 @@ export const usePlayerStore = defineStore('usePlayerStore', {
 		},
 
 		async addPlayer(newPlayer: Player) {
-
+			console.log(newPlayer);
 			try {
 				newPlayer.allow_select = true;
 				const playersCol = collection(db, 'players');
+				   // 先检查是否有相同名字的玩家
+				   const q = query(playersCol, where("player_name", "==", newPlayer.player_name));
+				   const querySnapshot = await getDocs(q);
+				   if (!querySnapshot.empty) {
+					throw new Error('玩家已存在，不能重复添加。');
+				}
+
 				await addDoc(playersCol, newPlayer);
 				this.fetchPlayers(); // 重新获取玩家列表以更新视图
 			} catch (error) {
 				console.error('Error adding player:', error);
-				alert('无法添加玩家，请重试。');
+				throw error; // 抛出错误，让 Vue 组件可以捕获
 			}
 		},
 

@@ -1,7 +1,7 @@
 import {Log} from './Log'
 
 export interface Player{
-	id: string
+	id: string|undefined
 	player_name: string
 	player_display_name: string
 	allow_select:boolean
