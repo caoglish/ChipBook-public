@@ -14,6 +14,26 @@ export const useLogStore = defineStore('logStore', {
     sortByPlayer: false,
   }),
   actions: {
+	_conbimeAllPlayerLogs(allplayers: PlayerInGame[]) {
+		const allLogs = allplayers.reduce((accumulator: LogForDisplay[] , currentPlayer:PlayerInGame) => {
+			const logs = currentPlayer.logs.map((item: any) => ({
+			  ...item,
+			  player_display_name: currentPlayer.player_display_name,
+			  player_id: currentPlayer.player_id,
+			  details: logHelper.makeLogDetail(item),
+			}));
+			return accumulator.concat(logs);
+		  }, [] as Array<LogForDisplay>);
+
+		  return allLogs;
+	},
+
+	fetchAllPlayerLogsFromPlayerList(allplayers: PlayerInGame[]){
+		const allLogs = this._conbimeAllPlayerLogs(allplayers);
+		this.combinedLogs = allLogs;
+        this.sortLogs();
+	},
+	
     async fetchAllPlayerLogs(gameId: string) {
       try {
         const gameRef = doc(db, "games", gameId);
@@ -23,15 +43,7 @@ export const useLogStore = defineStore('logStore', {
           ...doc.data(),
         })) as PlayerInGame[];
 
-        const allLogs = allplayers.reduce((accumulator: LogForDisplay[] , currentPlayer:PlayerInGame) => {
-          const logs = currentPlayer.logs.map((item: any) => ({
-            ...item,
-            player_display_name: currentPlayer.player_display_name,
-            player_id: currentPlayer.player_id,
-            details: logHelper.makeLogDetail(item),
-          }));
-          return accumulator.concat(logs);
-        }, [] as Array<LogForDisplay>);
+        const allLogs = this._conbimeAllPlayerLogs(allplayers);
 
         this.combinedLogs = allLogs;
         this.sortLogs();

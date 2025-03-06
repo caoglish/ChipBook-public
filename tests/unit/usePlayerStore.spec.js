@@ -1,4 +1,4 @@
-import { usePlayerStore } from '@/store/playerStore';
+import { usePlayerStore } from '@/store/usePlayerStore';
 import { createPinia, setActivePinia } from 'pinia';
 import { getDocs, addDoc, updateDoc, deleteDoc ,doc,collection} from 'firebase/firestore';
 import { Player } from '@/Type/Player';

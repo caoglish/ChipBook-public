@@ -16,7 +16,7 @@ import firebaseDb from "@/Lib/FirebaseDb";
 import playerHelper from "@/Lib/PlayerHelper";
 import { dateDisplay, firebaseTimestamp } from "@/Lib/DateHelper";
 import { useLogStore } from "@/store/useLogStore";
-import { useCurrentGameIdStore } from "@/store/CurrentGameIdStore";
+import { useCurrentGameIdStore } from "@/store/useCurrentGameIdStore";
 import { useLoginUserStore } from "@/store/useLoginUserStore";
 import { useLoginUserCollectionStore } from '@/store/useLoginUserCollectionStore';
 import { DEFAULT_BUYIN_AMOUNT } from "@/constants/appConstants";
@@ -165,14 +165,13 @@ export const useGameStore = defineStore("useGameStore", {
       this.selectedPlayers = [];
     },
     async selectGame(gameId) {
-      console.log("gamestore", gameId);
 	  this.currentGame = null;
       this.currentGame = await this.fetchGameById(gameId);
-
-      console.log("gamestore currentGame", this.currentGame);
       await this.fetchGameCreater();
       await this.fetchInGamePlayers();
-      await this.fetchAllPlayerLogs();
+      await this.fetchAllPlayerLogsFromPlayerList();
+	  //console.log("gamestore", gameId);
+	  //console.log("gamestore currentGame", this.currentGame);
     },
     async fetchGameCreater() {
       const loginUserCollectionStore = useLoginUserCollectionStore();
@@ -257,7 +256,7 @@ export const useGameStore = defineStore("useGameStore", {
             logs: arrayUnion(logEntry),
           });
           await this.fetchInGamePlayers();
-          await this.fetchAllPlayerLogs();
+          await this.fetchAllPlayerLogsFromPlayerList();
         }
       } catch (error) {
         console.error("Error adding players to game:", error);
@@ -340,12 +339,11 @@ export const useGameStore = defineStore("useGameStore", {
                 timestamp: firebaseTimestamp(),
               }),
             });
+			
             
             await this.fetchInGamePlayers();
-            await this.fetchAllPlayerLogs();
-
+            await this.fetchAllPlayerLogsFromPlayerList();
 			this.buyInDialog = false;
-			//delay(()=>{this.buyInAmount = DEFAULT_BUYIN_AMOUNT;})
           } catch (error) {
             console.error("Error updating buy-in data:", error);
             alert("买入操作失败，请重试。");
@@ -400,13 +398,11 @@ export const useGameStore = defineStore("useGameStore", {
                 timestamp: firebaseTimestamp(),
               }),
             });
+			
 
             await this.fetchInGamePlayers();
-            await this.fetchAllPlayerLogs();
-
-            this.refundDialog = false;
-			
-            
+            await this.fetchAllPlayerLogsFromPlayerList();
+			this.refundDialog = false;
           } catch (error) {
             console.error("Error updating refund data:", error);
             alert("退码操作失败，请重试。");
@@ -443,15 +439,11 @@ export const useGameStore = defineStore("useGameStore", {
                 timestamp: firebaseTimestamp(),
               }),
             });
-
-            
 			
-            await this.fetchInGamePlayers();
-            await this.fetchAllPlayerLogs();
 
+			await this.fetchInGamePlayers();
+            await this.fetchAllPlayerLogsFromPlayerList();
 			this.remainingDialog = false;
-			
-			
           } catch (error) {
             console.error("Error updating remaining chips:", error);
             alert("更新剩余筹码失败，请重试。");
@@ -478,6 +470,12 @@ export const useGameStore = defineStore("useGameStore", {
         await logStore.fetchAllPlayerLogs(this.currentGame.id);
       }
     },
+	fetchAllPlayerLogsFromPlayerList(){
+		const logStore = useLogStore();
+		if (this.currentGame?.id&&this.players.length>0) {
+			logStore.fetchAllPlayerLogsFromPlayerList(this.players);
+		  }
+	},
     async saveSummary(gameId, summaryData) {
       try {
         const gameRef = doc(collection(db, "games"), gameId);

@@ -20,7 +20,7 @@
 
 <script setup>
 //example of recieving prop 'player' and use store in the component to process the 'player' object
-import { usePlayerStore } from "@/store/playerStore";
+import { usePlayerStore } from "@/store/usePlayerStore";
 const playerStore = usePlayerStore(); // 使用 Pinia store
 const isOpen = defineModel();
 const props = defineProps({

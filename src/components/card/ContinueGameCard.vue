@@ -16,7 +16,7 @@
 
 <script lang="ts">
 import { defineComponent, computed, ref } from 'vue';
-import { useCurrentGameIdStore } from '@/store/CurrentGameIdStore';
+import { useCurrentGameIdStore } from '@/store/useCurrentGameIdStore';
 import { useRouter } from 'vue-router'; // 引入 useRouter
 
 export default defineComponent({

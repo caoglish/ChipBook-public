@@ -1,6 +1,6 @@
 // tests/unit/CurrentGameIdStore.spec.js
 
-import { useCurrentGameIdStore } from '@/store/CurrentGameIdStore';
+import { useCurrentGameIdStore } from '@/store/useCurrentGameIdStore';
 import { createPinia, setActivePinia } from 'pinia';
 import { doc, getDoc } from 'firebase/firestore';
 

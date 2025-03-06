@@ -54,7 +54,7 @@
 
 <script>
 import { defineComponent } from "vue";
-import { usePlayerStore } from "@/store/playerStore";
+import { usePlayerStore } from "@/store/usePlayerStore";
 import PlayerTable from "@/components/PlayerView/PlayerTable";
 import DeleteDialog from "@/components/PlayerView/DeleteDialog";
 export default defineComponent({

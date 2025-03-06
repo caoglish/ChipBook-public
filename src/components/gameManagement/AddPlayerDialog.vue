@@ -16,7 +16,7 @@
 </template>
 <script setup>
 import { useGameStore } from '@/store/useGameStore';
-import { usePlayerStore } from '@/store/playerStore';
+import { usePlayerStore } from '@/store/usePlayerStore';
 import { ref, onMounted,computed } from 'vue';
 import { debounce } from '@/Lib/Helper';
 
