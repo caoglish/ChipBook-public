@@ -2,6 +2,10 @@
 ### v0.1.4:
 - 在about页面下可以toggle dev tool.
 - 在about页面下面可以访问Login user的page(打开登陆过用户列表）
+- 买入，剩余，退码对话框改进：确认时候disable确认按钮，显示loading状态，防止意外的多次按键
+- Player页面添加玩家时候，会做validation， 玩家不能重复，也不能为空名字
+- 增加一个player的star功能，star来标注表示有优先级用户。
+- 增加一个快选player页面，这个页面快选用户，不做有限选择，编辑和删除
 
 ### v0.1.3: 
 - 当水一chip相同，都显示水一
