@@ -2,12 +2,10 @@ import { defineStore } from 'pinia';
 import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc ,query,where} from 'firebase/firestore';
 import firebaseDb from '@/Lib/FirebaseDb';
 import { Player } from '@/Type/Player'; // 确保你有一个类型定义文件来定义 Player 接口
-
-
 const db = firebaseDb;
 
 export const usePlayerStore = defineStore('usePlayerStore', {
-	// State: 管理玩家数据的状态
+
 	state: () => ({
 		players: [] as Player[], // 存储玩家列表
 	}),
@@ -41,16 +39,16 @@ export const usePlayerStore = defineStore('usePlayerStore', {
 				alert('无法加载玩家列表，请重试。');
 			}
 		},
-		// 切换玩家的allow_select状态
-		async toggleAllowSelect(playerId: string) {
+		async togglePlayerField(playerId: string, field: 'allow_select' | 'star') {
 			const player = this.players.find(p => p.id === playerId);
-			if (player&&player.id) {
-				player.allow_select = !player.allow_select;
-				// 更新Firebase中的allow_select字段
-				const playerRef = doc(firebaseDb, 'players', player.id);
-				await updateDoc(playerRef, { allow_select: player.allow_select });
+			if (player && player.id) {
+			  player[field] = !player[field];
+			  const playerRef = doc(firebaseDb, 'players', player.id);
+			  await updateDoc(playerRef, { [field]: player[field] });
 			}
-		},
+		  },
+		// 切换玩家的allow_select状态
+		
 
 		async addPlayer(newPlayer: Player) {
 			console.log(newPlayer);

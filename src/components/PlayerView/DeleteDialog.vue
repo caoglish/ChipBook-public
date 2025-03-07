@@ -8,11 +8,10 @@
         <span class="d-inline pa-2 bg-black" v-if="player">{{
           player.player_display_name
         }}</span>
-        吗？此操作无法撤销。</v-card-text
-      >
+        吗？此操作无法撤销。</v-card-text>
       <v-card-actions>
-        <v-btn color="red darken-1" @click="deletePlayer(player)">确认</v-btn>
-        <v-btn color="grey darken-1" @click="closeDeleteDialog">取消</v-btn>
+        <v-btn color="red darken-1"  variant="flat" @click="deletePlayer(player)">确认</v-btn>
+        <v-btn color="grey darken-1" variant="outlined"  @click="closeDeleteDialog">取消</v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>

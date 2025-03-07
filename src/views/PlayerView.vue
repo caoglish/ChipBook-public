@@ -1,7 +1,10 @@
 <template>
 	<div>
 		<!-- 添加玩家按钮 -->
-		 <v-btn color="primary" @click="openDialog">添加玩家</v-btn><!-- 添加隐藏/显示 ID 列的复选框 --><v-checkbox v-model="showIdColumn" label="显示 ID 列"></v-checkbox>
+		 <v-btn color="primary" @click="openDialog">添加玩家</v-btn><!-- 添加隐藏/显示 ID 列的复选框 -->
+		 <v-btn to="/playerSimple"  class="ml-6" color="primary">选择玩家</v-btn>
+		 <v-checkbox v-model="showIdColumn" label="显示 ID 列"></v-checkbox>
+		 
 
 		  <PlayerTable
 		  title="可选择的玩家列表" 
@@ -10,7 +13,8 @@
 		  icon="minus"
 		  @edit-player="editPlayer"
 		  @toggle-allow-select="toggleAllowSelect" 
-		  @delete-player="confirmDeletePlayer"></PlayerTable>
+		  @delete-player="confirmDeletePlayer"
+		  @toggle-star="toggleStar"></PlayerTable>
 
 		  <PlayerTable 
 		  title="不允许选择的玩家列表" 
@@ -19,7 +23,8 @@
 		  icon="plus"
 		  @edit-player="editPlayer"
 		  @toggle-allow-select="toggleAllowSelect" 
-		  @delete-player="confirmDeletePlayer"></PlayerTable>
+		  @delete-player="confirmDeletePlayer"
+		  @toggle-star="toggleStar"></PlayerTable>
 
 		
 		<AddDialog
@@ -100,10 +105,10 @@ export default defineComponent({
 			this.player = { player_name: "", player_display_name: "" };
 			this.sameName = true;
 		},
-		// closeDialog() {
-		// 	console.log(this.sameName);
-		// 	this.dialog = false;
-		// },
+		closeDialog() {
+			
+			this.dialog = false;
+		},
 
 		confirmDeletePlayer(player) {
 			this.deleteDialog = true;
@@ -124,7 +129,10 @@ export default defineComponent({
 			this.player = { ...item };
 		},
 		async toggleAllowSelect(player){
-			this.playerStore.toggleAllowSelect(player.id)
+			this.playerStore.togglePlayerField(player.id,'allow_select')
+		},
+		async toggleStar(player){
+			this.playerStore.togglePlayerField(player.id,'star')
 		},
 
 		async savePlayer() {
@@ -148,7 +156,7 @@ export default defineComponent({
 				
 			}
 		
-			this.dialog = false;
+			this.closeDialog();
 		},
 	},
 	created() {

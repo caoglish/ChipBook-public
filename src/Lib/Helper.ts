@@ -17,5 +17,20 @@ function delay(func:(...args: any[]) => void){
 	_delay(func)();
 }
 
-export { debounce, delay};
+function sortByBooleanField<T extends Record<string, any>>(
+	items: T[],
+	field: keyof T,
+  ): T[] {
+	return [...items].sort((a, b) => {
+	  const aValue = a[field] ?? false;
+	  const bValue = b[field] ?? false;
+	  return Number(bValue) - Number(aValue);
+	});
+  }
+
+
+
+export { debounce, delay,sortByBooleanField};
+
+
 	
