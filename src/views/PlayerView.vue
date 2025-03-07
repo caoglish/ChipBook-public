@@ -2,8 +2,10 @@
 	<div>
 		<!-- 添加玩家按钮 -->
 		 <v-btn color="primary" @click="openDialog">添加玩家</v-btn><!-- 添加隐藏/显示 ID 列的复选框 -->
-		 <v-btn to="/playerSimple"  class="ml-6" color="primary">选择玩家</v-btn>
+		 <v-btn to="/playerSimple"  class="ml-6" color="primary"   prepend-icon="$vuetify"
+		 append-icon="$vuetify">快速选择玩家</v-btn>
 		 <v-checkbox v-model="showIdColumn" label="显示 ID 列"></v-checkbox>
+		 <v-icon icon="fa:fas fa-list"></v-icon>
 		 
 
 		  <PlayerTable

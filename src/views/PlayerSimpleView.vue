@@ -1,7 +1,7 @@
 <template>
 	<div>
 		<!-- 添加玩家按钮 -->
-		<v-btn to="/Player" color="default" variant="outlined">返回</v-btn>
+		<v-btn to="/Player" color="default" variant="outlined"  prepend-icon="mdi-arrow-left">返回</v-btn>
 
 		<v-container fluid>
 			<v-row>
