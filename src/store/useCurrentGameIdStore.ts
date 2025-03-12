@@ -16,7 +16,6 @@ export const useCurrentGameIdStore = defineStore('useCurrentGameIdStore', {
 				const gameSnapshot = await getDoc(gameRef);
 
 				if (gameSnapshot.exists()) {
-
 					return true; // 存在此游戏 session
 				} else {
 					this.currentGameId = null; // 没有找到则清空当前 session

@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc ,query,where} from 'firebase/firestore';
+import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, query, where } from 'firebase/firestore';
 import firebaseDb from '@/Lib/FirebaseDb';
 import { Player } from '@/Type/Player'; // 确保你有一个类型定义文件来定义 Player 接口
 const db = firebaseDb;
@@ -42,23 +42,23 @@ export const usePlayerStore = defineStore('usePlayerStore', {
 		async togglePlayerField(playerId: string, field: 'allow_select' | 'star') {
 			const player = this.players.find(p => p.id === playerId);
 			if (player && player.id) {
-			  player[field] = !player[field];
-			  const playerRef = doc(firebaseDb, 'players', player.id);
-			  await updateDoc(playerRef, { [field]: player[field] });
+				player[field] = !player[field];
+				const playerRef = doc(firebaseDb, 'players', player.id);
+				await updateDoc(playerRef, { [field]: player[field] });
 			}
-		  },
+		},
 		// 切换玩家的allow_select状态
-		
+
 
 		async addPlayer(newPlayer: Player) {
 			console.log(newPlayer);
 			try {
 				newPlayer.allow_select = true;
 				const playersCol = collection(db, 'players');
-				   // 先检查是否有相同名字的玩家
-				   const q = query(playersCol, where("player_name", "==", newPlayer.player_name));
-				   const querySnapshot = await getDocs(q);
-				   if (!querySnapshot.empty) {
+				// 先检查是否有相同名字的玩家
+				const q = query(playersCol, where("player_name", "==", newPlayer.player_name));
+				const querySnapshot = await getDocs(q);
+				if (!querySnapshot.empty) {
 					throw new Error('玩家已存在，不能重复添加。');
 				}
 

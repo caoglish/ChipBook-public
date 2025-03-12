@@ -7,18 +7,7 @@ import { defineStore } from 'pinia';
 import { firebaseAuth } from "@/Lib/FirebaseDb";
 import { signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "firebase/auth";
 import { User } from '@/Type/User';
-
-import { dateDisplay, firebaseTimestamp } from "@/Lib/DateHelper";
-import {
-	getDoc,
-	doc,
-	setDoc,
-	updateDoc,
-} from "firebase/firestore";
-import firebaseDb from "@/Lib/FirebaseDb";
 import { useLoginUserCollectionStore } from '@/store/useLoginUserCollectionStore';
-
-
 
 export const useLoginUserStore = defineStore('useLoginUserStore', {
 	state: () => ({
@@ -87,7 +76,5 @@ export const useLoginUserStore = defineStore('useLoginUserStore', {
 				}
 			});
 		},
-
-		
 	},
 });
