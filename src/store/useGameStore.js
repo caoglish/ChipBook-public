@@ -20,6 +20,7 @@ import { useCurrentGameIdStore } from "@/store/useCurrentGameIdStore";
 import { useLoginUserStore } from "@/store/useLoginUserStore";
 import { useLoginUserCollectionStore } from "@/store/useLoginUserCollectionStore";
 import { DEFAULT_BUYIN_AMOUNT } from "@/constants/appConstants";
+import { GameStatusEnum,GameStatusMapping } from "@/Type/GameStatus";
 const db = firebaseDb;
 
 export const useGameStore = defineStore("useGameStore", {
@@ -51,6 +52,20 @@ export const useGameStore = defineStore("useGameStore", {
 		gameCreater: null, // 是否按玩家排序的标志
 	}),
 	getters: {
+		 getGameStatus(state) {
+			const { total_players, is_game_completed, is_zero } = state.summaryData;
+
+			if (total_players === 0) {
+				return GameStatusMapping[GameStatusEnum.NOT_STARTED];
+			}
+		
+			if (is_game_completed) {
+				return GameStatusMapping[!is_zero  ? GameStatusEnum.REVIEW_PENDING : GameStatusEnum.COMPLETED];
+			}
+		
+			return GameStatusMapping[GameStatusEnum.IN_PROGRESS];
+		},
+
 		isWinLossCalculated(state) {
 			return state.players.every((player) => player.win_loss_chips !== null);
 		},

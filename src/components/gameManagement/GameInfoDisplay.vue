@@ -15,15 +15,13 @@
 			<p>每手金额: {{ gameStore.currentGame.amount_per_hand }}</p>
 			<p>创建者: {{ gameStore.gameCreater }}</p>
 			<p>游戏状态：
-				<v-chip :color="isgamecompleted ? 'green' : 'red'" variant="flat" v-if="isStarted">
-					{{ isgamecompleted ? '游戏结束' : '游戏未结束' }}
-				</v-chip>
-				<v-chip v-else color="default" variant="flat"> 游戏未开始</v-chip>
+
+				<v-chip  :color="getGameStatus.statusColor" variant="flat"> {{ getGameStatus.statusText }}</v-chip>
 			</p>
 		</v-card-text>
 		<!-- 加入玩家按钮 -->
 		<v-card-actions>
-			<v-btn color="secondary" @click="gameStore.openAddPlayersDialog" variant="flat">加入玩家</v-btn>
+			<v-btn color="primary" @click="gameStore.openAddPlayersDialog" variant="flat">加入玩家</v-btn>
 		</v-card-actions>
 	</v-card>
 
@@ -33,11 +31,16 @@
 import { useGameStore } from '@/store/useGameStore';
 import { computed } from 'vue';
 const gameStore = useGameStore();
-const isStarted = computed(() => {
-	return gameStore.summaryData.total_players > 0;
+// const isStarted = computed(() => {
+// 	return gameStore.summaryData.total_players > 0;
+// });
+
+const getGameStatus = computed(() => {
+	console.log(gameStore.getGameStatus);
+	return gameStore.getGameStatus;
 });
 
-const isgamecompleted = computed(() => {
-	return gameStore.summaryData.is_game_completed;
-});
+// const isgamecompleted = computed(() => {
+// 	return gameStore.summaryData.is_game_completed;
+// });
 </script>
