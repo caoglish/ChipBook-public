@@ -26,7 +26,7 @@
 </template>
 
 <script setup>
-import { defineProps, defineEmits, defineModel, ref } from "vue";
+import {  ref } from "vue";
 
 const props = defineProps({
 	player: Object,

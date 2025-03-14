@@ -21,6 +21,9 @@ import { useLoginUserStore } from "@/store/useLoginUserStore";
 import { useLoginUserCollectionStore } from "@/store/useLoginUserCollectionStore";
 import { DEFAULT_BUYIN_AMOUNT } from "@/constants/appConstants";
 import { GameStatusEnum,GameStatusMapping } from "@/Type/GameStatus";
+import { ActionEnum } from "@/Type/Log";
+import { createLogEntryForFirebase } from "@/Lib/LogHelper";
+
 const db = firebaseDb;
 
 export const useGameStore = defineStore("useGameStore", {
@@ -231,6 +234,7 @@ export const useGameStore = defineStore("useGameStore", {
 			this.addPlayersDialog = true;
 		},
 		async addPlayersToGame(selectedPlayerList, PlayersList) {
+			console.log("createLogEntryForFirebase", createLogEntryForFirebase(ActionEnum.JOIN,1));
 			try {
 				this.addPlayersDialog = false;
 				const gameRef = doc(db, "games", this.currentGame.id);
@@ -241,7 +245,7 @@ export const useGameStore = defineStore("useGameStore", {
 					}
 
 					const player = PlayersList.find((p) => p.id === playerId);
-
+					
 					const newPlayerData = {
 						player_id: playerId,
 						player_name: player.player_name,
@@ -252,22 +256,13 @@ export const useGameStore = defineStore("useGameStore", {
 						remaining_chips: null,
 						win_loss_chips: null,
 						win_loss_amount: null,
-						logs: [],
+						logs: createLogEntryForFirebase(ActionEnum.JOIN,1) ,
 					};
+
+				
 					const playerIndex = playerHelper.getNextPlayerId(this.players);
 					await setDoc(doc(gameRef, "players", playerIndex), newPlayerData);
 
-					// 添加加入游戏的log
-					const logEntry = {
-						date: dateDisplay(),
-						action: "join",
-						hands: 1,
-						timestamp: firebaseTimestamp(),
-					};
-
-					await updateDoc(doc(gameRef, "players", playerIndex), {
-						logs: arrayUnion(logEntry),
-					});
 					await this.fetchInGamePlayers();
 					await this.fetchAllPlayerLogsFromPlayerList();
 				}
@@ -345,12 +340,7 @@ export const useGameStore = defineStore("useGameStore", {
 								playerData.remaining_chips !== null
 									? this.calculateWinLossAmount(winLossChips)
 									: null,
-							logs: arrayUnion({
-								date: dateDisplay(),
-								action: "buyin",
-								hands: buyin,
-								timestamp: firebaseTimestamp(),
-							}),
+							logs:createLogEntryForFirebase(ActionEnum.BUYIN,buyin) ,
 						});
 
 						await this.fetchInGamePlayers();
@@ -403,12 +393,7 @@ export const useGameStore = defineStore("useGameStore", {
 								playerData.remaining_chips !== null
 									? this.calculateWinLossAmount(winLossChips)
 									: null,
-							logs: arrayUnion({
-								date: dateDisplay(),
-								action: "refund",
-								hands: refund,
-								timestamp: firebaseTimestamp(),
-							}),
+							logs: createLogEntryForFirebase(ActionEnum.REFUND, refund),
 						});
 
 						await this.fetchInGamePlayers();
@@ -443,12 +428,8 @@ export const useGameStore = defineStore("useGameStore", {
 							remaining_chips: remaining,
 							win_loss_chips: winLossChips,
 							win_loss_amount: this.calculateWinLossAmount(winLossChips),
-							logs: arrayUnion({
-								date: dateDisplay(),
-								action: "setRemaining",
-								chips: remaining,
-								timestamp: firebaseTimestamp(),
-							}),
+							logs: createLogEntryForFirebase(ActionEnum.SETREMAINING, remaining),
+						
 						});
 
 						await this.fetchInGamePlayers();
