@@ -15,6 +15,7 @@
 				<v-btn color="primary" @click="buyIn(item)">买入</v-btn>
 				<v-btn color="primary" @click="setRemaining(item)">剩余</v-btn>
 				<v-btn color="primary" @click="refund(item)">退码</v-btn>
+				<v-btn color="error" @click="deletePlayer(item)" v-if="isBuyinZero(item)">删除</v-btn>
 			</template>
 			<template #item.remaining_chips="{ item }">
 				<span v-if="item.remaining_chips !== null">{{ item.remaining_chips }}</span>
@@ -38,6 +39,7 @@
 <script>
 
 import { useGameStore } from "@/store/useGameStore"; // 导入 gameStore
+
 export default {
 	name: "PlayerTable",
 	props: {
@@ -96,6 +98,13 @@ export default {
 
 			// 检查玩家是否在最高筹码玩家列表中
 			return gameStore.playerWithMostChips.some(topPlayer => topPlayer.player_id === player.player_id);
+		},
+		isBuyinZero(player) {
+			return player.chips_bought === 0;
+		},
+		 deletePlayer(player) {
+			const gameStore = useGameStore();
+			gameStore.deletePlayer(player);
 		},
 		buyIn(player) {
 			const gameStore = useGameStore();

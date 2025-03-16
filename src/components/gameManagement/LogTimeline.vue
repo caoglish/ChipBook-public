@@ -11,7 +11,7 @@
                 </v-card>
             </v-timeline-item>
             <v-timeline-item
-                v-for="item in timeLineLogs"
+                v-for="item in logs"
                 size="small"
                 :dot-color="item.color"
             >
@@ -44,17 +44,17 @@
 </template>
 
 <script setup>
-import { computed, ref, watchEffect } from "vue";
+import { computed, } from "vue";
 import { useLogStore } from "@/store/useLogStore";
 import { useGameStore } from "@/store/useGameStore";
 import { makeTimelineDetail } from "@/Lib/LogHelper.ts";
-import _ from "lodash";
+
 
 const logStore = useLogStore();
 const gameStore = useGameStore();
-const timeLineLogs = ref(null);
+
 const gameStartTime = gameStore.currentGame?.created_at;
-const isGameEnd = computed(() => gameStore.summaryData?.is_zero);
+const isGameEnd = computed(() =>gameStore. players.length>0&&gameStore.summaryData?.is_zero);
 const logs = computed(() =>
     logStore.combinedLogs.map((x) => makeTimelineDetail(x))
 );
@@ -66,11 +66,6 @@ const getGameEndTime = () => {
     return lastlog?.date;
 };
 
-watchEffect(() => {
-    if (!timeLineLogs.value && !_.isEmpty(logs.value)) {
-        timeLineLogs.value = _.cloneDeep(logs.value);
-    }
-});
 </script>
 
 <style scoped>

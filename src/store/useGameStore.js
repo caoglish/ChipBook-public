@@ -10,7 +10,7 @@ import {
 	query,
 	where,
 	setDoc,
-	arrayUnion,
+	deleteDoc,
 } from "firebase/firestore";
 import firebaseDb from "@/Lib/FirebaseDb";
 import playerHelper from "@/Lib/PlayerHelper";
@@ -285,6 +285,31 @@ export const useGameStore = defineStore("useGameStore", {
 				player.remaining_chips !== null ? player.remaining_chips : 0;
 			this.remainingDialog = true;
 		},
+		async deletePlayer(player){
+			//const playerid=player.player_id；
+			try{
+				
+				const playerResult = await this.fetchPlayerById(player.player_id);
+				
+				if (playerResult) {
+					const playerDocId = playerResult.id;
+					const gameRef = doc(db, "games", this.currentGame.id);
+				
+					const playerRef = doc(collection(gameRef, "players"), playerDocId);
+					await deleteDoc(playerRef);
+				}
+				
+			
+				
+			}catch(e){
+				console.error("Error delete player by ID:", e);
+				alert("无法删除玩家，请重试。");
+
+			}
+
+			await this.fetchInGamePlayers();
+			await this.fetchAllPlayerLogsFromPlayerList();
+		},
 		async fetchPlayerById(playerId) {
 			try {
 				const gameRef = doc(db, "games", this.currentGame.id);
@@ -465,6 +490,8 @@ export const useGameStore = defineStore("useGameStore", {
 			const logStore = useLogStore();
 			if (this.currentGame?.id && this.players.length > 0) {
 				logStore.fetchAllPlayerLogsFromPlayerList(this.players);
+			}else{
+				logStore.fetchAllPlayerLogsFromPlayerList([]);
 			}
 		},
 		async saveSummary(gameId, summaryData) {
