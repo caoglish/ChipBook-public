@@ -1,17 +1,18 @@
 <template>
     <div class="game-management">
+		<ProgressBar v-if="isLoading" />
         <!-- 创建新德州局按钮 -->
         <v-btn
             color="primary"
-            v-if="!gameStore.currentGame"
+            v-else-if="!gameStore.currentGame&&!isLoading"
             @click="gameStore.openNewGameDialog"
             >创建新德州局</v-btn
         >
-
+		
         <div
             ref="gameInfo"
             class="print-container"
-            v-if="gameStore.currentGame"
+            v-else-if="gameStore.currentGame&&!isLoading"
         >
             <!-- 显示当前局信息 -->
             <v-row>
@@ -88,17 +89,21 @@ import AddPlayerDialog from "@/components/gameManagement/AddPlayerDialog.vue";
 import RefundDialog from "@/components/gameManagement/RefundDialog.vue";
 import RemainingChipsDialog from "@/components/gameManagement/RemainingChipsDialog.vue";
 import BuyInDialog from "@/components/gameManagement/BuyInDialog.vue";
+import ProgressBar from '@/components/common/ProgressBar'
 
 const gameStore = useGameStore();
 const route = useRoute();
 const gameInfo = ref(null);
 const showTimeline = ref(true);
+const isLoading=ref(false);
 
 onMounted(async () => {
     const gameId = route.params.gameId || null;
     console.log(gameId);
     if (gameId) {
+		isLoading.value=true;
         await gameStore.selectGame(gameId);
+		isLoading.value=false;
     } else {
         gameStore.currentGame = null;
     }

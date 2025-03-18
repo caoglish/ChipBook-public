@@ -1,5 +1,6 @@
 <template>
-	<div>
+	<ProgressBar v-if="isLoading" />
+	<div v-else-if="!isLoading">
 		<h2>游戏历史记录</h2>
 
 		<!-- 删除成功的提示消息 -->
@@ -27,9 +28,16 @@
 <script>
 import { defineComponent } from 'vue';
 import { useHistoryStore } from '@/store/useHistoryStore';
+import ProgressBar from '@/components/common/ProgressBar'
 
 export default defineComponent({
 	name: 'History',
+	data: () => ({
+		isLoading: false,
+	}),
+	components: {
+		ProgressBar
+	},
 	computed: {
 		historyStore() {
 			return useHistoryStore(); // 使用 Pinia store
@@ -63,8 +71,12 @@ export default defineComponent({
 			}
 		},
 	},
-	created() {
-		this.historyStore.fetchAllGames(); // 加载历史记录
+	 created() {
+		(async ()=>{
+			this.isLoading = true;	
+			await this.historyStore.fetchAllGames(); // 加载历史记录
+			this.isLoading = false;
+		})();
 	},
 });
 </script>

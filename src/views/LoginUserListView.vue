@@ -5,7 +5,7 @@
 	  
 	  
 	  <v-data-table 
-       v-if="!loading && store.users.length"
+       v-if="!isLoading && store.users.length"
       :headers="headers"
       :items="store.users"
       item-value="uid"
@@ -13,19 +13,19 @@
 	  :items-per-page="100"
     ></v-data-table>
   
-	<p v-else-if="!loading" class="text-muted">暂无用户数据</p>
-	<v-progress-linear v-if="loading" indeterminate :height="12" ></v-progress-linear>
+	<p v-else-if="!isLoading" class="text-muted">暂无用户数据</p>
+	<ProgressBar v-if="isLoading" />
 	</v-container>
   </template>
   
   <script setup>
   import { onMounted,computed ,ref} from 'vue'
   import { useLoginUserCollectionStore } from '@/store/useLoginUserCollectionStore';
-
+  import ProgressBar from '@/components/common/ProgressBar'
   
   const store = useLoginUserCollectionStore()
   const {  fetchUsers } = store
-  const loading = ref(false)
+  const isLoading = ref(false)
 
   const headers = computed(() => [
   { title: 'UID', key: 'uid' },
@@ -37,9 +37,9 @@
   
 
 const refreshUsers = async () => {
-  loading.value = true;
+  isLoading.value = true;
   await fetchUsers();
-  loading.value = false;
+  isLoading.value = false;
 }
 
   onMounted(refreshUsers)

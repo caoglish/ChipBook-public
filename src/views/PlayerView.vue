@@ -1,5 +1,6 @@
 <template>
-	<div>
+	<ProgressBar v-if="isLoading" />
+	<div v-else-if="!isLoading">
 		<!-- 添加玩家按钮 -->
 		 <v-btn color="primary" @click="openDialog">添加玩家</v-btn><!-- 添加隐藏/显示 ID 列的复选框 -->
 		 <v-btn to="/playerSimple"  class="ml-6" color="primary"   prepend-icon="$vuetify"
@@ -54,6 +55,7 @@ import { usePlayerStore } from "@/store/usePlayerStore";
 import PlayerTable from "@/components/PlayerView/PlayerTable";
 import DeleteDialog from "@/components/PlayerView/DeleteDialog";
 import AddDialog from "@/components/PlayerView/AddDialog.vue";
+import ProgressBar from '@/components/common/ProgressBar'
 
 export default defineComponent({
 	name: "PlayerPage",
@@ -61,6 +63,7 @@ export default defineComponent({
 		PlayerTable,
 		DeleteDialog,
 		AddDialog,
+		ProgressBar,
 	},
 	setup() {
 		const playerStore = usePlayerStore(); // 使用 Pinia store
@@ -98,6 +101,7 @@ export default defineComponent({
 			confirmedDeletePlayer: null,
 			showIdColumn: false, // 控制 ID 列显示的状态
 			addDialogError:null,
+			isLoading:false,
 		};
 	},
 	methods: {
@@ -162,7 +166,12 @@ export default defineComponent({
 		},
 	},
 	created() {
-		this.playerStore.fetchPlayers(); // 在组件创建时，从 Firebase 获取玩家数据
+		(async()=>{
+			this.isLoading = true;
+			await this.playerStore.fetchPlayers(); // 加载玩家数据
+			this.isLoading = false;
+		})();
+		
 	},
 });
 </script>
