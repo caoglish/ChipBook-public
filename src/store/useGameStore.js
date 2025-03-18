@@ -184,8 +184,7 @@ export const useGameStore = defineStore("useGameStore", {
 			this.currentGame = null;
 			this.currentGame = await this.fetchGameById(gameId);
 			await this.fetchGameCreater();
-			await this.fetchInGamePlayers();
-			await this.fetchAllPlayerLogsFromPlayerList();
+			await this.refreshGame();
 			//console.log("gamestore", gameId);
 			//console.log("gamestore currentGame", this.currentGame);
 		},
@@ -263,8 +262,7 @@ export const useGameStore = defineStore("useGameStore", {
 					const playerIndex = playerHelper.getNextPlayerId(this.players);
 					await setDoc(doc(gameRef, "players", playerIndex), newPlayerData);
 
-					await this.fetchInGamePlayers();
-					await this.fetchAllPlayerLogsFromPlayerList();
+					await this.refreshGame();
 				}
 			} catch (error) {
 				console.error("Error adding players to game:", error);
@@ -307,8 +305,7 @@ export const useGameStore = defineStore("useGameStore", {
 
 			}
 
-			await this.fetchInGamePlayers();
-			await this.fetchAllPlayerLogsFromPlayerList();
+			await this.refreshGame();
 		},
 		async fetchPlayerById(playerId) {
 			try {
@@ -368,8 +365,7 @@ export const useGameStore = defineStore("useGameStore", {
 							logs:createLogEntryForFirebase(ActionEnum.BUYIN,buyin) ,
 						});
 
-						await this.fetchInGamePlayers();
-						await this.fetchAllPlayerLogsFromPlayerList();
+						await this.refreshGame();
 						this.buyInDialog = false;
 					} catch (error) {
 						console.error("Error updating buy-in data:", error);
@@ -421,8 +417,7 @@ export const useGameStore = defineStore("useGameStore", {
 							logs: createLogEntryForFirebase(ActionEnum.REFUND, refund),
 						});
 
-						await this.fetchInGamePlayers();
-						await this.fetchAllPlayerLogsFromPlayerList();
+						await this.refreshGame();
 						this.refundDialog = false;
 					} catch (error) {
 						console.error("Error updating refund data:", error);
@@ -493,6 +488,10 @@ export const useGameStore = defineStore("useGameStore", {
 			}else{
 				logStore.fetchAllPlayerLogsFromPlayerList([]);
 			}
+		},
+		async refreshGame() {
+			await this.fetchInGamePlayers();
+			await this.fetchAllPlayerLogsFromPlayerList();
 		},
 		async saveSummary(gameId, summaryData) {
 			try {
