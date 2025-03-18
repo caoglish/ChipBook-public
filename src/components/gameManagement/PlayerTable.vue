@@ -104,7 +104,19 @@ export default {
 		},
 		 deletePlayer(player) {
 			const gameStore = useGameStore();
-			gameStore.deletePlayer(player);
+			const confirmation = confirm(`您确定要玩家 ${player.player_display_name} 吗？此人在这场游戏的日志也会同时删除，此操作不可撤销。`);
+			if (confirmation) {
+				try{
+					gameStore.deletePlayer(player);
+				} catch (error) {
+					alert("	删除玩家失败，请稍后再试。");;
+					console.error(error);
+				}
+				
+			}
+
+			
+			
 		},
 		buyIn(player) {
 			const gameStore = useGameStore();

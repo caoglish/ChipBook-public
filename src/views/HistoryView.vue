@@ -53,7 +53,13 @@ export default defineComponent({
 		confirmDelete(game) {
 			const confirmation = confirm(`您确定要删除游戏 ${game.id} 吗？此操作不可撤销。`);
 			if (confirmation) {
-				this.historyStore.deleteGame(game.id);
+				try{
+					this.historyStore.deleteGame(game.id);
+				} catch (error) {
+					alert("	删除失败，请稍后再试。");;
+					console.error(error);
+				}
+				
 			}
 		},
 	},
