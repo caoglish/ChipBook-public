@@ -1,23 +1,35 @@
 <template>
     <div class="game-management">
-		<ProgressBar v-if="isLoading" />
+        <ProgressBar v-if="isLoading" />
         <!-- 创建新德州局按钮 -->
         <v-btn
             color="primary"
-            v-else-if="!gameStore.currentGame&&!isLoading"
+            v-else-if="!gameStore.currentGame && !isLoading"
             @click="gameStore.openNewGameDialog"
             >创建新德州局</v-btn
         >
-		
+
         <div
             ref="gameInfo"
             class="print-container"
-            v-else-if="gameStore.currentGame&&!isLoading"
+            v-else-if="gameStore.currentGame && !isLoading"
         >
             <!-- 显示当前局信息 -->
+
             <v-row>
-                <v-col cols="12" md="4">
-                    <GameInfoDisplay />
+                <v-col cols="12" md="8">
+                    <GameInfoDisplay>
+                        <template v-slot:btn>
+							<v-btn
+                                    color="blue-grey-darken-1"
+                                    @click="refreshGame"
+                                    variant="flat"
+                                    prepend-icon="mdi-database-refresh"
+                                    append-icon="mdi-database-refresh"
+                                    >刷新数据</v-btn
+                                >
+  						</template>
+                    </GameInfoDisplay>
                 </v-col>
             </v-row>
 
@@ -34,11 +46,14 @@
             <v-divider
                 :thickness="4"
                 class="border-opacity-75 mt-10"
-              
             ></v-divider>
 
             <!-- 日志记录表格 -->
-            <v-switch v-model="showTimeline" label="切换视图" class="font-weight-black text-h4"></v-switch>
+            <v-switch
+                v-model="showTimeline"
+                label="切换视图"
+                class="font-weight-black text-h4"
+            ></v-switch>
 
             <LogTimeline v-if="showTimeline" />
             <LogsTable v-else />
@@ -89,25 +104,31 @@ import AddPlayerDialog from "@/components/gameManagement/AddPlayerDialog.vue";
 import RefundDialog from "@/components/gameManagement/RefundDialog.vue";
 import RemainingChipsDialog from "@/components/gameManagement/RemainingChipsDialog.vue";
 import BuyInDialog from "@/components/gameManagement/BuyInDialog.vue";
-import ProgressBar from '@/components/common/ProgressBar'
+import ProgressBar from "@/components/common/ProgressBar";
 
 const gameStore = useGameStore();
 const route = useRoute();
 const gameInfo = ref(null);
 const showTimeline = ref(true);
-const isLoading=ref(false);
+const isLoading = ref(false);
 
 onMounted(async () => {
     const gameId = route.params.gameId || null;
     console.log(gameId);
     if (gameId) {
-		isLoading.value=true;
+        isLoading.value = true;
         await gameStore.selectGame(gameId);
-		isLoading.value=false;
+        isLoading.value = false;
     } else {
         gameStore.currentGame = null;
     }
 });
+
+const refreshGame = async () => {
+    isLoading.value = true;
+    await gameStore.refreshGame();
+    isLoading.value = false;
+};
 
 const printGameInfo = async () => {
     const gameInfoElement = gameInfo.value;

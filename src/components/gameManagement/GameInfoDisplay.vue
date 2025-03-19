@@ -21,7 +21,15 @@
 		</v-card-text>
 		<!-- 加入玩家按钮 -->
 		<v-card-actions>
-			<v-btn color="primary" @click="gameStore.openAddPlayersDialog" variant="flat">加入玩家</v-btn>
+			<v-col   cols="auto"
+			class="mr-auto">
+			<v-btn color="primary" @click="gameStore.openAddPlayersDialog" variant="flat" prepend-icon="mdi-account-plus">加入玩家</v-btn>
+			</v-col>	
+			<v-col   cols="auto"
+			class="ml-auto">
+				<slot name="btn"></slot>
+			</v-col>
+			
 		</v-card-actions>
 	</v-card>
 
