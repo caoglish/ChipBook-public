@@ -1,6 +1,9 @@
 ### v0.1.5
 - 创建新的游戏状态，加入审核状态。当游戏结束后，所有人的总盈余筹码不匹配时（不等于0）进入审核状态
 - log有timeline模式可选
+- 加入loading progress bar
+- 当局游戏加入刷新button
+- 给button加入icons
   
 
 
