@@ -12,8 +12,8 @@
 				</span>
 			</template>
 			<template #item.actions="{ item }">
-				<v-btn color="primary" @click="buyIn(item)"  prepend-icon="mdi-account-plus">买入</v-btn>
-				<v-btn color="primary" @click="setRemaining(item)"  prepend-icon="mdi-cash-plus">剩余</v-btn>
+				<v-btn color="primary" @click="buyIn(item)"  prepend-icon="mdi-cash-plus">买入</v-btn>
+				<v-btn color="primary" @click="setRemaining(item)"  prepend-icon="mdi-poker-chip">剩余</v-btn>
 				<v-btn color="primary" @click="refund(item)"  prepend-icon="mdi-cash-refund">退码</v-btn>
 				<v-btn color="error" @click="deletePlayer(item)" v-if="isBuyinZero(item)" prepend-icon="mdi-delete">删除</v-btn>
 			</template>

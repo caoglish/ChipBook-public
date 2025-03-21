@@ -15,8 +15,7 @@
 				></v-number-input>
 			</v-card-text>
 			<v-card-actions>
-				<v-btn color="blue darken-1" @click="confirmRefund" variant="flat" :disabled="isProcessing">
-					<v-progress-circular v-if="isProcessing" indeterminate size="20" class="mr-2"></v-progress-circular>
+				<v-btn color="blue darken-1" @click="confirmRefund" variant="flat"  :loading="isProcessing">
 					确认
 				</v-btn>
 				<v-btn color="grey darken-1" @click="gameStore.refundDialog = false" variant="outlined">取消</v-btn>
