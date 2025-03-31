@@ -15,6 +15,7 @@
 				<v-btn color="primary" @click="buyIn(item)"  prepend-icon="mdi-cash-plus">买入</v-btn>
 				<v-btn color="primary" @click="setRemaining(item)"  prepend-icon="mdi-poker-chip">剩余</v-btn>
 				<v-btn color="primary" @click="refund(item)"  prepend-icon="mdi-cash-refund">退码</v-btn>
+				<v-btn color="cyan-darken-1" @click="voiceReport(item)"  size="small" icon ><v-icon>mdi-microphone</v-icon></v-btn>
 				<v-btn color="error" @click="deletePlayer(item)" v-if="isBuyinZero(item)" prepend-icon="mdi-delete">删除</v-btn>
 			</template>
 			<template #item.remaining_chips="{ item }">
@@ -38,6 +39,7 @@
 
 <script>
 
+import { voiceReport } from "@/composables/useVoiceReport";
 import { useGameStore } from "@/store/useGameStore"; // 导入 gameStore
 
 export default {
@@ -131,6 +133,9 @@ export default {
 			const gameStore = useGameStore();
 			gameStore.refund(player);
 		},
+		voiceReport(player){
+			voiceReport(player)
+		}
 	},
 };
 </script>

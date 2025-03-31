@@ -18,16 +18,21 @@
 
             <v-row>
                 <v-col cols="12" md="8">
+				
                     <GameInfoDisplay>
                         <template v-slot:btn>
+							<v-btn color="cyan-darken-1" @click="reportList()"  size="small" icon  variant="flat" ><v-icon>mdi-microphone</v-icon></v-btn>
 							<v-btn
                                     color="blue-grey-darken-1"
                                     @click="refreshGame"
                                     variant="flat"
                                     prepend-icon="mdi-database-refresh"
                                     append-icon="mdi-database-refresh"
+									class="ml-4 "
                                     >刷新数据</v-btn
                                 >
+
+							
   						</template>
                     </GameInfoDisplay>
                 </v-col>
@@ -105,6 +110,7 @@ import RefundDialog from "@/components/gameManagement/RefundDialog.vue";
 import RemainingChipsDialog from "@/components/gameManagement/RemainingChipsDialog.vue";
 import BuyInDialog from "@/components/gameManagement/BuyInDialog.vue";
 import ProgressBar from "@/components/common/ProgressBar";
+import { voiceReportList } from "@/composables/useVoiceReport";
 
 const gameStore = useGameStore();
 const route = useRoute();
@@ -159,6 +165,12 @@ const printGameInfo = async () => {
         }
     }
 };
+
+const reportList=()=>{
+	
+	voiceReportList(gameStore.players)
+}
+
 </script>
 
 <style>
