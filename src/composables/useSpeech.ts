@@ -1,58 +1,57 @@
 // useSpeech.ts
 import { ref, onMounted } from 'vue'
-
+import { TTS_API_URL } from '@/config/tts'
 export interface SpeechVoice {
-  name: string
-  lang: string
-  voiceURI: string
+	name: string
+	lang: string
+	voiceURI: string
 }
 
-export function useSpeech(defaultLang = 'zh-CN') {
-  const voices = ref<SpeechVoice[]>([])
+export function useSpeech() {
+	const isPlaying = ref(false)
+	const audio = new Audio()
 
-  const loadVoices = () => {
-    voices.value = window.speechSynthesis.getVoices().map((voice) => ({
-      name: voice.name,
-      lang: voice.lang,
-      voiceURI: voice.voiceURI
-    }))
-  }
+	const speak = async (text: string, voiceType: number = 101022) => {
+		if (!text.trim()) return
 
-  const speak = (
-    text: string,
-    options?: {
-      voiceName?: string
-      rate?: number
-      pitch?: number
-      volume?: number
-      lang?: string
-    }
-  ) => {
-    const utterance = new SpeechSynthesisUtterance(text)
-    utterance.lang = options?.lang || defaultLang
-    utterance.rate = options?.rate ?? 1
-    utterance.pitch = options?.pitch ?? 1
-    utterance.volume = options?.volume ?? 1
+		isPlaying.value = true
 
-    if (options?.voiceName) {
-      const selectedVoice = window.speechSynthesis
-        .getVoices()
-        .find((voice) => voice.name === options.voiceName)
-      if (selectedVoice) {
-        utterance.voice = selectedVoice
-      }
-    }
+		try {
+			const response = await fetch(TTS_API_URL, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({ text, voiceType })
+			})
 
-    window.speechSynthesis.speak(utterance)
-  }
+			if (!response.ok) {
+				throw new Error('语音请求失败')
+			}
 
-  onMounted(() => {
-    loadVoices()
-    window.speechSynthesis.onvoiceschanged = loadVoices
-  })
+			const blob = await response.blob()
+			const audioUrl = URL.createObjectURL(blob)
+			audio.src = audioUrl
+			audio.play()
 
-  return {
-    speak,
-    voices
-  }
+			audio.onended = () => {
+				isPlaying.value = false
+				URL.revokeObjectURL(audioUrl)
+			}
+
+			audio.onerror = () => {
+				isPlaying.value = false
+				URL.revokeObjectURL(audioUrl)
+			}
+
+		} catch (error) {
+			console.error('语音合成失败:', error)
+			isPlaying.value = false
+		}
+	}
+
+	return {
+		speak,
+		isPlaying
+	}
 }

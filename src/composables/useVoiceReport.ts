@@ -1,30 +1,37 @@
 import { useSpeech } from '@/composables/useSpeech'
-import { PlayerInGame } from '@/Type/Player'
-function isAllEnglish(str: string): boolean {
-	return /^[A-Za-z\s]+$/.test(str)
-}
-export function voiceReportList(players: PlayerInGame[]) {
-	const { speak } = useSpeech()
-  
+import type { PlayerInGame } from '@/Type/Player'
+// function isAllEnglish(str: string): boolean {
+// 	return /^[A-Za-z\s]+$/.test(str)
+// }
+export async function voiceReportList(players: PlayerInGame[]) {
+	const { speak, isPlaying } = useSpeech()
+
 	// 1. 按 hands_bought 倒序排序
 	const sorted = [...players].sort((a, b) => b.hands_bought - a.hands_bought)
-  
+
 	// 2. 过滤出 hands_bought > 1 的玩家
 	const filtered = sorted.filter(player => player.hands_bought > 1)
-  
-	// 3. 播报这些玩家
-	for (const player of filtered) {
-	  const message = textReport(player)
-	  speak(message, { lang: 'zh-CN', rate: 1 })
-	}
-  
-	// 4. 如果过滤后的人数少于总人数，再播报“其余人都只有一手”
+
+	// 3. 创建一个队列顺序播放
+	const messages: string[] = filtered.map(player => textReport(player))
 	if (filtered.length < players.length) {
-	  speak('其余人都只有一手', { lang: 'zh-CN', rate: 1 })
+		messages.push('其余人都只有一手')
 	}
+
+	const fullMessage = messages.join('。') + '。'
+
+	await speak(fullMessage)
+
+
+	// for (const message of messages) {
+	// 	await waitUntilIdle(isPlaying) // 等待上一个播放完成
+	// 	await speakWithAwait(speak, message)
+	// }
+
+
 }
 
-function  textReport(player: PlayerInGame) {
+function textReport(player: PlayerInGame) {
 	let message = ''
 
 	if (player.hands_bought === 1) {
@@ -36,13 +43,34 @@ function  textReport(player: PlayerInGame) {
 
 	return message
 }
-export function voiceReport(player: PlayerInGame) {
+export async function voiceReport(player: PlayerInGame) {
 	const { speak } = useSpeech()
 
-	const message=textReport(player)
+	const message = textReport(player)
 
-	speak(message, {
-		lang: 'zh-CN',
-		rate: 1,
-	})
+	await speak(message)
 }
+
+
+// 等待语音播放结束
+// function waitUntilIdle(isPlayingRef: Ref<boolean>) {
+// 	return new Promise<void>((resolve) => {
+// 		const check = () => {
+// 			if (!isPlayingRef.value) {
+// 				resolve()
+// 			} else {
+// 				setTimeout(check, 50)
+// 			}
+// 		}
+// 		check()
+// 	})
+// }
+
+// // 包装 speak() 以等待播放结束
+// function speakWithAwait(speak: (text: string) => Promise<void>, text: string) {
+// 	return new Promise<void>(async (resolve) => {
+// 		await speak(text)
+// 		// 假设 speak 本身不等结束播放，我们靠 waitUntilIdle 保证顺序
+// 		setTimeout(resolve, 10) // 可选：等下一轮 check 更顺滑
+// 	})
+// }
