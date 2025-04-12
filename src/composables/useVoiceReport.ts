@@ -1,24 +1,38 @@
 import { useSpeech } from '@/composables/useSpeech'
 import type { PlayerInGame } from '@/Type/Player'
+import { useGameStore } from '@/store/useGameStore'
+import _ from "lodash"
 // function isAllEnglish(str: string): boolean {
 // 	return /^[A-Za-z\s]+$/.test(str)
 // }
 export async function voiceReportList(players: PlayerInGame[]) {
 	const { speak, isPlaying } = useSpeech()
-
+	const gameStore = useGameStore()
+	const isWinLossCalculated = gameStore.isWinLossCalculated;
 	// 1. 按 hands_bought 倒序排序
 	const sorted = [...players].sort((a, b) => b.hands_bought - a.hands_bought)
 
 	// 2. 过滤出 hands_bought > 1 的玩家
-	const filtered = sorted.filter(player => player.hands_bought > 1)
+	let messages: string[] = [];
 
-	// 3. 创建一个队列顺序播放
-	const messages: string[] = filtered.map(player => textReport(player))
-	if (filtered.length < players.length) {
-		messages.push('其余人都只有一手')
+	if (!isWinLossCalculated) {
+		const filtered = sorted.filter(player => player.hands_bought > 1)
+		// 3. 创建一个队列顺序播放
+		messages = filtered.map(player => textReport(player))
+		if (filtered.length < players.length) {
+			messages.push('其余人都只有一手.')
+		}
+	} else {
+		messages = sorted.map(player => textReport(player))
+
 	}
+	console.log(messages)
 
-	const fullMessage = messages.join('。') + '。'
+
+
+
+	const fullMessage = messages.join('')
+	console.log(fullMessage)
 
 	await speak(fullMessage)
 
@@ -39,6 +53,12 @@ function textReport(player: PlayerInGame) {
 	} else {
 		const bought = player.hands_bought - 1
 		message = `${player.player_display_name} 买了 ${bought} 手筹码，一共 ${player.hands_bought} 手筹码`
+	}
+
+	if (!_.isNull(player.remaining_chips) && player.remaining_chips >= 0) {
+		message += `，手上剩余${player.remaining_chips}筹码。`
+	} else {
+		message += `。`
 	}
 
 	return message
