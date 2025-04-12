@@ -3,8 +3,8 @@ import { defineStore } from 'pinia';
 import { collection, getDocs, doc } from 'firebase/firestore';
 import firebaseDb from '@/Lib/FirebaseDb';
 import logHelper from '@/Lib/LogHelper';
-import { LogForDisplay } from '@/Type/Log'
-import { PlayerInGame } from '@/Type/Player'
+import type { LogForDisplay } from '@/Type/Log'
+import type { PlayerInGame } from '@/Type/Player'
 
 const db = firebaseDb;
 
