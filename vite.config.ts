@@ -11,6 +11,10 @@ export default defineConfig(({ mode }) => {
 
 	const isProduction = mode === 'production' as const
 	return {
+		server: {
+			host: '0.0.0.0',
+			port: 5173
+		},
 		plugins: [
 			vue(),
 			vueDevTools(),
