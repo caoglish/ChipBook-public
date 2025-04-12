@@ -13,7 +13,7 @@ export default {
 	name: 'AppVersionCard',
 	data() {
 		return {
-			version: process.env.VUE_APP_VERSION || '未定义',
+			version:import.meta.env.VUE_APP_VERSION || '未定义',
 		};
 	},
 };
