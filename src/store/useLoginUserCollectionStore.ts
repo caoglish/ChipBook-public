@@ -2,7 +2,7 @@
  * 管理数据库表名：login_user_collection
  */
 import { defineStore } from 'pinia';
-import { User } from '@/Type/User';
+import type { User } from '@/Type/User';
 import { dateDisplay, firebaseTimestamp } from "@/Lib/DateHelper";
 import {
 	getDoc,

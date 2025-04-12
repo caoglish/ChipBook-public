@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, query, where } from 'firebase/firestore';
 import firebaseDb from '@/Lib/FirebaseDb';
-import { Player } from '@/Type/Player'; // 确保你有一个类型定义文件来定义 Player 接口
+import type { Player } from '@/Type/Player'; // 确保你有一个类型定义文件来定义 Player 接口
 const db = firebaseDb;
 
 export const usePlayerStore = defineStore('usePlayerStore', {
