@@ -84,6 +84,7 @@ import { onMounted, ref, nextTick } from 'vue'
 import { useRoute } from 'vue-router'
 import html2canvas from 'html2canvas'
 
+// @ts-ignore
 import { useGameStore } from '@/store/useGameStore'
 import PlayerTable from '@/components/gameManagement/PlayerTable.vue'
 import SummaryTable from '@/components/gameManagement/SummaryTable.vue'
