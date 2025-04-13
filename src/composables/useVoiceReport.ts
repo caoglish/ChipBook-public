@@ -1,5 +1,6 @@
 import { useSpeech } from '@/composables/useSpeech'
 import type { PlayerInGame } from '@/Type/Player'
+// @ts-ignore
 import { useGameStore } from '@/store/useGameStore'
 import _ from "lodash"
 // function isAllEnglish(str: string): boolean {
