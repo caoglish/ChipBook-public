@@ -21,7 +21,7 @@ export async function voiceReportList(players: PlayerInGame[]) {
 		// 3. 创建一个队列顺序播放
 		messages = filtered.map(player => textReport(player))
 		if (filtered.length < players.length) {
-			messages.push('其余人都只有一手.')
+			messages.push('其余人都只有一手筹码.')
 		}
 	} else {
 		messages = sorted.map(player => textReport(player))
