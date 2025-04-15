@@ -7,6 +7,8 @@ export interface SpeechVoice {
 	voiceURI: string
 }
 
+const TTS_TOKEN = import.meta.env.VITE_APP_TTS_SERVER_TOKEN
+
 export function useSpeech() {
 	const isPlaying = ref(false)
 	const audio = new Audio()
@@ -25,7 +27,8 @@ export function useSpeech() {
 				const response = await fetch(TTS_API_URL, {
 					method: 'POST',
 					headers: {
-						'Content-Type': 'application/json'
+						'Content-Type': 'application/json',
+						'x-access-token': TTS_TOKEN,
 					},
 					body: JSON.stringify({ text: sentence, voiceType })
 				})
