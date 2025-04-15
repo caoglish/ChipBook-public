@@ -27,6 +27,7 @@
   </v-dialog>
 </template>
 <script setup>
+// @ts-ignore
 import { useGameStore } from '@/store/useGameStore'
 import { ref, watch } from 'vue'
 import { DEFAULT_BUYIN_AMOUNT } from '@/config/appConstants'

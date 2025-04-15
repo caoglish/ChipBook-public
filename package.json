@@ -1,17 +1,18 @@
 {
 	"name": "chipbook",
-	"version": "0.1.5",
+	"version": "0.1.6",
 	"private": true,
 	"type": "module",
 	"scripts": {
 		"dev": "vite",
-		"build": "run-p type-check \"build-only {@}\" --",
+		"build": "rmdir dist /S /Q&&cross-env NODE_ENV=production run-p type-check \"build-only {@}\" --",
 		"preview": "vite preview",
 		"test:unit": "vitest",
-		"build-only": "vite build",
+		"build-only": "cross-env NODE_ENV=production vite build",
 		"type-check": "vue-tsc --build",
 		"lint": "eslint . --fix",
 		"clone": "rmdir /S /Q dist_clone\\docs&xcopy  dist dist_clone\\docs /S /Y /I /R",
+		"deploy": "npm run build && gh-pages -d dist",
 		"format": "prettier --write src/"
 	},
 	"dependencies": {
@@ -40,8 +41,10 @@
 		"@vue/eslint-config-typescript": "^14.5.0",
 		"@vue/test-utils": "^2.4.6",
 		"@vue/tsconfig": "^0.7.0",
+		"cross-env": "^7.0.3",
 		"eslint": "^9.22.0",
 		"eslint-plugin-vue": "~10.0.0",
+		"gh-pages": "^6.3.0",
 		"jiti": "^2.4.2",
 		"jsdom": "^26.0.0",
 		"npm-run-all2": "^7.0.2",

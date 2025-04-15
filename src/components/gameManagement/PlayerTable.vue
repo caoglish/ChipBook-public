@@ -58,6 +58,7 @@
 
 <script>
 import { voiceReport } from '@/composables/useVoiceReport'
+// @ts-ignore
 import { useGameStore } from '@/store/useGameStore' // 导入 gameStore
 
 export default {

@@ -1,7 +1,7 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
 import type { RouteRecordRaw } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
-
+import GameManagementView from '@/views/GameManagementView.vue'
 const routes: Array<RouteRecordRaw> = [
 	{
 		path: '/',
@@ -33,7 +33,7 @@ const routes: Array<RouteRecordRaw> = [
 		name: 'GameManagement',
 		props: route => ({ gameId: route.params.gameId || null }),
 
-		component: () => import('../views/GameManagementView.vue')
+		component: GameManagementView
 	},
 	{
 		path: '/history',

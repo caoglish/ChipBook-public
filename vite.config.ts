@@ -11,6 +11,9 @@ export default defineConfig(({ mode }) => {
 
 	const isProduction = mode === 'production' as const
 	return {
+		build: {
+			assetsInlineLimit: 0
+		},
 		server: {
 			host: '0.0.0.0',
 			port: 5173
@@ -26,7 +29,7 @@ export default defineConfig(({ mode }) => {
 			},
 			extensions: ['.js', '.ts', '.vue', '.json'] // ✅ Add .vue here
 		},
-		base: isProduction ? '/ChipBook' : '',
+		base: isProduction ? '/ChipBook/' : '',
 		assetsInclude: ['**/*.md'],
 	}
 })
