@@ -1,11 +1,11 @@
-import {Log} from './Log'
+import type { Log } from './Log'
 
-export interface Player{
-	id: string|undefined
+export interface Player {
+	id: string | undefined
 	player_name: string
 	player_display_name: string
-	allow_select:boolean
-	star:boolean
+	allow_select: boolean
+	star: boolean
 }
 
 export interface PlayerInGame extends Player {
@@ -14,7 +14,7 @@ export interface PlayerInGame extends Player {
 	chips_bought: number
 	amount_bought: number
 	remaining_chips: number | null
-	win_loss_chips:  number | null
+	win_loss_chips: number | null
 	win_loss_amount: number | null
 	logs: Log[]
-  }
+}

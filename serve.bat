@@ -1,1 +1,1 @@
-vue serve
+npm run dev

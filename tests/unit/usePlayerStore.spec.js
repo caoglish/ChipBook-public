@@ -1,7 +1,7 @@
 import { usePlayerStore } from '@/store/usePlayerStore';
 import { createPinia, setActivePinia } from 'pinia';
 import { getDocs, addDoc, updateDoc, deleteDoc, doc, collection, query, where } from 'firebase/firestore';
-import { Player } from '@/Type/Player';
+//import { Player } from '@/Type/Player';
 jest.mock('firebase/firestore', () => ({
 	getDocs: jest.fn(),
 	addDoc: jest.fn(),
@@ -122,7 +122,7 @@ describe('usePlayerStore', () => {
 		where.mockReturnValue({});
 		collection.mockReturnValue({});
 		getDocs.mockResolvedValueOnce({ empty: true });
-		
+
 
 		// 模拟 fetchPlayers 方法
 		jest.spyOn(playerStore, 'fetchPlayers').mockResolvedValueOnce();

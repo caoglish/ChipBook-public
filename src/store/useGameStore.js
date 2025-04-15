@@ -19,8 +19,8 @@ import { useLogStore } from "@/store/useLogStore";
 import { useCurrentGameIdStore } from "@/store/useCurrentGameIdStore";
 import { useLoginUserStore } from "@/store/useLoginUserStore";
 import { useLoginUserCollectionStore } from "@/store/useLoginUserCollectionStore";
-import { DEFAULT_BUYIN_AMOUNT } from "@/constants/appConstants";
-import { GameStatusEnum,GameStatusMapping } from "@/Type/GameStatus";
+import { DEFAULT_BUYIN_AMOUNT } from "@/config/appConstants";
+import { GameStatusEnum, GameStatusMapping } from "@/Type/GameStatus";
 import { ActionEnum } from "@/Type/Log";
 import { createLogEntryForFirebase } from "@/Lib/LogHelper";
 
@@ -55,17 +55,17 @@ export const useGameStore = defineStore("useGameStore", {
 		gameCreater: null, // 是否按玩家排序的标志
 	}),
 	getters: {
-		 getGameStatus(state) {
+		getGameStatus(state) {
 			const { total_players, is_game_completed, is_zero } = state.summaryData;
 
 			if (total_players === 0) {
 				return GameStatusMapping[GameStatusEnum.NOT_STARTED];
 			}
-		
+
 			if (is_game_completed) {
-				return GameStatusMapping[!is_zero  ? GameStatusEnum.REVIEW_PENDING : GameStatusEnum.COMPLETED];
+				return GameStatusMapping[!is_zero ? GameStatusEnum.REVIEW_PENDING : GameStatusEnum.COMPLETED];
 			}
-		
+
 			return GameStatusMapping[GameStatusEnum.IN_PROGRESS];
 		},
 
@@ -233,7 +233,7 @@ export const useGameStore = defineStore("useGameStore", {
 			this.addPlayersDialog = true;
 		},
 		async addPlayersToGame(selectedPlayerList, PlayersList) {
-			console.log("createLogEntryForFirebase", createLogEntryForFirebase(ActionEnum.JOIN,1));
+			console.log("createLogEntryForFirebase", createLogEntryForFirebase(ActionEnum.JOIN, 1));
 			try {
 				this.addPlayersDialog = false;
 				const gameRef = doc(db, "games", this.currentGame.id);
@@ -244,7 +244,7 @@ export const useGameStore = defineStore("useGameStore", {
 					}
 
 					const player = PlayersList.find((p) => p.id === playerId);
-					
+
 					const newPlayerData = {
 						player_id: playerId,
 						player_name: player.player_name,
@@ -255,10 +255,10 @@ export const useGameStore = defineStore("useGameStore", {
 						remaining_chips: null,
 						win_loss_chips: null,
 						win_loss_amount: null,
-						logs: createLogEntryForFirebase(ActionEnum.JOIN,1) ,
+						logs: createLogEntryForFirebase(ActionEnum.JOIN, 1),
 					};
 
-				
+
 					const playerIndex = playerHelper.getNextPlayerId(this.players);
 					await setDoc(doc(gameRef, "players", playerIndex), newPlayerData);
 
@@ -283,23 +283,23 @@ export const useGameStore = defineStore("useGameStore", {
 				player.remaining_chips !== null ? player.remaining_chips : 0;
 			this.remainingDialog = true;
 		},
-		async deletePlayer(player){
+		async deletePlayer(player) {
 			//const playerid=player.player_id；
-			try{
-				
+			try {
+
 				const playerResult = await this.fetchPlayerById(player.player_id);
-				
+
 				if (playerResult) {
 					const playerDocId = playerResult.id;
 					const gameRef = doc(db, "games", this.currentGame.id);
-				
+
 					const playerRef = doc(collection(gameRef, "players"), playerDocId);
 					await deleteDoc(playerRef);
 				}
-				
-			
-				
-			}catch(e){
+
+
+
+			} catch (e) {
 				console.error("Error delete player by ID:", e);
 				alert("无法删除玩家，请重试。");
 
@@ -362,7 +362,7 @@ export const useGameStore = defineStore("useGameStore", {
 								playerData.remaining_chips !== null
 									? this.calculateWinLossAmount(winLossChips)
 									: null,
-							logs:createLogEntryForFirebase(ActionEnum.BUYIN,buyin) ,
+							logs: createLogEntryForFirebase(ActionEnum.BUYIN, buyin),
 						});
 
 						await this.refreshGame();
@@ -449,7 +449,7 @@ export const useGameStore = defineStore("useGameStore", {
 							win_loss_chips: winLossChips,
 							win_loss_amount: this.calculateWinLossAmount(winLossChips),
 							logs: createLogEntryForFirebase(ActionEnum.SETREMAINING, remaining),
-						
+
 						});
 
 						await this.fetchInGamePlayers();
@@ -485,7 +485,7 @@ export const useGameStore = defineStore("useGameStore", {
 			const logStore = useLogStore();
 			if (this.currentGame?.id && this.players.length > 0) {
 				logStore.fetchAllPlayerLogsFromPlayerList(this.players);
-			}else{
+			} else {
 				logStore.fetchAllPlayerLogsFromPlayerList([]);
 			}
 		},

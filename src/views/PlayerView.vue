@@ -52,7 +52,7 @@
 <script>
 import { defineComponent } from "vue";
 import { usePlayerStore } from "@/store/usePlayerStore";
-import PlayerTable from "@/components/PlayerView/PlayerTable";
+import PlayerTable from "@/components/PlayerView/PlayerTable.vue";
 import DeleteDialog from "@/components/PlayerView/DeleteDialog";
 import AddDialog from "@/components/PlayerView/AddDialog.vue";
 import ProgressBar from '@/components/common/ProgressBar'

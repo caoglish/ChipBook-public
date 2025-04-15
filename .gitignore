@@ -3,6 +3,7 @@ node_modules
 /dist
 dist_clone/dist
 dist_clone/
+dist_clone
 
 # local env files
 .env.local
@@ -26,3 +27,4 @@ pnpm-debug.log*
 *.spec.txt
 *.jpg
 /docs
+gitflow*
