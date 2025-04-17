@@ -6,7 +6,7 @@
 import { defineStore } from 'pinia';
 import { firebaseAuth } from "@/Lib/FirebaseDb";
 import { signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "firebase/auth";
-import { User } from '@/Type/User';
+import type { User } from '@/Type/User';
 import { useLoginUserCollectionStore } from '@/store/useLoginUserCollectionStore';
 
 export const useLoginUserStore = defineStore('useLoginUserStore', {
@@ -21,7 +21,7 @@ export const useLoginUserStore = defineStore('useLoginUserStore', {
 	persist: true,
 
 	actions: {
-		
+
 		// 使用 Google 登录
 		async signInWithGoogle() {
 			const provider = new GoogleAuthProvider();
@@ -63,7 +63,7 @@ export const useLoginUserStore = defineStore('useLoginUserStore', {
 		// 检查用户的登录状态
 		checkAuthState() {
 			const LoginUserCollectionStore = useLoginUserCollectionStore();
-			onAuthStateChanged(firebaseAuth,async (user) => {
+			onAuthStateChanged(firebaseAuth, async (user) => {
 				if (user && user.email) {
 					this.user = {
 						email: user.email,
